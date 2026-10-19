@@ -35,9 +35,9 @@
 
 ## 🧭 État courant (à mettre à jour à chaque session)
 
-- **Phase en cours :** Phase 1 — Socle technique (1.1 ✅, 1.2 ✅, 1.3 ✅, 1.5 ✅, 1.6 Vitest ✅, 1.7 CI GitHub Actions ✅)
-- **Dernière session :** Session 2 (2026-10-19)
-- **Prochaine action :** Étape 0.3 (spike scanner sur appareils réels) + finalisation Phase 1 (1.4 shadcn/ui, 1.6 Playwright, connexion Vercel 1.7)
+- **Phase en cours :** Phase 0 — Étape 0.3 (Spike scanner prêt à être testé sur appareils réels) · Phase 1 en cours
+- **Dernière session :** Session 3 (2026-10-19)
+- **Prochaine action :** Déployer la preview Vercel de `spike/0.3-qr-scanner` (étape 0.4), mesurer sur 3 téléphones réels, puis finaliser la Phase 1 (1.4 shadcn/ui, 1.6 Playwright)
 - **Bloquants :** Aucun
 
 ---
@@ -72,6 +72,35 @@
 
 **Prochaine étape** : ...
 ==================================================================================== -->
+
+### Session 3 — [2026-10-19] — Banc d'essai Scanner QR (Spike 0.3)
+**Roadmap :** Phase 0 — Étape 0.3 · **Statut :** 🟡 Prêt à mesurer sur appareils réels · **Branche :** `spike/0.3-qr-scanner`
+
+**Réalisé**
+- feat(scanner): ajout de `qrcode.react`, `@yudiel/react-qr-scanner` et `html5-qrcode` sur la branche dédiée `spike/0.3-qr-scanner`
+- feat(scanner): création de la page `/spike-scanner` (`src/app/spike-scanner/page.tsx`) et du banc d'essai comparatif (`ScannerBenchmarkWorkbench`) chargés via `next/dynamic` (`ssr: false`)
+- feat(scanner): ajout de la confirmation immédiate au scan : bannière visuelle verte (`ScanSuccessBanner`), bip sonore Web Audio API + vibration (`triggerScanFeedback`), chronométrage automatique (1re ouverture vs caméra chaude maintenue ouverte) et générateur de QR témoin (`SampleQrGenerator`)
+
+**Fichiers clés**
+- `src/app/spike-scanner/page.tsx` — page Server Component du banc d'essai
+- `src/features/scanner/components/scanner-benchmark-workbench.tsx` — sélecteur de moteur (`@yudiel/react-qr-scanner` vs `html5-qrcode`) et contrôle caméra
+- `src/features/scanner/components/scan-success-banner.tsx` — confirmation visuelle verte + bouton « Scanner le client suivant (caméra chaude) »
+- `src/features/scanner/hooks/use-scanner-benchmark.ts` — machine à états (`useReducer` avec `switch` exhaustif) et chronométrage `performance.now()`
+- `src/features/scanner/utils/scan-feedback.ts` — feedback sonore (bip double 880→1320 Hz) et haptique (`navigator.vibrate`)
+- `src/features/scanner/components/sample-qr-generator.tsx` — QR client témoin (`qrcode.react`) à afficher sur un 2e téléphone
+
+**Base de données** : Aucune
+**Bugs rencontrés** : Aucun
+**Décisions** : Préparation de la validation finale d'ADR-002
+**Dette introduite** : Aucune (`html5-qrcode` isolé sur la branche `spike/0.3-qr-scanner`)
+
+**Tests de validation**
+- [x] `pnpm format:check && pnpm lint && pnpm typecheck && pnpm test` — 100 % vert (respect strict de `max-lines: 150` et `max-lines-per-function: 40`)
+- [ ] Mesures sur 3 appareils réels depuis l'URL HTTPS Vercel (à réaliser par le porteur de projet)
+
+**Prochaine étape** : Connecter le dépôt à Vercel (étape 0.4 / 1.7), ouvrir `/spike-scanner` en HTTPS sur téléphone pour relever les temps de scan, puis consigner les mesures dans ADR-002.
+
+---
 
 ### Session 2 — [2026-10-19] — Initialisation du socle technique (Phase 1)
 **Roadmap :** Phase 1 — Étapes 1.2, 1.3, 1.5, 1.6 (Vitest), 1.7 (CI) · **Statut :** ✅ Terminé · **Branche :** `feat/phase-1-foundation`

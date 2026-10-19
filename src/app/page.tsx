@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { ReactNode } from "react";
 
 export default function HomePage(): ReactNode {
@@ -18,21 +19,27 @@ export default function HomePage(): ReactNode {
 
       <section
         aria-label="Aperçu du QR code client"
-        className="my-8 flex flex-col items-center justify-center rounded-2xl border border-zinc-200 bg-white p-6 shadow-xs"
+        className="my-6 flex flex-col items-center justify-center rounded-2xl border border-zinc-200 bg-white p-6 shadow-xs"
       >
-        <div className="flex h-48 w-48 items-center justify-center rounded-xl border-2 border-dashed border-zinc-300 bg-zinc-50 text-center text-xs text-zinc-500">
-          QR code personnel
-          <br />
-          (Phase 4)
+        <div className="flex h-44 w-44 items-center justify-center rounded-xl border-2 border-dashed border-zinc-300 bg-zinc-50 text-center text-xs text-zinc-500">
+          QR code personnel (Phase 4)
         </div>
         <p className="mt-4 font-mono text-sm font-semibold tracking-widest text-zinc-800">
           CODE : --- ---
         </p>
       </section>
 
-      <footer className="text-center text-xs text-zinc-500">
-        Socle technique Fidly · Phase 1
-      </footer>
+      <div className="space-y-3">
+        <Link
+          href="/spike-scanner"
+          className="flex min-h-12 w-full items-center justify-center rounded-xl bg-zinc-950 px-4 py-3 text-sm font-bold text-white shadow-xs"
+        >
+          Ouvrir le banc d&apos;essai Scanner (Étape 0.3) →
+        </Link>
+        <footer className="text-center text-xs text-zinc-500">
+          Socle technique Fidly · Phase 1 + Spike 0.3
+        </footer>
+      </div>
     </main>
   );
 }
