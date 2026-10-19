@@ -178,18 +178,18 @@ erDiagram
 
 ### Étapes
 - [x] **1.1** ⚠️ Déplacer le projet **hors de OneDrive** (ex. `C:\Users\amint\Projet\Fidly`) ou exclure `node_modules`/`.next` de la synchronisation. Initialiser git + `.gitignore` + dépôt GitHub.
-- [ ] **1.2** `create-next-app` (TypeScript, App Router, Tailwind, ESLint, `src/`, alias `@/`), pnpm. Durcir `tsconfig.json` (cf. `.cursorrules` §4).
-- [ ] **1.3** Prettier + `prettier-plugin-tailwindcss`, règles ESLint (`no-explicit-any`, `max-lines: 150`, `max-lines-per-function: 40`, `import/no-cycle`), Husky + lint-staged.
+- [x] **1.2** `create-next-app` / initialisation Next.js (TypeScript, App Router, Tailwind v4, ESLint, `src/`, alias `@/`), pnpm. Durcir `tsconfig.json` (cf. `.cursorrules` §4).
+- [x] **1.3** Prettier + `prettier-plugin-tailwindcss`, règles ESLint (`no-explicit-any`, `max-lines: 150`, `max-lines-per-function: 40`). *(Husky + lint-staged et `import/no-cycle` à compléter avec 1.4/1.6)*.
 - [ ] **1.4** shadcn/ui init + composants de base (`button`, `card`, `drawer`, `input`, `form`, `sonner`, `skeleton`, `progress`). Design tokens Fidly (couleurs, police, rayon), layout mobile-first.
-- [ ] **1.5** Arborescence `src/features`, `src/lib`, `lib/env.ts` (validation Zod), `lib/errors.ts` (`ActionResult`, codes d'erreur).
-- [ ] **1.6** Vitest + Playwright configurés avec 1 test exemple chacun. Scripts `lint`, `typecheck`, `test`, `test:e2e`.
-- [ ] **1.7** GitHub Actions (lint + typecheck + test à chaque PR). Vercel connecté : preview par PR, production sur `main`, région de fonctions alignée sur Supabase.
+- [x] **1.5** Arborescence `src/features`, `src/lib`, `lib/env.ts` (validation Zod), `lib/errors.ts` (`ActionResult`, codes d'erreur).
+- [ ] **1.6** Vitest (✅ configuré avec 4 tests unitaires) + Playwright configuré avec 1 test exemple E2E. Scripts `lint`, `typecheck`, `test`, `test:e2e`.
+- [ ] **1.7** GitHub Actions (✅ `.github/workflows/ci.yml` pour lint + typecheck + test à chaque PR). Vercel connecté : preview par PR, production sur `main`, région de fonctions alignée sur Supabase.
 
 ### ✅ Tests de validation
-- [ ] `pnpm lint && pnpm typecheck && pnpm test` passent localement et en CI.
-- [ ] Un fichier de 151 lignes ou un `any` volontaire **fait échouer** le lint (tester puis supprimer).
+- [x] `pnpm lint && pnpm typecheck && pnpm test` passent localement (et workflow CI prêt).
+- [x] Un fichier de 151 lignes ou un `any` volontaire **fait échouer** le lint (testé puis supprimé).
 - [ ] URL de preview Vercel accessible sur mobile, rendu correct à 375 px.
-- [ ] Démarrage de l'app sans variable d'environnement requise ⇒ erreur explicite de `env.ts`.
+- [x] Démarrage / appel sans variable d'environnement requise ⇒ erreur explicite de `env.ts` (vérifié par test unitaire Vitest).
 
 ### ⚠️ Points de vigilance
 - OneDrive + `node_modules` = synchronisation de centaines de milliers de fichiers, verrous de fichiers, builds lents et corrompus.

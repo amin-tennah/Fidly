@@ -1,0 +1,11 @@
+node_modules/
+.next/
+out/
+build/
+coverage/
+pnpm-lock.yaml
+src/types/database.types.ts
+Documentation/
+AGENTS.md
+.cursorrules
+

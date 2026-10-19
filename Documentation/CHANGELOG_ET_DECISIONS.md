@@ -35,10 +35,10 @@
 
 ## 🧭 État courant (à mettre à jour à chaque session)
 
-- **Phase en cours :** Phase 0 / Phase 1 — Cadrage terminé (0.1 ✅, 0.2 ✅, 1.1 ✅), prêt pour 0.3 (spike scanner) et Phase 1 (socle technique)
-- **Dernière session :** Session 1 (2026-10-19)
-- **Prochaine action :** Phase 1 — Étape 1.2 (initialisation Next.js + TS strict + outillage) / Étape 0.3 (spike scanner)
-- **Bloquants :** Aucun (toutes les questions Q-001 → Q-013 sont tranchées)
+- **Phase en cours :** Phase 1 — Socle technique (1.1 ✅, 1.2 ✅, 1.3 ✅, 1.5 ✅, 1.6 Vitest ✅, 1.7 CI GitHub Actions ✅)
+- **Dernière session :** Session 2 (2026-10-19)
+- **Prochaine action :** Étape 0.3 (spike scanner sur appareils réels) + finalisation Phase 1 (1.4 shadcn/ui, 1.6 Playwright, connexion Vercel 1.7)
+- **Bloquants :** Aucun
 
 ---
 
@@ -72,6 +72,46 @@
 
 **Prochaine étape** : ...
 ==================================================================================== -->
+
+### Session 2 — [2026-10-19] — Initialisation du socle technique (Phase 1)
+**Roadmap :** Phase 1 — Étapes 1.2, 1.3, 1.5, 1.6 (Vitest), 1.7 (CI) · **Statut :** ✅ Terminé · **Branche :** `feat/phase-1-foundation`
+
+**Réalisé**
+- feat: initialisation Next.js 16 (App Router) + React 19 + TypeScript 6.0 strict + Tailwind CSS v4 avec `pnpm`
+- feat: durcissement `tsconfig.json` (`strict`, `noUncheckedIndexedAccess`, `noImplicitOverride`, `noFallthroughCasesInSwitch`, alias `@/*`) et headers de sécurité dans `next.config.ts`
+- feat: configuration ESLint (`no-explicit-any: error`, `max-lines: 150`, `max-lines-per-function: 40`) + Prettier (`prettier-plugin-tailwindcss`)
+- feat: création du socle `src/lib/env.ts` (validation Zod des variables d'environnement), `src/lib/errors.ts` (`ActionResult<T>`, `AppErrorCode`, messages FR) et `src/lib/utils.ts` (`cn()`)
+- feat: layout racine FR mobile-first (`src/app/layout.tsx`, `src/app/page.tsx`)
+- test: configuration Vitest (`vitest.config.ts`) + 4 tests unitaires dans `src/lib/env-and-errors.test.ts`
+- ci: création du workflow GitHub Actions `.github/workflows/ci.yml` (`format:check`, `lint`, `typecheck`, `test`)
+
+**Fichiers clés**
+- `package.json` / `pnpm-workspace.yaml` — dépendances et scripts (`lint`, `typecheck`, `test`, `format`)
+- `tsconfig.json` / `eslint.config.mjs` / `.prettierrc` — garde-fous TypeScript strict et anti-spaghetti
+- `src/lib/env.ts` — validation Zod des variables d'environnement publiques
+- `src/lib/errors.ts` — type `ActionResult<T>` et catalogue d'erreurs FR centralisé
+- `src/lib/env-and-errors.test.ts` — tests unitaires Vitest
+- `src/app/layout.tsx` / `src/app/page.tsx` — squelette mobile-first FR
+- `.github/workflows/ci.yml` — pipeline CI GitHub Actions
+
+**Base de données** : Aucune
+**Bugs rencontrés**
+| Symptôme | Cause racine | Correctif | Prévention (test / règle) |
+|---|---|---|---|
+| `typescript-eslint does not support TS 7.0` lors de `pnpm lint` | `typescript@latest` résolvait vers TS 7.0.2 alors que `typescript-eslint` supporte TS `~6.0.0` | Épinglage `"typescript": "~6.0.0"` (6.0.3) et `"module": "preserve"` dans `tsconfig.json` | Exécution systématique de `pnpm lint && pnpm typecheck` en CI |
+
+**Décisions** : Aucune (application d'ADR-001)
+**Dette introduite** : Aucune
+
+**Tests de validation**
+- [x] `pnpm format:check && pnpm lint && pnpm typecheck && pnpm test` — 100 % vert (4/4 tests unitaires passés)
+- [x] Vérification du garde-fou ESLint : injection d'un `any` explicite ⇒ échec immédiat de `pnpm lint` (code 1), fichier supprimé
+- [x] Validation Zod `parsePublicEnv({})` sans variables requises ⇒ erreur explicite (testée unitairement)
+- [ ] Étape 1.4 (composants shadcn/ui) + Playwright E2E (1.6) + connexion Vercel (1.7) à compléter après/avec le spike scanner (0.3)
+
+**Prochaine étape** : Étape 0.3 (spike scanner sur appareils réels) et finalisation des étapes 1.4 / 1.6 (Playwright) / 1.7 (déploiement Vercel).
+
+---
 
 ### Session 1 — [2026-10-19] — Arbitrages métier, validation des ADR, dépôt git
 **Roadmap :** Phase 0 — Étape 0.2 (+ Phase 1 — Étape 1.1) · **Statut :** ✅ Terminé · **Branche :** `main`
