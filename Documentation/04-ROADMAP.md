@@ -68,20 +68,23 @@ flowchart LR
 
 ## 🧱 Modèle de données — proposition à valider en P2
 
-> Le SQL sera écrit ensemble en Phase 2. Ce schéma sert de base de discussion (dépend des questions Q-001 à Q-006 du CHANGELOG).
+> Le SQL sera écrit ensemble en Phase 2. Ce schéma intègre les décisions de la Session 1 (Q-001 → Q-010, ADR-006, ADR-009, ADR-010) ; Q-011 → Q-013 peuvent encore l'ajuster à la marge.
 
 ```mermaid
 erDiagram
     profiles ||--o{ loyalty_cards : "possède"
     profiles ||--o{ restaurant_members : "travaille pour"
     restaurants ||--o{ restaurant_members : "emploie"
+    restaurants ||--o{ restaurant_invitations : "invite"
     restaurants ||--o{ loyalty_programs : "définit"
     restaurants ||--o{ loyalty_cards : "émet"
+    loyalty_programs ||--o{ loyalty_cards : "palier courant"
     loyalty_cards ||--o{ scan_logs : "historise"
     loyalty_programs ||--o{ scan_logs : "concerne"
+    scan_logs |o--o| scan_logs : "annule"
     profiles {
         uuid id PK
-        text first_name
+        text display_name
         text qr_token UK
         text short_code UK
         uuid signup_restaurant_id FK
@@ -100,6 +103,15 @@ erDiagram
         uuid user_id PK
         text role
     }
+    restaurant_invitations {
+        uuid id PK
+        uuid restaurant_id FK
+        text email
+        text role
+        uuid invited_by FK
+        timestamptz expires_at
+        timestamptz accepted_at
+    }
     loyalty_programs {
         uuid id PK
         uuid restaurant_id FK
@@ -107,26 +119,32 @@ erDiagram
         int threshold
         text reward_label
         text reward_image_path
+        bool is_active
     }
     loyalty_cards {
         uuid id PK
         uuid user_id FK
         uuid restaurant_id FK
-        int current_position
+        uuid current_program_id FK
         int stamps
+        int lifetime_visits
         timestamptz last_visit_at
     }
     scan_logs {
         uuid id PK
         uuid card_id FK
+        uuid program_id FK
         uuid staff_id FK
         text type
         int delta
         bool cooldown_overridden
+        uuid reverses_log_id UK
         uuid idempotency_key UK
         timestamptz created_at
     }
 ```
+
+> **Règles de progression (ADR-009)** : `stamps` = compteur cumulatif sur le cycle courant, sans plafond ; consommation d'un palier intermédiaire ⇒ `stamps` conservé (`13/10 → 13/20`) et passage au palier actif suivant ; consommation du dernier palier ⇒ déduction du seuil final (`20/20 → 0/10` ou `22/20 → 2/10`) et boucle sur le 1er palier. `lifetime_visits` ne décroît jamais (stats). `scan_logs.type` ∈ `visit` · `reward_redeemed` · `reversal` (ADR-010).
 
 ---
 
@@ -136,7 +154,7 @@ erDiagram
 
 ### Étapes
 - [x] **0.1** Rédaction des règles (`.cursorrules`), du CHANGELOG et de la roadmap.
-- [ ] **0.2** Répondre aux questions ouvertes **Q-001 → Q-010** et valider/rejeter les ADR « Proposé ».
+- [x] **0.2** Répondre aux questions ouvertes **Q-001 → Q-010** et valider/rejeter les ADR « Proposé ».
 - [ ] **0.3** **Spike scanner** (code jetable, hors dépôt principal) : page Next.js minimale déployée sur Vercel (HTTPS obligatoire pour la caméra), comparant `@yudiel/react-qr-scanner` et `html5-qrcode`.
 - [ ] **0.4** Création des comptes : GitHub, Vercel, Supabase (région UE — idéalement la même zone que Vercel), Google Cloud (OAuth), Resend (SMTP), nom de domaine.
 
@@ -145,7 +163,7 @@ erDiagram
 - [ ] Temps « tap sur Scanner → QR décodé » mesuré et noté (objectif ≤ 1,3 s, caméra déjà autorisée).
 - [ ] Décodage OK : écran client à luminosité moyenne, reflets, QR affiché sur un écran fissuré simulé, faible lumière.
 - [ ] Comportement de la permission caméra vérifié : redemandée à chaque ouverture ? en mode PWA installée sur iOS ?
-- [ ] ADR-002 passé en « Accepté » avec les mesures.
+- [ ] ADR-002 confirmé avec les mesures du spike.
 
 ### ⚠️ Points de vigilance
 - La caméra n'est accessible qu'en **HTTPS** (ou `localhost`) : tester depuis l'URL Vercel, pas via l'IP locale.
@@ -159,7 +177,7 @@ erDiagram
 **🎯 Objectif :** un projet vide mais **industrialisé** : conventions appliquées par l'outillage, déploiement continu fonctionnel.
 
 ### Étapes
-- [ ] **1.1** ⚠️ Déplacer le projet **hors de OneDrive** (ex. `C:\dev\fidly`) ou exclure `node_modules`/`.next` de la synchronisation. Initialiser git + `.gitignore` + dépôt GitHub.
+- [x] **1.1** ⚠️ Déplacer le projet **hors de OneDrive** (ex. `C:\Users\amint\Projet\Fidly`) ou exclure `node_modules`/`.next` de la synchronisation. Initialiser git + `.gitignore` + dépôt GitHub.
 - [ ] **1.2** `create-next-app` (TypeScript, App Router, Tailwind, ESLint, `src/`, alias `@/`), pnpm. Durcir `tsconfig.json` (cf. `.cursorrules` §4).
 - [ ] **1.3** Prettier + `prettier-plugin-tailwindcss`, règles ESLint (`no-explicit-any`, `max-lines: 150`, `max-lines-per-function: 40`, `import/no-cycle`), Husky + lint-staged.
 - [ ] **1.4** shadcn/ui init + composants de base (`button`, `card`, `drawer`, `input`, `form`, `sonner`, `skeleton`, `progress`). Design tokens Fidly (couleurs, police, rayon), layout mobile-first.
@@ -187,7 +205,7 @@ erDiagram
 ### Étapes
 - [ ] **2.1** Supabase CLI : `supabase init`, `supabase link`. Environnement local (`supabase start`, nécessite Docker Desktop) **ou** projet Supabase « dev » distinct de la prod.
 - [ ] **2.2** Migration 1 — extensions (`postgis`, `pgcrypto`) et types énumérés (catégorie, rôle membre, type de log).
-- [ ] **2.3** Migration 2 — tables `profiles`, `platform_admins`, `restaurants`, `restaurant_members`, `loyalty_programs`, `loyalty_cards`, `scan_logs` avec contraintes (`CHECK threshold > 0`, `UNIQUE(user_id, restaurant_id)`, `UNIQUE(restaurant_id, position)`, `UNIQUE(idempotency_key)`), index FK + GIST sur `location`.
+- [ ] **2.3** Migration 2 — tables `profiles`, `platform_admins`, `restaurants`, `restaurant_members`, `restaurant_invitations`, `loyalty_programs`, `loyalty_cards`, `scan_logs` avec contraintes (`CHECK threshold > 0`, `UNIQUE(user_id, restaurant_id)`, `UNIQUE(restaurant_id, position)`, `UNIQUE(idempotency_key)`, `UNIQUE(reverses_log_id)`), index FK + GIST sur `location`.
 - [ ] **2.4** Migration 3 — trigger de création de `profiles` à l'inscription (génération `qr_token` aléatoire + `short_code` 6 caractères sans ambiguïté, ex. alphabet sans `0/O/1/I/L`).
 - [ ] **2.5** Migration 4 — fonctions helpers RLS (`is_restaurant_member(restaurant_id)`, `is_platform_admin()`) en `SECURITY DEFINER` + policies sur toutes les tables.
 - [ ] **2.6** Buckets Storage (`restaurant-media`) + policies (écriture : membres du restaurant ; lecture : publique).
@@ -197,7 +215,7 @@ erDiagram
 ### Matrice d'accès cible (à tester)
 | Table | Client (soi-même) | Staff du restaurant | Autre restaurant | Anonyme |
 |---|---|---|---|---|
-| `profiles` | lire/modifier son prénom | lire prénom des clients ayant une carte chez lui (via RPC) | ❌ | ❌ |
+| `profiles` | lire/modifier son `display_name` | lire `display_name` des clients ayant une carte chez lui (via RPC) | ❌ | ❌ |
 | `restaurants` | lire (actifs) | modifier le sien (owner) | lire (actifs) | lire (actifs) |
 | `loyalty_programs` | lire | CRUD (owner) | lire | lire |
 | `loyalty_cards` | lire les siennes, **jamais écrire** | lire celles de son restaurant, écriture via RPC uniquement | ❌ | ❌ |
@@ -217,7 +235,7 @@ erDiagram
 - Les policies qui font des sous-requêtes sur la table elle-même provoquent des **récursions infinies** → passer par des fonctions `SECURITY DEFINER`.
 - `SECURITY DEFINER` sans `SET search_path = ''` = faille d'escalade de privilèges.
 - Politiques RLS lentes à l'échelle : envelopper `auth.uid()` dans `(select auth.uid())` et indexer les colonnes filtrées.
-- Le schéma de `loyalty_cards` dépend directement des réponses Q-001/Q-002/Q-005 (chaînage des programmes) : **ne pas commencer sans elles**.
+- Le schéma de `loyalty_cards` applique ADR-009 (`stamps` + `current_program_id` + `lifetime_visits`).
 
 ---
 
@@ -229,9 +247,9 @@ erDiagram
 - [ ] **3.1** `lib/supabase/server.ts`, `client.ts`, middleware/proxy de rafraîchissement de session.
 - [ ] **3.2** Page `/login` : bouton Google OAuth + formulaire email → saisie du code OTP à 6 chiffres. Route `/auth/callback`.
 - [ ] **3.3** SMTP personnalisé (Resend) + template d'email OTP en français aux couleurs Fidly.
-- [ ] **3.4** Onboarding post-inscription : saisie du prénom si absent (pré-rempli depuis Google).
+- [ ] **3.4** Onboarding post-inscription : saisie du prénom ou pseudonyme (`display_name`, cf. Q-010) si absent (pré-rempli depuis Google).
 - [ ] **3.5** Garde de routes : `/` et `/pro` exigent une session ; `/pro` exige une appartenance à `restaurant_members` ; `/admin` exige `platform_admins`. Redirection vers `/login?next=...`.
-- [ ] **3.6** Flux d'invitation restaurateur : l'admin saisit un email + restaurant → l'invité se connecte → il est rattaché comme `owner`.
+- [ ] **3.6** Flux d'invitation restaurateur (ADR-006) : l'admin crée le restaurant et émet une invitation liée à un email (`restaurant_invitations`) → le restaurateur crée lui-même son compte avec cet email → il est rattaché comme `owner` (l'UI d'invitation des employés `staff` est reportée en Post-MVP — Q-011).
 - [ ] **3.7** Déconnexion.
 
 ### ✅ Tests de validation
@@ -255,15 +273,15 @@ erDiagram
 **🎯 Objectif :** l'écran principal client est complet et rapide, alimenté par les données réelles (seed).
 
 ### Étapes
-- [ ] **4.1** Zone Hero fixe : QR (`qrcode.react`, encode `qr_token`), prénom, code court de secours lisible (groupé `ABC-123`).
-- [ ] **4.2** Domain : `computeCardProgress(card, programs)` → palier actif, `stamps / threshold`, `isRewardUnlocked`, palier suivant (tests unitaires exhaustifs).
-- [ ] **4.3** Liste « Mes cartes » : logo, nom, récompense, barre de progression animée, état « Récompense disponible en caisse ! » (surbrillance verte).
+- [ ] **4.1** Zone Hero fixe : QR (`qrcode.react`, encode `qr_token`), prénom/pseudo (`display_name`), code court de secours lisible (groupé `ABC-123`).
+- [ ] **4.2** Domain : `computeCardProgress(card, programs)` (ADR-009) → palier actif (`current_program_id`), `stamps / threshold` cumulatif (ex. `13 / 10` puis `13 / 20`), `isRewardUnlocked`, palier suivant avec boucle sur le 1er en fin de cycle (tests unitaires exhaustifs).
+- [ ] **4.3** Liste « Mes cartes » : logo, nom, récompense, barre de progression animée (transition `13/10 → 13/20` lors de la consommation d'un palier intermédiaire, et `20/20 → 0/10` en fin de cycle), état « Récompense disponible en caisse ! » (surbrillance verte).
 - [ ] **4.4** États vide (« Faites-vous scanner lors de votre prochain repas »), chargement (skeleton), erreur.
-- [ ] **4.5** Persistance locale du `qr_token`/prénom/code court pour réaffichage instantané (préparation hors-ligne P8).
+- [ ] **4.5** Persistance locale du `qr_token`/`display_name`/code court pour réaffichage instantané (préparation hors-ligne P8).
 
 ### ✅ Tests de validation
 - [ ] QR scanné avec succès par le prototype de P0 depuis 3 téléphones différents.
-- [ ] Tests unitaires `computeCardProgress` : 0 passage, palier atteint, dépassement, dernier programme, programmes réordonnés.
+- [ ] Tests unitaires `computeCardProgress` : 0 passage, palier atteint, dépassement (`13/10`), passage au palier suivant (`13/20`), fin de cycle → boucle sur le 1er (`20/20 → 0/10` et `22/20 → 2/10`), programmes réordonnés/modifiés (Q-013).
 - [ ] Lighthouse mobile ≥ 90 en Performance sur `/`.
 - [ ] Modifier les `stamps` en base (seed) ⇒ affichage correct après rechargement.
 
@@ -282,7 +300,7 @@ erDiagram
 - [ ] **5.1** Layout `/pro` : navigation basse (Scanner · Logs · Stats · Réglages), sélecteur d'établissement si membre de plusieurs.
 - [ ] **5.2** `/pro/settings` — fiche : nom, catégorie, adresse (autocomplétion API Adresse → coordonnées stockées en `geography`), horaires d'ouverture (éditeur par jour, stocké en JSONB validé par Zod).
 - [ ] **5.3** Upload logo + couverture : compression/redimensionnement côté client, validation MIME/taille côté serveur, Supabase Storage.
-- [ ] **5.4** Programmes : création/édition/suppression (seuil, libellé, image de récompense), **réordonnancement par glisser-déposer** (`@dnd-kit`), mise à jour atomique des positions.
+- [ ] **5.4** Programmes : création/édition/suppression (seuil cumulatif, libellé, image de récompense), **réordonnancement par glisser-déposer** (`@dnd-kit`), mise à jour atomique des positions.
 - [ ] **5.5** Back-office `/admin` minimal : créer un restaurant, inviter l'owner, générer le **QR du chevalet** (`/?ref=<slug>`) en PDF/PNG imprimable.
 
 ### ✅ Tests de validation
@@ -293,8 +311,8 @@ erDiagram
 - [ ] Les changements apparaissent côté client (P4) après rechargement.
 
 ### ⚠️ Points de vigilance
-- **Modifier un programme alors que des clients ont des cartes en cours** : que devient un client à 8/10 si le seuil passe à 6 ou 12 ? Règle à définir (recommandation : seuil figé pour les cartes en cours, ou recalcul au prochain scan).
-- Supprimer un programme référencé par des logs ⇒ désactivation (soft delete), jamais suppression physique.
+- **Modifier un programme alors que des clients ont des cartes en cours (Q-013)** : application immédiate du nouveau seuil aux cartes en cours ; la désactivation d'un programme bascule les cartes concernées sur le palier actif suivant en conservant `stamps`.
+- Supprimer un programme référencé par des logs ⇒ désactivation (soft delete `is_active = false`), jamais suppression physique.
 - Réordonnancement : mise à jour des positions en une transaction (RPC) pour éviter les violations transitoires de `UNIQUE`.
 - Images : coût Storage/bande passante ⇒ toujours compresser (WebP, ~800 px max).
 
@@ -307,23 +325,24 @@ erDiagram
 ### Étapes
 - [ ] **6.1** Composant scanner (librairie validée en P0) chargé via `next/dynamic` (`ssr: false`), bouton géant « Scanner un client », caméra arrière, **flux caméra conservé entre deux scans** (pause du décodage, pas d'arrêt du stream).
 - [ ] **6.2** Saisie manuelle du code court de secours (6 caractères, normalisation majuscules, tolérance aux caractères ambigus).
-- [ ] **6.3** RPC `lookup_customer(token_or_code, restaurant_id)` : vérifie l'appartenance du staff, retourne prénom, carte (ou « nouvelle carte »), programme actif, `isRewardUnlocked`, `last_visit_at`, `isInCooldown`.
-- [ ] **6.4** Tiroir (Drawer shadcn) : prénom + `4 / 10`, bouton **« Valider +1 passage »**, bouton vert **« Valider et déduire la récompense »** si palier atteint, **alerte cooldown** si dernier passage < 2 h (validation nécessitant une confirmation explicite).
-- [ ] **6.5** RPC `record_visit(card, idempotency_key, force_cooldown)` : transaction, `SELECT … FOR UPDATE`, re-vérification du cooldown côté serveur, création de la carte au 1er passage, +1, insertion `scan_logs` (`cooldown_overridden`), retour du nouvel état.
-- [ ] **6.6** RPC `redeem_reward(card, idempotency_key)` : vérifie le palier, déduit le seuil, passe au programme suivant (selon Q-001/Q-002), log `reward_redeemed`.
+- [ ] **6.3** RPC `lookup_customer(token_or_code, restaurant_id)` : vérifie l'appartenance du staff, retourne `display_name`, carte (ou « nouvelle carte »), programme actif (`current_program_id`), `isRewardUnlocked`, `last_visit_at`, `isInCooldown`.
+- [ ] **6.4** Tiroir (Drawer shadcn) : `display_name` + `stamps / threshold` (ex. `4 / 10`, `13 / 10` ou `13 / 20`), bouton **« Valider +1 passage »** (toujours actif, cumul sans plafond), bouton vert **« Valider la récompense »** si palier atteint, **alerte cooldown** si dernier passage < 2 h (validation possible par tout employé avec confirmation explicite, tracée — Q-009).
+- [ ] **6.5** RPC `record_visit(card, idempotency_key, force_cooldown)` : transaction, `SELECT … FOR UPDATE`, re-vérification du cooldown côté serveur, création de la carte au 1er passage (1er programme actif), `stamps += 1`, `lifetime_visits += 1`, insertion `scan_logs` (`cooldown_overridden`), retour du nouvel état.
+- [ ] **6.6** RPC `redeem_reward(card, idempotency_key)` (ADR-009) : vérifie `stamps >= threshold` ; si palier intermédiaire ⇒ conserve `stamps` et bascule `current_program_id` sur le palier actif suivant (`13/10 → 13/20`) ; si dernier palier ⇒ déduit `threshold` (`stamps -= threshold`) et boucle `current_program_id` sur le 1er palier (`20/20 → 0/10`) ; log `reward_redeemed`.
 - [ ] **6.7** Server Actions fines (Zod + appel RPC + mapping `ActionResult`), feedback : son, vibration (Android), animation de succès, fermeture auto du tiroir et retour au scanner prêt.
-- [ ] **6.8** (Selon Q-006) Annulation d'un scan par l'owner via écriture compensatoire.
+- [ ] **6.8** RPC `reverse_scan(log_id, idempotency_key)` (ADR-010, Q-012) : annulation par écriture compensatoire `type = reversal` liée via `reverses_log_id` (`UNIQUE`), autorisée pour `owner` (tout scan) et `staff` (ses propres scans < 10 min), restauration atomique de l'état de la carte.
 
 ### ✅ Tests de validation
 - [ ] **Chronométrage** sur appareil réel, 20 scans consécutifs : médiane < 3 s scan → confirmation, aucun > 5 s.
 - [ ] **Double-tap** sur « Valider » ⇒ un seul passage crédité (idempotence).
 - [ ] **Deux téléphones staff** scannent le même client simultanément ⇒ un seul crédit sans confirmation, l'autre reçoit l'alerte cooldown.
 - [ ] Scan à < 2 h ⇒ alerte affichée ; validation forcée ⇒ log `cooldown_overridden = true`.
-- [ ] Palier atteint ⇒ bouton récompense visible ; consommation ⇒ compteur déduit, programme suivant actif.
+- [ ] Palier 1 atteint à `13/10` ⇒ consommation passe la carte à `13/20` sur Palier 2 ; consommation du dernier palier à `20/20` ⇒ boucle à `0/10` sur Palier 1.
+- [ ] Annulation d'un scan ⇒ log `reversal` créé, ligne d'origine barrée dans `/pro/logs`, refusée pour un `staff` au-delà de 10 min ou sur le scan d'un collègue, double annulation refusée (`UNIQUE(reverses_log_id)`).
 - [ ] QR forgé (token inconnu, chaîne aléatoire, URL malveillante, très longue chaîne) ⇒ message « Client introuvable », aucune erreur 500.
 - [ ] Un staff du restaurant A ne peut pas créditer une carte au nom du restaurant B (test SQL + E2E).
 - [ ] Code court de secours fonctionnel.
-- [ ] Tests pgTAP des 3 RPC + test E2E Playwright du parcours complet.
+- [ ] Tests pgTAP des RPC (`lookup_customer`, `record_visit`, `redeem_reward`, `reverse_scan`) + test E2E Playwright du parcours complet.
 
 ### ⚠️ Points de vigilance
 - **Latence caméra** : l'initialisation de `getUserMedia` coûte 300 ms à 1 s+ ; ne la payer qu'une fois par session de service. Libérer la caméra quand l'onglet passe en arrière-plan (batterie, confidentialité).
@@ -342,8 +361,8 @@ erDiagram
 
 ### Étapes
 - [ ] **7.1** Publication Realtime sur `loyalty_cards` (et `scan_logs`) ; hook `use-loyalty-cards-realtime` filtré par `user_id`, cleanup du channel.
-- [ ] **7.2** Animation côté client : +1 sur la barre, effet de célébration quand la récompense est débloquée (respect de `prefers-reduced-motion`).
-- [ ] **7.3** `/pro/logs` : liste paginée côté serveur (date, prénom, type, staff, dépassement cooldown signalé) + nouvelles entrées insérées en direct en tête.
+- [ ] **7.2** Animation côté client : +1 sur la barre, transition fluide vers le nouvel objectif lors de la consommation d'une récompense (`13/10 → 13/20` puis `20/20 → 0/10`), effet de célébration quand la récompense est débloquée (respect de `prefers-reduced-motion`).
+- [ ] **7.3** `/pro/logs` : liste paginée côté serveur (date, `display_name`, type, staff, dépassement cooldown signalé, **ligne barrée mais lisible si annulée** via `reverses_log_id`) + nouvelles entrées insérées en direct en tête.
 - [ ] **7.4** Resynchronisation au retour au premier plan (`visibilitychange`) et à la reconnexion réseau.
 
 ### ✅ Tests de validation
@@ -467,10 +486,10 @@ Parcours complet sur 2 téléphones : inscription client → configuration resta
 | Fonctionnalité | Pourquoi | Prérequis / vigilance |
 |---|---|---|
 | **Abonnement Stripe** (essai 3 mois, 29–49 € HT) | Monétisation — à livrer **avant la fin de l'essai du 1er pilote** | Webhooks signés, statut d'abonnement en base, accès `/pro` conditionné |
+| Gestion & invitation des employés (`staff`) par l'owner | Délégation en caisse multi-employés (Q-011) | La table `restaurant_members` et `restaurant_invitations` sont prêtes dès P2/P3 ; ajouter l'UI dans `/pro/settings` |
 | Mode tablette comptoir / douchette USB-Bluetooth | 2e mode de caisse prévu par les specs | Douchette = clavier HID : champ focalisé capturant la saisie terminée par `Enter` |
 | Notifications Web Push | Relance clients, offres heures creuses | iOS ≥ 16.4 et PWA installée uniquement ; consentement explicite |
 | Mise en avant locale payante | Flux de revenus secondaire | Tri sponsorisé dans « Découvrir », mention « Sponsorisé » |
-| Apple Sign-In | Confort iOS | Compte Apple Developer (99 $/an) |
 | Cartes Apple/Google Wallet | QR accessible depuis le Wallet, encore moins de friction | Signature de passes, coût de mise en œuvre |
 | QR dynamique (TOTP) | Anti-capture d'écran si fraude constatée | Incompatible avec l'affichage hors-ligne simple |
 
