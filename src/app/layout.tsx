@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
+import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -24,7 +25,10 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps): ReactNode {
   return (
     <html lang="fr">
-      <body className="min-h-dvh bg-zinc-50 text-zinc-950 antialiased">{children}</body>
+      <body className="bg-background text-foreground min-h-dvh antialiased">
+        {children}
+        <Toaster />
+      </body>
     </html>
   );
 }

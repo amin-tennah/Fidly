@@ -35,9 +35,9 @@
 
 ## 🧭 État courant (à mettre à jour à chaque session)
 
-- **Phase en cours :** Phase 1 — Socle technique (0.1 ✅, 0.2 ✅, 0.3 ✅, 1.1 ✅, 1.2 ✅, 1.3 ✅, 1.5 ✅, 1.6 Vitest ✅, 1.7 CI ✅)
-- **Dernière session :** Session 3 (2026-10-19)
-- **Prochaine action :** Phase 1 — Étape 1.4 (`shadcn/ui`), Étape 1.6 (`Playwright`), Étape 1.3 (`Husky` + `lint-staged`)
+- **Phase en cours :** Phase 1 terminée (1.1 → 1.7 ✅) · Prêt pour Phase 2 (Base de données & RLS)
+- **Dernière session :** Session 4 (2026-10-19)
+- **Prochaine action :** Phase 2 — Étape 2.1 (Initialisation Supabase CLI & schéma PostgreSQL + RLS)
 - **Bloquants :** Aucun
 
 ---
@@ -72,6 +72,39 @@
 
 **Prochaine étape** : ...
 ==================================================================================== -->
+
+### Session 4 — [2026-10-19] — Finalisation de la Phase 1 (shadcn/ui, Playwright, Husky) & merge sur `main`
+**Roadmap :** Phase 1 — Étapes 1.3 (fin), 1.4, 1.6 (fin) · **Statut :** ✅ Terminé · **Branche :** `main` (après merge de `feat/phase-1-foundation`)
+
+**Réalisé**
+- feat(ui): initialisation `shadcn/ui` (`components.json`) avec Tailwind CSS v4 et design tokens Fidly dans `src/app/globals.css` (`@theme inline`, palette contrastée AA `zinc-950` / `emerald-600`, `prefers-reduced-motion`)
+- feat(ui): ajout des composants de base typés strictement dans `src/components/ui/` (`button`, `card`, `drawer`, `input`, `label`, `form`, `sonner`, `skeleton`, `progress`) et intégration sur `src/app/layout.tsx` et `src/app/page.tsx`
+- test(e2e): configuration de Playwright (`playwright.config.ts`, viewport mobile `375×667`) et création du smoke test E2E `e2e/smoke.spec.ts` (`pnpm test:e2e`)
+- chore(git): configuration de Husky (`.husky/pre-commit`) et `lint-staged` dans `package.json` pour formater et linter automatiquement chaque commit
+- chore(git): fusion propre de `feat/phase-1-foundation` dans `main`
+
+**Fichiers clés**
+- `components.json` / `src/app/globals.css` — configuration `shadcn/ui` et tokens CSS Tailwind v4
+- `src/components/ui/*` — composants UI de base (`button`, `card`, `drawer`, `input`, `label`, `form`, `sonner`, `skeleton`, `progress`)
+- `playwright.config.ts` / `e2e/smoke.spec.ts` — configuration E2E mobile-first (`375×667`) et smoke test
+- `.husky/pre-commit` / `package.json` — hook pre-commit `pnpm lint-staged`
+
+**Base de données** : Aucune
+**Bugs rencontrés**
+| Symptôme | Cause racine | Correctif | Prévention (test / règle) |
+|---|---|---|---|
+| `Error: Cannot find module 'C:\Program Files\Git\Program Files\nodejs\...\corepack\dist\pnpm.js'` au `git commit` | Le shell MSYS2 (`sh.exe`) de Git for Windows réécrit le chemin `/Program Files/nodejs/...` du shim `pnpm` généré par Corepack | Appel direct `node ./node_modules/lint-staged/bin/lint-staged.js` dans `.husky/pre-commit` | Exécuté et vérifié à chaque `git commit` |
+
+**Décisions** : Aucune (application d'ADR-001)
+**Dette introduite / remboursée** : Aucune
+
+**Tests de validation**
+- [x] `pnpm format:check && pnpm lint && pnpm typecheck && pnpm test` — 100 % vert (0 warning, 4/4 tests unitaires Vitest passés)
+- [x] Initialisation Husky (`pnpm prepare`) et exécution de `lint-staged` au commit opérationnelles
+
+**Prochaine étape** : Démarrage de la **Phase 2 — Base de données & sécurité RLS** sur une branche dédiée `feat/phase-2-database` (Étape 2.1 : `supabase init` + migrations SQL).
+
+---
 
 ### Session 3 — [2026-10-19] — Validation du Spike Scanner QR (Étape 0.3) & nettoyage
 **Roadmap :** Phase 0 — Étape 0.3 · **Statut :** ✅ Terminé · **Branche :** `feat/phase-1-foundation` (après merge de `spike/0.3-qr-scanner`)
