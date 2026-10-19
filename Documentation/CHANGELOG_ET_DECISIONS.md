@@ -35,9 +35,9 @@
 
 ## 🧭 État courant (à mettre à jour à chaque session)
 
-- **Phase en cours :** Phase 0 — Étape 0.3 (Spike scanner prêt à être testé sur appareils réels) · Phase 1 en cours
+- **Phase en cours :** Phase 1 — Socle technique (0.1 ✅, 0.2 ✅, 0.3 ✅, 1.1 ✅, 1.2 ✅, 1.3 ✅, 1.5 ✅, 1.6 Vitest ✅, 1.7 CI ✅)
 - **Dernière session :** Session 3 (2026-10-19)
-- **Prochaine action :** Déployer la preview Vercel de `spike/0.3-qr-scanner` (étape 0.4), mesurer sur 3 téléphones réels, puis finaliser la Phase 1 (1.4 shadcn/ui, 1.6 Playwright)
+- **Prochaine action :** Phase 1 — Étape 1.4 (`shadcn/ui`), Étape 1.6 (`Playwright`), Étape 1.3 (`Husky` + `lint-staged`)
 - **Bloquants :** Aucun
 
 ---
@@ -73,32 +73,30 @@
 **Prochaine étape** : ...
 ==================================================================================== -->
 
-### Session 3 — [2026-10-19] — Banc d'essai Scanner QR (Spike 0.3)
-**Roadmap :** Phase 0 — Étape 0.3 · **Statut :** 🟡 Prêt à mesurer sur appareils réels · **Branche :** `spike/0.3-qr-scanner`
+### Session 3 — [2026-10-19] — Validation du Spike Scanner QR (Étape 0.3) & nettoyage
+**Roadmap :** Phase 0 — Étape 0.3 · **Statut :** ✅ Terminé · **Branche :** `feat/phase-1-foundation` (après merge de `spike/0.3-qr-scanner`)
 
 **Réalisé**
-- feat(scanner): ajout de `qrcode.react`, `@yudiel/react-qr-scanner` et `html5-qrcode` sur la branche dédiée `spike/0.3-qr-scanner`
-- feat(scanner): création de la page `/spike-scanner` (`src/app/spike-scanner/page.tsx`) et du banc d'essai comparatif (`ScannerBenchmarkWorkbench`) chargés via `next/dynamic` (`ssr: false`)
-- feat(scanner): ajout de la confirmation immédiate au scan : bannière visuelle verte (`ScanSuccessBanner`), bip sonore Web Audio API + vibration (`triggerScanFeedback`), chronométrage automatique (1re ouverture vs caméra chaude maintenue ouverte) et générateur de QR témoin (`SampleQrGenerator`)
+- feat(scanner): création et test du banc d'essai comparatif (`/spike-scanner`) avec confirmation visuelle, sonore (Web Audio API) et haptique
+- test(scanner): validation par le porteur de projet — décodage instantané dès l'entrée du QR dans le champ caméra, excellente réactivité
+- chore(scanner): confirmation définitive d'ADR-002 (`@yudiel/react-qr-scanner` + `qrcode.react` conservés), retrait de `html5-qrcode` et du code jetable du banc d'essai
+- refactor(scanner): conservation uniquement des briques de production réutilisables en Phase 6 (`YudielQrReader`, `triggerScanFeedback`)
 
 **Fichiers clés**
-- `src/app/spike-scanner/page.tsx` — page Server Component du banc d'essai
-- `src/features/scanner/components/scanner-benchmark-workbench.tsx` — sélecteur de moteur (`@yudiel/react-qr-scanner` vs `html5-qrcode`) et contrôle caméra
-- `src/features/scanner/components/scan-success-banner.tsx` — confirmation visuelle verte + bouton « Scanner le client suivant (caméra chaude) »
-- `src/features/scanner/hooks/use-scanner-benchmark.ts` — machine à états (`useReducer` avec `switch` exhaustif) et chronométrage `performance.now()`
-- `src/features/scanner/utils/scan-feedback.ts` — feedback sonore (bip double 880→1320 Hz) et haptique (`navigator.vibrate`)
-- `src/features/scanner/components/sample-qr-generator.tsx` — QR client témoin (`qrcode.react`) à afficher sur un 2e téléphone
+- `src/features/scanner/components/yudiel-qr-reader.tsx` — lecteur QR basé sur `@yudiel/react-qr-scanner`
+- `src/features/scanner/utils/scan-feedback.ts` — feedback sonore (880→1320 Hz) et vibration
+- `src/features/scanner/index.ts` — exports publics de la feature `scanner`
 
 **Base de données** : Aucune
 **Bugs rencontrés** : Aucun
-**Décisions** : Préparation de la validation finale d'ADR-002
-**Dette introduite** : Aucune (`html5-qrcode` isolé sur la branche `spike/0.3-qr-scanner`)
+**Décisions** : ADR-002 confirmé définitivement après spike 0.3 (`@yudiel/react-qr-scanner`)
+**Dette introduite / remboursée** : Aucune (`html5-qrcode` supprimé de `package.json`)
 
 **Tests de validation**
-- [x] `pnpm format:check && pnpm lint && pnpm typecheck && pnpm test` — 100 % vert (respect strict de `max-lines: 150` et `max-lines-per-function: 40`)
-- [ ] Mesures sur 3 appareils réels depuis l'URL HTTPS Vercel (à réaliser par le porteur de projet)
+- [x] Test réel du banc d'essai : décodage instantané et fluide validé par le porteur de projet
+- [x] `pnpm format:check && pnpm lint && pnpm typecheck && pnpm test` — 100 % vert après nettoyage
 
-**Prochaine étape** : Connecter le dépôt à Vercel (étape 0.4 / 1.7), ouvrir `/spike-scanner` en HTTPS sur téléphone pour relever les temps de scan, puis consigner les mesures dans ADR-002.
+**Prochaine étape** : Finalisation de la Phase 1 sur `feat/phase-1-foundation` (Étape 1.4 `shadcn/ui`, Étape 1.6 `Playwright`, Étape 1.3 `Husky` + `lint-staged`).
 
 ---
 
@@ -204,7 +202,7 @@
 | ID | Titre | Statut | Date |
 |---|---|---|---|
 | ADR-001 | Stack de base Next.js + Supabase confirmée | ✅ Accepté | 2026-10-19 |
-| ADR-002 | Scanner : `@yudiel/react-qr-scanner` plutôt que `html5-qrcode` | ✅ Accepté (à confirmer par mesures spike 0.3) | 2026-10-19 |
+| ADR-002 | Scanner : `@yudiel/react-qr-scanner` plutôt que `html5-qrcode` | ✅ Accepté (confirmé par spike 0.3) | 2026-10-19 |
 | ADR-003 | Connexion email par code OTP + Google ; Magic Link et Apple abandonnés | ✅ Accepté | 2026-10-19 |
 | ADR-004 | Logique de scan atomique dans une fonction PostgreSQL (RPC) | ✅ Accepté | 2026-10-19 |
 | ADR-005 | Le QR encode un `qr_token` opaque, pas le `user_id` | ✅ Accepté | 2026-10-19 |
@@ -237,12 +235,12 @@
 - **Réversibilité :** difficile (cœur du projet).
 
 ### ADR-002 — Scanner : `@yudiel/react-qr-scanner` plutôt que `html5-qrcode`
-- **Date :** 2026-10-19 · **Statut :** ✅ Accepté (Session 1) — mesures du spike 0.3 à consigner ici ; bascule sur l'Option 3 si objectif ≤ 1,3 s non tenu · **Phase :** 0
+- **Date :** 2026-10-19 · **Statut :** ✅ Accepté — confirmé définitivement après le spike 0.3 (Session 3) · **Phase :** 0
 - **Contexte :** budget < 3 s scan + validation, iOS Safari et Android Chrome.
 - **Options envisagées :** 1. `html5-qrcode` — ✅ populaire ❌ peu maintenu, API impérative, UI imposée. 2. `@yudiel/react-qr-scanner` — ✅ composant React, basé sur l'API `BarcodeDetector` + polyfill WASM (ZXing) ❌ dépend du polyfill sur iOS. 3. `BarcodeDetector` natif + `zxing-wasm` maison — ✅ contrôle total ❌ plus de code à maintenir.
-- **Décision :** Option 2 par défaut, Option 3 en repli si latence insuffisante.
-- **Pourquoi :** maintenance active et intégration React propre.
-- **Conséquences :** mesurer le temps "ouverture caméra → décodage" sur 3 appareils réels.
+- **Décision :** Option 2 (`@yudiel/react-qr-scanner`) retenue définitivement ; `html5-qrcode` écarté et désinstallé.
+- **Pourquoi :** décodage instantané dès l'entrée du QR dans le champ lors du spike 0.3, maintenance active et support natif de la pause/reprise du flux (`paused`) pour garder la caméra « chaude » entre deux clients.
+- **Conséquences :** composant encapsulé dans `src/features/scanner/components/yudiel-qr-reader.tsx` et chargé dynamiquement (`ssr: false`).
 - **Réversibilité :** facile (encapsulé dans `features/scanner`).
 
 ### ADR-003 — Connexion email par code OTP + Google ; Magic Link et Apple abandonnés

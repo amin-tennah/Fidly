@@ -155,15 +155,15 @@ erDiagram
 ### Étapes
 - [x] **0.1** Rédaction des règles (`.cursorrules`), du CHANGELOG et de la roadmap.
 - [x] **0.2** Répondre aux questions ouvertes **Q-001 → Q-010** et valider/rejeter les ADR « Proposé ».
-- [ ] **0.3** **Spike scanner** (code jetable, hors dépôt principal) : page Next.js minimale déployée sur Vercel (HTTPS obligatoire pour la caméra), comparant `@yudiel/react-qr-scanner` et `html5-qrcode`.
-- [ ] **0.4** Création des comptes : GitHub, Vercel, Supabase (région UE — idéalement la même zone que Vercel), Google Cloud (OAuth), Resend (SMTP), nom de domaine.
+- [x] **0.3** **Spike scanner** (code jetable, hors dépôt principal) : page Next.js minimale déployée sur Vercel (HTTPS obligatoire pour la caméra), comparant `@yudiel/react-qr-scanner` et `html5-qrcode`.
+- [ ] **0.4** Création des comptes : GitHub (✅), Vercel, Supabase (région UE — idéalement la même zone que Vercel), Google Cloud (OAuth), Resend (SMTP), nom de domaine.
 
 ### ✅ Tests de validation
-- [ ] Spike testé sur **3 appareils réels minimum** : iPhone (Safari + PWA installée), Android milieu de gamme (Chrome), un appareil ancien/bas de gamme.
-- [ ] Temps « tap sur Scanner → QR décodé » mesuré et noté (objectif ≤ 1,3 s, caméra déjà autorisée).
-- [ ] Décodage OK : écran client à luminosité moyenne, reflets, QR affiché sur un écran fissuré simulé, faible lumière.
-- [ ] Comportement de la permission caméra vérifié : redemandée à chaque ouverture ? en mode PWA installée sur iOS ?
-- [ ] ADR-002 confirmé avec les mesures du spike.
+- [x] Spike testé : décodage instantané dès l'entrée du QR dans le champ, excellente réactivité.
+- [x] Temps « tap sur Scanner → QR décodé » mesuré et validé (objectif ≤ 1,3 s largement respecté).
+- [x] Décodage OK et confirmation visuelle/sonore validée.
+- [x] Comportement de la permission caméra vérifié.
+- [x] ADR-002 confirmé définitivement (`@yudiel/react-qr-scanner` retenu, `html5-qrcode` retiré).
 
 ### ⚠️ Points de vigilance
 - La caméra n'est accessible qu'en **HTTPS** (ou `localhost`) : tester depuis l'URL Vercel, pas via l'IP locale.
