@@ -1,0 +1,262 @@
+# FIDLY — RÈGLES ABSOLUES DE DÉVELOPPEMENT (IA & HUMAINS)
+
+> Ce fichier est la **source unique de vérité** des conventions du projet.
+> Il est importé par `AGENTS.md` (Antigravity) et lu nativement par Cursor.
+> Toute dérogation doit être justifiée par un ADR dans `Documentation/CHANGELOG_ET_DECISIONS.md`.
+> Mots-clés : **OBLIGATOIRE** = non négociable. **INTERDIT** = jamais. **RECOMMANDÉ** = par défaut, sauf justification.
+
+---
+
+## 0. CONTEXTE & WORKFLOW DE SESSION
+
+- Fidly = PWA de fidélité hyper-locale "Zéro Friction". Contrainte produit n°1 : **scan + validation en caisse < 3 s**, interaction totale < 5 s.
+- Documentation de référence (à relire si doute) : `Documentation/01-BUSINESS-MODEL.md`, `02-PRODUIT-ET-UX.md`, `03-ARCHITECTURE-TECHNIQUE.md`, `04-ROADMAP.md`.
+- **OBLIGATOIRE — Début de session** : lire la dernière entrée de `Documentation/CHANGELOG_ET_DECISIONS.md` et identifier l'étape courante dans `04-ROADMAP.md`.
+- **OBLIGATOIRE — Avant de coder** une tâche non triviale : annoncer un plan court (fichiers créés/modifiés, impact DB, risques). Attendre validation si la tâche touche au schéma DB, à la sécurité, ou ajoute une dépendance.
+- **OBLIGATOIRE** : travailler par petits incréments testables. Une étape de roadmap à la fois. Pas de "big bang".
+- **INTERDIT** : inventer une API, une option de librairie ou une signature. En cas de doute, vérifier la documentation officielle (version installée dans `package.json`).
+- **INTERDIT** : supposer une règle métier non documentée. Poser la question.
+- **INTERDIT** : ajouter une dépendance npm sans (1) justification, (2) vérification maintenance/poids, (3) ADR si structurante.
+- **INTERDIT** : supprimer des commentaires/docstrings existants non liés à la modification.
+
+---
+
+## 1. STACK DE RÉFÉRENCE
+
+- Next.js (App Router, dernière version stable) + React + TypeScript strict.
+- Tailwind CSS (v4, config CSS-first) + shadcn/ui (composants copiés dans `src/components/ui/`).
+- Supabase : PostgreSQL (+ PostGIS), Auth, Realtime, Storage. Client : `@supabase/ssr` + `@supabase/supabase-js`.
+- Validation : Zod. Formulaires : react-hook-form + `@hookform/resolvers/zod` (via `Form` shadcn).
+- QR : `qrcode.react` (génération). Scanner : librairie validée par ADR (cf. ADR-002).
+- Tests : Vitest (unitaires), Playwright (E2E), tests SQL/pgTAP pour RLS et fonctions.
+- Gestionnaire de paquets : **pnpm** uniquement. Hébergement : Vercel (région UE, alignée avec la région Supabase).
+
+---
+
+## 2. ARCHITECTURE DES DOSSIERS (feature-based)
+
+```
+src/
+  app/                      # ROUTING UNIQUEMENT : pages, layouts, loading, error. Logique minimale.
+    (client)/               # Espace client (/)
+    (auth)/                 # Connexion / callback
+    pro/                    # Espace restaurateur (/pro, /pro/settings, /pro/logs, /pro/stats)
+    admin/                  # Back-office Fidly (super-admin)
+    api/                    # Route Handlers : UNIQUEMENT webhooks / callbacks externes
+    manifest.ts             # Manifest PWA
+  components/
+    ui/                     # shadcn/ui — ne pas y mettre de logique métier
+    shared/                 # Composants génériques réutilisables (layout, feedback, empty states)
+  features/<feature>/       # auth, loyalty, scanner, restaurants, programs, discovery, stats...
+    components/             # Composants UI propres à la feature
+    actions/                # Server Actions ("use server") — mutations
+    queries/                # Lectures serveur ("server-only")
+    domain/                 # Logique métier PURE (aucun import React/Next/Supabase) + tests
+    hooks/                  # Hooks client (use-*.ts)
+    schemas.ts              # Schémas Zod (source des types d'entrée)
+    types.ts                # Types de la feature
+  lib/
+    supabase/               # server.ts, client.ts, middleware.ts, admin.ts (service role, server-only)
+    env.ts                  # Validation Zod des variables d'environnement
+    utils.ts                # cn() & helpers génériques
+  types/
+    database.types.ts       # GÉNÉRÉ par Supabase CLI — ne JAMAIS éditer à la main
+supabase/
+  migrations/               # Migrations SQL versionnées (seule façon de modifier le schéma)
+  tests/                    # Tests SQL (RLS, fonctions)
+  seed.sql                  # Données de dev
+```
+
+- **INTERDIT** : imports croisés profonds entre features (`features/a/components/x` importé par `features/b`). Exposer ce qui est partagé via `features/<feature>/index.ts` ou le remonter dans `components/shared` / `lib`.
+- **INTERDIT** : dépendances circulaires.
+- Alias d'import : `@/` → `src/`. **INTERDIT** : chemins relatifs remontant plus de 1 niveau (`../../`).
+
+---
+
+## 3. SERVER COMPONENTS vs CLIENT COMPONENTS
+
+- **Par défaut tout est Server Component.** `"use client"` uniquement si nécessaire : état (`useState`), effets, handlers d'événements, APIs navigateur (caméra, geolocation, localStorage, vibrate), Realtime.
+- **OBLIGATOIRE** : pousser `"use client"` le plus bas possible dans l'arbre (feuilles). Une page (`page.tsx`) ou un layout n'est **jamais** un Client Component.
+- **OBLIGATOIRE** : le data fetching initial se fait côté serveur (Server Component → `queries/`), puis les données sont passées en props sérialisables aux Client Components.
+- **OBLIGATOIRE** : les fichiers serveur sensibles commencent par `import "server-only";` (queries, lib/supabase/server.ts, admin.ts).
+- **INTERDIT** : importer un module serveur (secret, service role, `next/headers`) dans un Client Component.
+- **INTERDIT** : `useEffect` pour charger des données initiales qui peuvent être chargées côté serveur.
+- **OBLIGATOIRE** : mutations via **Server Actions** (`features/*/actions/`). Route Handlers réservés aux webhooks et callbacks OAuth.
+- Après mutation : `revalidatePath` / `revalidateTag` ciblé, ou mise à jour via Realtime. Pas de `router.refresh()` en boucle.
+- Dans Next.js récent, `params` et `searchParams` sont des **Promises** : toujours `await`.
+- Chaque segment de route critique a son `loading.tsx` (skeleton) et `error.tsx`.
+
+---
+
+## 4. TYPESCRIPT STRICT
+
+- `tsconfig.json` : `"strict": true`, `"noUncheckedIndexedAccess": true`, `"noImplicitOverride": true`, `"noFallthroughCasesInSwitch": true`.
+- **INTERDIT** : `any` (explicite ou implicite). Utiliser `unknown` + narrowing / Zod.
+- **INTERDIT** : `@ts-ignore`. `@ts-expect-error` toléré uniquement avec commentaire justificatif + entrée de dette technique.
+- **INTERDIT** : assertions non-null `!` et casts `as X` pour "faire taire" le compilateur. Exception : `as const`, et casts documentés après validation Zod.
+- **OBLIGATOIRE** : types DB issus de `src/types/database.types.ts` (généré via `supabase gen types`). Helpers `Tables<"x">`, `TablesInsert<"x">`, `Enums<"x">`.
+- **OBLIGATOIRE** : types d'entrée dérivés des schémas Zod (`z.infer<typeof schema>`). Une seule source de vérité.
+- **OBLIGATOIRE** : types de retour explicites sur toutes les fonctions exportées (actions, queries, domain, hooks).
+- **OBLIGATOIRE** : `switch` sur unions discriminées avec vérification d'exhaustivité (`const _exhaustive: never = x`).
+- RECOMMANDÉ : `type` pour les unions/props, `interface` pour les objets extensibles. Éviter les `enum` TS → unions de littéraux ou `as const`.
+
+---
+
+## 5. DÉCOUPAGE & TAILLE (ANTI-SPAGHETTI)
+
+- **OBLIGATOIRE : < 150 lignes par fichier** (imports inclus). Au-delà : découper AVANT d'ajouter du code.
+  - Seules exceptions : fichiers générés (`database.types.ts`), composants shadcn/ui, migrations SQL.
+- **OBLIGATOIRE : < 40 lignes par fonction / composant.** Au-delà : extraire sous-composants, hooks ou fonctions domain.
+- **OBLIGATOIRE : 1 composant exporté par fichier.** Nom de fichier = nom du composant en kebab-case (`loyalty-card.tsx` → `LoyaltyCard`).
+- Max **3 niveaux** d'imbrication JSX conditionnelle. **INTERDIT** : ternaires imbriqués. → early return ou sous-composants.
+- Max ~5 props par composant ; au-delà, regrouper en objet typé ou revoir le découpage.
+- **OBLIGATOIRE** : la logique métier (calcul de progression, règle de cooldown, palier atteint, chaînage des programmes, distance…) vit dans `features/*/domain/` en **fonctions pures**, testées unitairement. Les composants UI ne font qu'afficher et déléguer.
+- **OBLIGATOIRE** : la logique d'état/effet complexe d'un composant client est extraite dans un hook `use-*.ts`.
+- **INTERDIT** : dupliquer du code (> ~5 lignes identiques à 2 endroits) → extraire.
+- **INTERDIT** : nombres/chaînes magiques. Constantes nommées dans `features/*/constants.ts` (ex. `SCAN_COOLDOWN_HOURS = 2`). Les règles critiques (cooldown) sont **appliquées en base**, la constante front sert à l'affichage.
+- **INTERDIT** : code mort, `console.log` de debug, code commenté laissé dans les commits.
+
+---
+
+## 6. SUPABASE — INTÉGRATION
+
+### Clients
+- `lib/supabase/server.ts` : `createServerClient` (`@supabase/ssr`) avec cookies Next.js — pour Server Components, Server Actions, Route Handlers.
+- `lib/supabase/client.ts` : `createBrowserClient` — singleton, pour Client Components (Realtime, Storage upload).
+- `lib/supabase/admin.ts` : client **secret/service role**, `server-only`, utilisé UNIQUEMENT pour tâches d'administration explicites. **INTERDIT** dans le flux utilisateur standard (il contourne la RLS).
+- Middleware (ou `proxy.ts` selon la version de Next.js) : rafraîchissement de session + redirections de routes protégées (`/pro`, `/admin`).
+
+### Auth & autorisation
+- **OBLIGATOIRE** : côté serveur, identifier l'utilisateur avec `supabase.auth.getUser()` (ou `getClaims()`). **INTERDIT** d'utiliser `getSession()` pour une décision d'autorisation côté serveur.
+- **OBLIGATOIRE** : chaque Server Action vérifie (1) authentification, (2) autorisation (rôle / appartenance au restaurant), (3) validation Zod des entrées — dans cet ordre, avant toute écriture.
+- **INTERDIT** : stocker un rôle dans `user_metadata` (modifiable par l'utilisateur). Rôles via tables dédiées protégées par RLS (`restaurant_members`, `platform_admins`) ou `app_metadata`.
+- Le middleware n'est PAS une barrière de sécurité suffisante : la RLS et les vérifications dans les actions font foi.
+
+### Base de données
+- **OBLIGATOIRE : RLS activée sur 100 % des tables** du schéma `public`, avec policies explicites par opération (SELECT/INSERT/UPDATE/DELETE). Pas de policy = pas d'accès.
+- **OBLIGATOIRE** : toute modification de schéma passe par une migration `supabase/migrations/` (Supabase CLI). **INTERDIT** de modifier le schéma via le dashboard sans migration.
+- **OBLIGATOIRE** : régénérer `database.types.ts` après chaque migration.
+- **OBLIGATOIRE** : les opérations multi-étapes critiques (scan, consommation de récompense) sont **atomiques** dans une fonction PostgreSQL (RPC) : transaction, verrou de ligne (`FOR UPDATE`), clé d'idempotence, horodatage `now()` serveur.
+- Fonctions `SECURITY DEFINER` : `SET search_path = ''`, noms qualifiés (`public.table`), vérification explicite de `auth.uid()` et des droits en début de fonction, `REVOKE EXECUTE ... FROM public, anon` puis `GRANT` ciblé.
+- `scan_logs` est **immuable** : aucune policy UPDATE/DELETE ; correction = écriture compensatoire.
+- **OBLIGATOIRE** : index sur toutes les colonnes de FK et de filtrage fréquent. Contraintes `CHECK`, `NOT NULL`, `UNIQUE` en base (la base est la dernière ligne de défense).
+- **INTERDIT** : `select("*")` dans le code applicatif → sélectionner les colonnes nécessaires.
+- Toujours traiter `{ data, error }` : **INTERDIT** d'ignorer `error`.
+- Après chaque migration : lancer les advisors Supabase (sécurité + performance) et corriger les alertes.
+
+### Realtime
+- Abonnements dans un hook client dédié (`use-*-realtime.ts`), avec **cleanup obligatoire** (`supabase.removeChannel`) dans le return du `useEffect`.
+- Toujours filtrer (`filter: "user_id=eq.<id>"`) ; la RLS s'applique aussi au Realtime — la vérifier.
+- Gérer reconnexion / retour au premier plan (`visibilitychange`) : resynchroniser l'état depuis le serveur.
+
+### Storage
+- Buckets avec policies explicites. Validation type MIME + taille côté serveur. Images redimensionnées/compressées avant upload. Affichage via `next/image`.
+
+---
+
+## 7. GESTION DE L'ÉTAT CÔTÉ CLIENT
+
+Hiérarchie (utiliser le niveau le plus haut possible) :
+1. **État serveur** : Server Components + Server Actions + revalidation. Source de vérité.
+2. **État d'URL** : `searchParams` pour filtres, rayon de recherche, onglets (partageable, survit au refresh).
+3. **État local** : `useState` / `useReducer` dans le composant ou un hook.
+4. **Context React** : uniquement pour des valeurs transverses stables (session, thème). Pas pour des données qui changent souvent.
+5. **Store global (Zustand) / TanStack Query** : INTERDIT sans ADR démontrant le besoin.
+
+- Formulaires : react-hook-form + Zod, même schéma réutilisé côté serveur dans la Server Action.
+- Mutations : `useActionState` / `useTransition` pour l'état pending. **OBLIGATOIRE** : bouton désactivé pendant la soumission (anti double-tap).
+- UI optimiste : autorisée pour l'affichage non critique. **INTERDITE** pour l'attribution de points / récompenses : afficher le succès uniquement après confirmation serveur.
+- Données persistées localement (ex. QR offline) : uniquement des données non sensibles, via un hook dédié.
+
+---
+
+## 8. SÉCURITÉ
+
+- **OBLIGATOIRE** : toute entrée externe (formulaire, params URL, contenu de QR scanné, payload webhook) est validée par Zod côté serveur. Le contenu d'un QR est une entrée **non fiable**.
+- **OBLIGATOIRE** : variables d'environnement validées dans `lib/env.ts`. Seules les clés publiques (URL Supabase, publishable/anon key) ont le préfixe `NEXT_PUBLIC_`. **INTERDIT** : secret avec `NEXT_PUBLIC_`, secret commité, `.env*.local` commité.
+- **Scan inversé** : seul un membre authentifié du restaurant peut créditer. Le client ne peut JAMAIS modifier ses propres points (aucun droit d'écriture direct sur `loyalty_cards` / `scan_logs`).
+- Le QR client encode un **jeton opaque** (`qr_token`), jamais un identifiant interne réutilisable ; le code court de secours utilise un alphabet sans caractères ambigus.
+- Anti-doublon : cooldown 2 h vérifié **en base** ; dépassement uniquement avec confirmation explicite du commerçant, tracé dans le log.
+- Idempotence : chaque validation porte une clé d'idempotence unique (contrainte `UNIQUE` en base).
+- Rate limiting sur les endpoints sensibles (recherche par code court, envoi OTP).
+- **INTERDIT** : `dangerouslySetInnerHTML`, `eval`, construction de SQL par concaténation.
+- **INTERDIT** : exposer des données personnelles d'un client à un restaurant autre que ceux où il a une carte. Minimisation : le commerçant voit prénom + progression, pas l'email.
+- **INTERDIT** : logs contenant tokens, emails complets ou données personnelles.
+- Headers de sécurité (CSP, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy` camera/geolocation limitées aux routes concernées) dans `next.config`.
+- RGPD : géolocalisation jamais stockée côté serveur, consentement explicite, suppression de compte fonctionnelle, politique de confidentialité à jour.
+- Messages d'erreur utilisateur génériques ; détails techniques uniquement dans les logs serveur.
+
+---
+
+## 9. GESTION D'ERREURS
+
+- Les Server Actions **ne lèvent pas** d'exception vers le client : elles retournent un résultat typé :
+  ```ts
+  type ActionResult<T> =
+    | { ok: true; data: T }
+    | { ok: false; error: { code: AppErrorCode; message: string } };
+  ```
+- Codes d'erreur centralisés (union de littéraux) avec messages FR associés (`lib/errors.ts`).
+- **INTERDIT** : `catch {}` vide ou `catch (e) { console.log(e) }`. Toute erreur est soit gérée (état UI), soit loggée côté serveur et remontée.
+- Chaque écran a un état : chargement, vide, erreur, succès. Jamais d'écran blanc.
+
+---
+
+## 10. UX "ZÉRO FRICTION", PERFORMANCE & ACCESSIBILITÉ
+
+- **Mobile-first** systématique (conception à 375 px, puis élargissement).
+- Cibles tactiles ≥ 48×48 px ; boutons d'action caisse très larges, utilisables d'une main.
+- Feedback immédiat (< 100 ms) sur toute action : état pressed, spinner, vibration si dispo, son de confirmation au scan.
+- Budget perf : LCP < 2,5 s en 4G, JS client minimal sur les routes client. Import dynamique (`next/dynamic`, `ssr: false`) pour les modules lourds (scanner caméra).
+- Le QR client doit rester affichable **hors-ligne**.
+- Accessibilité : HTML sémantique, `aria-*` sur les éléments interactifs custom, contrastes AA, `prefers-reduced-motion` respecté pour les animations.
+- Textes UI en **français** ; code, noms de variables, commits et commentaires techniques en **anglais**.
+
+---
+
+## 11. NOMMAGE & STYLE
+
+- Fichiers et dossiers : `kebab-case`. Composants : `PascalCase`. Fonctions/variables : `camelCase`. Constantes : `SCREAMING_SNAKE_CASE`. Tables/colonnes SQL : `snake_case` pluriel pour les tables.
+- Hooks : `use-xxx.ts` exportant `useXxx`. Actions : verbe + nom (`recordVisit`, `updateRestaurant`). Queries : `getXxx` / `listXxx`.
+- Booléens : `is`, `has`, `can`, `should`.
+- Styles : classes Tailwind uniquement, composition via `cn()`. **INTERDIT** : CSS inline (`style={{}}`) sauf valeurs dynamiques (ex. largeur de barre de progression), fichiers CSS par composant.
+- ESLint + Prettier doivent passer sans warning. Pas de désactivation de règle sans commentaire justificatif.
+
+---
+
+## 12. TESTS
+
+- **OBLIGATOIRE** : tests unitaires Vitest pour toute fonction de `domain/`.
+- **OBLIGATOIRE** : tests SQL pour chaque policy RLS et chaque fonction RPC critique (cas autorisé ET refusé).
+- **OBLIGATOIRE** : test E2E Playwright pour les parcours critiques (connexion, scan → crédit → mise à jour client, consommation récompense).
+- Tout bug corrigé ⇒ un test qui l'aurait détecté (si raisonnablement possible).
+- Avant de déclarer une tâche terminée : `pnpm lint && pnpm typecheck && pnpm test` passent.
+
+---
+
+## 13. GIT
+
+- Conventional Commits : `feat:`, `fix:`, `refactor:`, `chore:`, `docs:`, `test:`, `db:` (migrations).
+- Commits petits et atomiques ; une branche par étape de roadmap (`feat/phase-6-scanner`).
+- **INTERDIT** : commiter du code qui ne compile pas, des secrets, ou `database.types.ts` désynchronisé du schéma.
+
+---
+
+## 14. TRAÇABILITÉ — OBLIGATOIRE ET NON NÉGOCIABLE
+
+**À la fin de CHAQUE session/tâche ayant modifié du code, de la config, le schéma DB ou une dépendance, AVANT de rendre la main à l'utilisateur, l'IA DOIT mettre à jour `Documentation/CHANGELOG_ET_DECISIONS.md`.**
+
+- Ajouter une entrée de session **en haut** du journal en suivant le template du fichier (réalisé, fichiers clés, bugs, décisions, migrations, dette, tests, prochaine étape).
+- Tout choix structurant (nouvelle dépendance, pattern d'architecture, modification de schéma, contournement d'une règle de ce fichier, changement de stack) ⇒ **un ADR** dans le registre, avec les alternatives écartées et le *pourquoi*.
+- Tout raccourci volontaire ⇒ une ligne dans le registre de **dette technique**.
+- Le message final à l'utilisateur DOIT se terminer par la ligne : `📝 CHANGELOG mis à jour : Session N — <titre>` .
+- Une tâche sans mise à jour du CHANGELOG est considérée comme **NON TERMINÉE**.
+
+### Definition of Done (checklist à vérifier avant de rendre la main)
+- [ ] Le code respecte les sections 2 à 11 (taille des fichiers, pas de `any`, Server/Client correct, RLS).
+- [ ] `pnpm lint`, `pnpm typecheck`, `pnpm test` passent.
+- [ ] Migrations appliquées + types régénérés (si DB modifiée).
+- [ ] Tests de validation de l'étape de roadmap exécutés (et résultats notés).
+- [ ] `CHANGELOG_ET_DECISIONS.md` mis à jour (session + ADR + dette si applicable).
+- [ ] Case(s) de l'étape cochée(s) dans `04-ROADMAP.md`.
+
