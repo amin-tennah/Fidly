@@ -94,6 +94,7 @@
 | Symptôme | Cause racine | Correctif | Prévention (test / règle) |
 |---|---|---|---|
 | `Error: Cannot find module 'C:\Program Files\Git\Program Files\nodejs\...\corepack\dist\pnpm.js'` au `git commit` | Le shell MSYS2 (`sh.exe`) de Git for Windows réécrit le chemin `/Program Files/nodejs/...` du shim `pnpm` généré par Corepack | Appel direct `node ./node_modules/lint-staged/bin/lint-staged.js` dans `.husky/pre-commit` | Exécuté et vérifié à chaque `git commit` |
+| Échec de l'étape `Install dependencies` (`pnpm install --frozen-lockfile`, code 1) en CI GitHub Actions | `pnpm@12.14.0` exige la clé `allowBuilds: { unrs-resolver: true }` dans `pnpm-workspace.yaml` (au lieu de l'ancienne clé `onlyBuiltDependencies`) et renvoie `ERR_PNPM_IGNORED_BUILDS` | Exécution de `pnpm approve-builds --all` (`allowBuilds` dans `pnpm-workspace.yaml`) + `pnpm/action-setup@v4` dans `.github/workflows/ci.yml` | Tester `pnpm install --frozen-lockfile` localement après tout ajout de dépendance |
 
 **Décisions** : Aucune (application d'ADR-001)
 **Dette introduite / remboursée** : Aucune
