@@ -5,7 +5,7 @@ build/
 coverage/
 pnpm-lock.yaml
 src/types/database.types.ts
+supabase/
 Documentation/
 AGENTS.md
 .cursorrules
-
