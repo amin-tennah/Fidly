@@ -35,9 +35,9 @@
 
 ## 🧭 État courant (à mettre à jour à chaque session)
 
-- **Phase en cours :** Phase 1 terminée (1.1 → 1.7 ✅) · Prêt pour Phase 2 (Base de données & RLS)
-- **Dernière session :** Session 4 (2026-10-19)
-- **Prochaine action :** Phase 2 — Étape 2.1 (Initialisation Supabase CLI & schéma PostgreSQL + RLS)
+- **Phase en cours :** Phase 2 terminée (2.1 → 2.8 ✅) · Prêt pour Phase 3 (Authentification & rôles)
+- **Dernière session :** Session 5 (2026-10-20)
+- **Prochaine action :** Phase 3 — Étape 3.1 (Clients Supabase `@supabase/ssr` + `@supabase/supabase-js` et proxy/middleware de session sur une branche `feat/phase-3-auth`)
 - **Bloquants :** Aucun
 
 ---
@@ -72,6 +72,52 @@
 
 **Prochaine étape** : ...
 ==================================================================================== -->
+
+### Session 5 — [2026-10-20] — Implémentation complète de la Phase 2 (Schéma PostgreSQL, RLS, Storage, Seed & Tests pgTAP) & merge sur `main`
+**Roadmap :** Phase 2 — Étapes 2.1 → 2.8 · **Statut :** ✅ Terminé · **Branche :** `main` (après merge de `feat/phase-2-database`)
+
+**Réalisé**
+- chore(git): création de la branche `feat/phase-2-database` depuis `main` et restauration de `.env.example` (avec `.env.local` ignoré par Git)
+- chore(db): installation de `supabase@^2.121.0`, `supabase init`, liaison au projet Supabase Cloud Dev (`bduimaxjfsojzankmoje`, `eu-central-1`) et configuration des scripts `db:*` dans `package.json`
+- db(migrations): rédaction et application des 5 migrations versionnées dans `supabase/migrations/` :
+  - `20261020090001_extensions_and_enums.sql` (`pgcrypto`, `postgis`, enums `restaurant_category`, `restaurant_member_role`, `subscription_status`, `scan_log_type`)
+  - `20261020090002_core_tables.sql` (8 tables métier, contraintes `CHECK`/`UNIQUE`, index FK + `GIST(location)`, `ENABLE ROW LEVEL SECURITY` immédiat)
+  - `20261020090003_auth_profile_trigger.sql` (`generate_short_code()` 6 caractères sans `0/O/1/I/L` + trigger `on_auth_user_created` → `public.profiles`)
+  - `20261020090004_rls_helpers_and_policies.sql` (helpers `SECURITY DEFINER` `SET search_path = ''` isolés dans le schéma `private` non exposé par PostgREST, protection des colonnes immuables de `profiles`, immutabilité stricte de `scan_logs`, policies RLS consolidées par rôle/opération)
+  - `20261020090005_storage_bucket.sql` (bucket `restaurant-media` 5 MiB + policies lecture publique / écriture membres du restaurant)
+- db(seed): création et application de `supabase/seed.sql` (2 restaurants, 3 programmes, 1 owner, 3 clients, cartes `7/10`, `13/10`, `13/20` et logs `visit`, `reward_redeemed`, `reversal`)
+- db(types): génération complète de `src/types/database.types.ts` via `pnpm db:types`
+- test(db): création et exécution de `supabase/tests/rls_access_matrix.test.sql` (20/20 assertions pgTAP vertes via `pnpm db:test`)
+
+**Fichiers clés**
+- `package.json` / `pnpm-workspace.yaml` — dépendance `supabase` et scripts `db:*` (`db:push`, `db:seed`, `db:reset`, `db:types`, `db:test`, `db:advisors`)
+- `supabase/migrations/20261020090001_*.sql` → `20261020090005_*.sql` — schéma complet, triggers, RLS et Storage
+- `supabase/seed.sql` — jeu de données de développement idempotent
+- `supabase/tests/rls_access_matrix.test.sql` — suite de tests pgTAP (20 assertions)
+- `src/types/database.types.ts` — types TypeScript générés depuis le schéma distant
+
+**Base de données**
+- Migrations appliquées : `20261020090001_extensions_and_enums.sql` à `20261020090005_storage_bucket.sql`
+- Types régénérés : oui (`src/types/database.types.ts`, 539 lignes)
+
+**Bugs rencontrés**
+| Symptôme | Cause racine | Correctif | Prévention (test / règle) |
+|---|---|---|---|
+| `DbConfigConnectTempRoleError: Connection terminated unexpectedly / timed out` sur `aws-1-eu-central-1.pooler.supabase.com:5432` lors de `supabase db push --linked` sur le Wi-Fi initial | Filtrage du protocole PostgreSQL (port TCP 5432) par le pare-feu du réseau Wi-Fi, alors que le flux HTTPS (port 443) passe normalement | Passage en partage de connexion pour les opérations TCP (`db:push`, `db:reset`, `db:test`) et utilisation de `--project-id` (HTTPS 443) pour `db:types` | Garder `--project-id` sur `db:types` ; utiliser `supabase db query --linked -f` pour exécuter les tests pgTAP sans Docker Desktop |
+| Alertes `0028` / `0029` (`security_definer_function_executable`) du Security Advisor sur `is_platform_admin`, `is_restaurant_member`, `is_restaurant_owner` et `rls_auto_enable` | Toute fonction `SECURITY DEFINER` placée dans le schéma `public` est exposée par PostgREST sous `/rest/v1/rpc/*` | Déplacement des helpers RLS internes dans un schéma dédié `private` (non exposé dans `api.schemas`) et `REVOKE ALL` sur `public.rls_auto_enable()` | Placer systématiquement les fonctions `SECURITY DEFINER` internes (non appelées par le front) dans le schéma `private` et vérifier `pnpm db:advisors` |
+
+**Décisions** : ADR-011 (Environnement de dev DB : Projet Supabase Cloud « Dev » lié plutôt que Docker Desktop local)
+**Dette introduite / remboursée** : Aucune
+
+**Tests de validation**
+- [x] `supabase db reset --linked` rejoue les 5 migrations + `seed.sql` sans erreur
+- [x] `pnpm db:test` : **20 / 20 assertions pgTAP vertes** (`ok 1` → `ok 20`, cas autorisés et refusés de la matrice d'accès)
+- [x] `pnpm db:advisors` : **0 erreur et 0 alerte** sur le schéma, les tables, les index et les fonctions RLS
+- [x] `pnpm format && pnpm lint && pnpm typecheck && pnpm test` — 100 % vert avec `src/types/database.types.ts`
+
+**Prochaine étape** : Commiter et fusionner `feat/phase-2-database` dans `main`, puis démarrer la **Phase 3 — Authentification & rôles**.
+
+---
 
 ### Session 4 — [2026-10-19] — Finalisation de la Phase 1 (shadcn/ui, Playwright, Husky) & merge sur `main`
 **Roadmap :** Phase 1 — Étapes 1.3 (fin), 1.4, 1.6 (fin) · **Statut :** ✅ Terminé · **Branche :** `main` (après merge de `feat/phase-1-foundation`)
@@ -245,6 +291,7 @@
 | ADR-008 | `.cursorrules` source unique, importé par `AGENTS.md` | ✅ Accepté | 2026-10-19 |
 | ADR-009 | Progression : compteur cumulatif sur le cycle (`13/10 → 13/20`) + boucle sur le Palier 1 | ✅ Accepté | 2026-10-19 |
 | ADR-010 | Annulation d'un scan par écriture compensatoire liée (`reverses_log_id`) | ✅ Accepté | 2026-10-19 |
+| ADR-011 | Environnement de dev DB : Projet Supabase Cloud « Dev » lié (`--linked`) sans Docker Desktop | ✅ Accepté | 2026-10-20 |
 
 <!-- ============ TEMPLATE ADR ============
 ### ADR-NNN — Titre
@@ -350,6 +397,17 @@
   - Seule la dernière opération non annulée d'une carte peut être annulée (garantit la cohérence de `stamps` et `current_program_id`), et une annulation n'est pas elle-même annulable.
 - **Conséquences :** l'UI `/pro/logs` barre toute ligne référencée par un `reversal` et affiche qui a annulé et quand.
 - **Réversibilité :** facile (ajout de colonne nullable).
+
+### ADR-011 — Environnement de dev DB : Projet Supabase Cloud « Dev » lié (`--linked`) sans Docker Desktop
+- **Date :** 2026-10-20 · **Statut :** ✅ Accepté · **Phase :** 2
+- **Contexte :** l'Étape 2.1 propose soit une pile Supabase locale (`supabase start` nécessitant Docker Desktop sous Windows/WSL2, lourd en RAM/disque), soit un projet Supabase Cloud dédié au développement lié via `supabase link`.
+- **Options envisagées :**
+  1. Pile locale `supabase start` via Docker Desktop — ✅ hors-ligne complet ❌ installation lourde sur le poste Windows, consommation RAM élevée.
+  2. Projet Supabase Cloud « Dev » dédié + Supabase CLI en mode `--linked` (`db push --linked`, `db reset --linked`, `test db --linked`, `gen types --linked`) — ✅ zéro empreinte Docker locale, parité exacte avec l'infrastructure Cloud Supabase (Auth, Storage, PostGIS, Advisors), toutes les migrations restent 100 % versionnées dans `supabase/migrations/`.
+- **Décision :** Option 2 (Supabase Cloud « Dev » lié via CLI).
+- **Pourquoi :** évite l'installation de Docker Desktop tout en conservant l'intégralité du workflow versionné (`migrations/`, `seed.sql`, `tests/` pgTAP, génération de types) via le flag `--linked` de Supabase CLI v2.121.0.
+- **Conséquences :** ne jamais lier le poste de dev au futur projet de production pour les commandes destructrices (`db:reset`).
+- **Réversibilité :** immédiate (`supabase start` fonctionne sans modification des fichiers SQL si Docker est installé plus tard).
 
 ---
 

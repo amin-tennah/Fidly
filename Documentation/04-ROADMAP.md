@@ -203,14 +203,14 @@ erDiagram
 **🎯 Objectif :** un schéma PostgreSQL complet, versionné, où **la base elle-même garantit** les règles critiques (droits, unicité, immutabilité des logs).
 
 ### Étapes
-- [ ] **2.1** Supabase CLI : `supabase init`, `supabase link`. Environnement local (`supabase start`, nécessite Docker Desktop) **ou** projet Supabase « dev » distinct de la prod.
-- [ ] **2.2** Migration 1 — extensions (`postgis`, `pgcrypto`) et types énumérés (catégorie, rôle membre, type de log).
-- [ ] **2.3** Migration 2 — tables `profiles`, `platform_admins`, `restaurants`, `restaurant_members`, `restaurant_invitations`, `loyalty_programs`, `loyalty_cards`, `scan_logs` avec contraintes (`CHECK threshold > 0`, `UNIQUE(user_id, restaurant_id)`, `UNIQUE(restaurant_id, position)`, `UNIQUE(idempotency_key)`, `UNIQUE(reverses_log_id)`), index FK + GIST sur `location`.
-- [ ] **2.4** Migration 3 — trigger de création de `profiles` à l'inscription (génération `qr_token` aléatoire + `short_code` 6 caractères sans ambiguïté, ex. alphabet sans `0/O/1/I/L`).
-- [ ] **2.5** Migration 4 — fonctions helpers RLS (`is_restaurant_member(restaurant_id)`, `is_platform_admin()`) en `SECURITY DEFINER` + policies sur toutes les tables.
-- [ ] **2.6** Buckets Storage (`restaurant-media`) + policies (écriture : membres du restaurant ; lecture : publique).
-- [ ] **2.7** `supabase gen types` → `src/types/database.types.ts` ; `seed.sql` (2 restaurants, 3 programmes, 3 clients, quelques logs).
-- [ ] **2.8** Tests SQL (pgTAP / `supabase test db`) de la matrice d'accès.
+- [x] **2.1** Supabase CLI : `supabase init`, `supabase link`. Projet Supabase Cloud « Dev » lié (`bduimaxjfsojzankmoje`, région `eu-central-1` — cf. ADR-011).
+- [x] **2.2** Migration 1 (`20261020090001_extensions_and_enums.sql`) — extensions (`postgis`, `pgcrypto`) et types énumérés (catégorie, rôle membre, statut abonnement, type de log).
+- [x] **2.3** Migration 2 (`20261020090002_core_tables.sql`) — tables `profiles`, `platform_admins`, `restaurants`, `restaurant_members`, `restaurant_invitations`, `loyalty_programs`, `loyalty_cards`, `scan_logs` avec contraintes (`CHECK threshold > 0`, `UNIQUE(user_id, restaurant_id)`, `UNIQUE(restaurant_id, position)`, `UNIQUE(idempotency_key)`, `UNIQUE(reverses_log_id)`), index FK + GIST sur `location`.
+- [x] **2.4** Migration 3 (`20261020090003_auth_profile_trigger.sql`) — trigger de création de `profiles` à l'inscription (génération `qr_token` aléatoire + `short_code` 6 caractères sans ambiguïté, alphabet sans `0/O/1/I/L`).
+- [x] **2.5** Migration 4 (`20261020090004_rls_helpers_and_policies.sql`) — fonctions helpers RLS (`private.is_restaurant_member`, `private.is_restaurant_owner`, `private.is_platform_admin`) en `SECURITY DEFINER` + policies sur toutes les tables.
+- [x] **2.6** Migration 5 (`20261020090005_storage_bucket.sql`) — Bucket Storage (`restaurant-media`) + policies (écriture : membres du restaurant ; lecture : publique).
+- [x] **2.7** `supabase gen types` → `src/types/database.types.ts` ; `seed.sql` (2 restaurants, 3 programmes, 3 clients, quelques logs).
+- [x] **2.8** Tests SQL (`supabase/tests/rls_access_matrix.test.sql` — 20/20 assertions pgTAP vertes via `pnpm db:test`) de la matrice d'accès.
 
 ### Matrice d'accès cible (à tester)
 | Table | Client (soi-même) | Staff du restaurant | Autre restaurant | Anonyme |
@@ -223,12 +223,12 @@ erDiagram
 | `scan_logs` UPDATE/DELETE | ❌ | ❌ | ❌ | ❌ |
 
 ### ✅ Tests de validation
-- [ ] `supabase db reset` rejoue toutes les migrations + seed sans erreur.
-- [ ] Tests SQL verts : chaque ligne de la matrice testée en cas **autorisé ET refusé**.
-- [ ] Un client tentant `update loyalty_cards set stamps = 99` reçoit 0 ligne modifiée / erreur.
-- [ ] Un utilisateur ne peut pas s'insérer lui-même dans `restaurant_members` ou `platform_admins`.
-- [ ] Advisors Supabase (Security + Performance) : 0 alerte critique.
-- [ ] `pnpm typecheck` passe avec les types générés.
+- [x] `supabase db reset` rejoue toutes les migrations + seed sans erreur.
+- [x] Tests SQL verts : chaque ligne de la matrice testée en cas **autorisé ET refusé** (20/20 assertions pgTAP `ok`).
+- [x] Un client tentant `update loyalty_cards set stamps = 99` reçoit 0 ligne modifiée / erreur (`42501 permission denied`).
+- [x] Un utilisateur ne peut pas s'insérer lui-même dans `restaurant_members` ou `platform_admins` (`42501 permission denied`).
+- [x] Advisors Supabase (Security + Performance) : 0 alerte critique (`pnpm db:advisors` : 0 erreur, 0 alerte DB/RLS).
+- [x] `pnpm typecheck` passe avec les types générés.
 
 ### ⚠️ Points de vigilance
 - **RLS oubliée = base ouverte en lecture/écriture** via la clé publique. Activer la RLS dans la même migration que la création de table.

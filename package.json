@@ -15,6 +15,14 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "db:login": "supabase login",
+    "db:link": "supabase link",
+    "db:push": "supabase db push --linked",
+    "db:seed": "supabase db push --linked --include-seed",
+    "db:reset": "supabase db reset --linked",
+    "db:types": "supabase gen types typescript --project-id bduimaxjfsojzankmoje --schema public > src/types/database.types.ts",
+    "db:test": "supabase db query --linked -f supabase/tests/rls_access_matrix.test.sql",
+    "db:advisors": "supabase db advisors --linked",
     "prepare": "husky"
   },
   "lint-staged": {
@@ -59,6 +67,7 @@
     "lint-staged": "^17.6.0",
     "prettier": "^3.9.10",
     "prettier-plugin-tailwindcss": "^0.8.1",
+    "supabase": "^2.121.0",
     "tailwindcss": "^4.3.3",
     "typescript": "~6.0.0",
     "vitest": "^5.0.5"
