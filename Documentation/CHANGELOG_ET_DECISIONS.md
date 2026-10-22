@@ -35,7 +35,7 @@
 
 ## 🧭 État courant (à mettre à jour à chaque session)
 
-- **Phase en cours :** Phase 4 terminée (4.1 → 4.5 ✅, Lighthouse Performance à re-mesurer en production : DT-005) · Prêt pour Phase 5 (Espace restaurateur : fiche et programmes)
+- **Phase en cours :** Phase 4 terminée (4.1 → 4.5 ✅, Lighthouse Performance 86 accepté : DT-005) · Prêt pour Phase 5 (Espace restaurateur : fiche et programmes)
 - **Dernière session :** Session 14 (2026-10-22) — Phase 4 : QR client et cartes de fidélité
 - **Prochaine action :** Phase 5 — Étape 5.1 sur une branche `feat/phase-5-pro-settings` (plan à valider avant de coder : upload Storage et réordonnancement par glisser-déposer touchent à la sécurité et aux dépendances)
 - **Bloquants :** Aucun
@@ -74,7 +74,7 @@
 ==================================================================================== -->
 
 ### Session 14 — [2026-10-22] — Phase 4 : QR client et cartes de fidélité
-**Roadmap :** Phase 4 — Étapes 4.1 → 4.5 · **Statut :** ✅ Terminé (une mesure de performance à refaire en production, DT-005) · **Branche :** `feat/phase-4-client-cards` → `main`
+**Roadmap :** Phase 4 — Étapes 4.1 → 4.5 · **Statut :** ✅ Terminé (Lighthouse Performance 86, écart au seuil de 90 accepté : DT-005) · **Branche :** `feat/phase-4-client-cards` → `main`
 
 **Réalisé**
 - feat(4.2): `computeCardProgress` (ADR-009) : `stamps / threshold` cumulatif (`13/10`, `13/20`), barre plafonnée, palier suivant avec boucle sur le 1er, bascule sur le palier actif suivant si le palier courant est désactivé (Q-013), `null` sans palier actif
@@ -111,7 +111,7 @@
 - [x] Scénarios du script SQL (`progress`, `unlocked`, `chained`, `clean`) ⇒ affichage correct après rechargement — OK
 - [x] Code de secours, `localStorage` (écriture et effacement à la déconnexion), rendu à 375 px — OK
 - [x] Lighthouse mobile sous `pnpm dev` : Accessibilité 99, Bonnes pratiques 100, SEO 100 ; FCP 0,9 s, LCP 1,5 s, CLS 0
-- [ ] Lighthouse Performance ≥ 90 : **81 sous `pnpm dev`** (TBT 790 ms dû au bundle JS non minifié du serveur de dev) — à re-mesurer sur build de production (DT-005)
+- [x] Lighthouse Performance : 81 sous `pnpm dev` (TBT 790 ms, bundle non minifié) puis **86 sur build de production local** ; seuil de 90 non atteint, écart **accepté par le porteur de projet** (DT-005, re-mesure sur Vercel en 11.4)
 
 **Prochaine étape** : valider manuellement, commiter et fusionner, puis Phase 5 (espace restaurateur : fiche et programmes).
 
@@ -751,7 +751,7 @@
 | DT-002 | La suppression de compte n'est pas encore exposée (pas de Server Action ni d'UI) ; seul le comportement base est en place et testé | Livraison prévue en P11 | 🟠 Obligation RGPD à honorer avant le pilote | Phase 11 | ⏳ Ouverte |
 | DT-003 | Tests de validation Phase 3 non exécutés : parcours par rôle (client/staff/admin) avec une vraie invitation, session persistante, cookie modifié, Google sur iPhone/Android et PWA, E2E de connexion OTP (Inbucket indisponible avec le projet Cloud) | Aucun contenu `/pro` ni PWA à valider avant les Phases 5 et 8 | 🟠 Régression d'accès non détectée | Phases 5 (rôles `/pro`), 8 (PWA) | ⏳ Ouverte |
 | DT-004 | Le logo du restaurant n'est pas affiché sur les cartes (initiale seulement) : aucun upload n'existe avant l'étape 5.3, et `next/image` exige la configuration du domaine Storage | Logos inexistants avant la Phase 5 | 🟢 Cosmétique | Phase 5 (5.3) | ⏳ Ouverte |
-| DT-005 | Lighthouse Performance mesuré à 81 sous `pnpm dev` (TBT 790 ms, bundle non minifié) : le seuil ≥ 90 n'est pas confirmé sur un build de production | Mesure faite avant tout déploiement | 🟠 Objectif de la contrainte produit n°1 non vérifié | Phase 11 (11.4), ou dès le 1er déploiement Vercel | ⏳ Ouverte |
+| DT-005 | Lighthouse Performance de `/` à 86 sur build de production local (seuil de la roadmap : 90) ; mesure locale, sans CDN ni région Vercel | Écart jugé suffisant à ce stade par le porteur de projet | 🟢 Marge faible vis-à-vis de la contrainte produit n°1 | Phase 11 (11.4) : re-mesure sur Vercel ; analyser le bundle si < 90 | ⏳ Ouverte |
 
 ---
 

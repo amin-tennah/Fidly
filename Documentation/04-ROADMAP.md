@@ -283,7 +283,7 @@ erDiagram
 ### ✅ Tests de validation
 - [x] QR scanné avec succès depuis 3 téléphones différents.
 - [x] Tests unitaires `computeCardProgress` : 0 passage, palier atteint, dépassement (`13/10`), passage au palier suivant (`13/20`), fin de cycle → boucle sur le 1er (`20/20 → 0/10` et `22/20 → 2/10`), programmes réordonnés/modifiés (Q-013). *(la déduction `22/20 → 2/10` est appliquée par la RPC `redeem_reward` : Phase 6 ; ici on teste l'affichage du palier suivant et de la boucle)*
-- [ ] Lighthouse mobile ≥ 90 en Performance sur `/`. *(81 mesuré sous `pnpm dev` : à re-mesurer sur build de production — DT-005)*
+- [x] Lighthouse mobile en Performance sur `/` : **86** sur build de production local (seuil de 90 non atteint ; écart accepté par le porteur de projet, re-mesure sur Vercel en 11.4 — DT-005).
 - [x] Modifier les `stamps` en base (seed) ⇒ affichage correct après rechargement.
 
 ### ⚠️ Points de vigilance
