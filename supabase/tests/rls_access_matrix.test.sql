@@ -48,9 +48,9 @@ values
   ('dddddddd-dddd-4ddd-8ddd-ddddddddddd1', 'cccccccc-cccc-4ccc-8ccc-ccccccccccc1', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1', 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb1', 4, 4),
   ('dddddddd-dddd-4ddd-8ddd-ddddddddddd2', 'cccccccc-cccc-4ccc-8ccc-ccccccccccc2', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa2', 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb2', 2, 2);
 
-insert into public.scan_logs (id, card_id, program_id, staff_id, type, delta, idempotency_key)
+insert into public.scan_logs (id, restaurant_id, card_id, program_id, staff_id, type, delta, idempotency_key)
 values
-  ('eeeeeeee-eeee-4eee-8eee-eeeeeeeeeee1', 'dddddddd-dddd-4ddd-8ddd-ddddddddddd1', 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb1', 'cccccccc-cccc-4ccc-8ccc-ccccccccccc3', 'visit', 1, 'ffffffff-ffff-4fff-8fff-fffffffffff1');
+  ('eeeeeeee-eeee-4eee-8eee-eeeeeeeeeee1', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1', 'dddddddd-dddd-4ddd-8ddd-ddddddddddd1', 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb1', 'cccccccc-cccc-4ccc-8ccc-ccccccccccc3', 'visit', 1, 'ffffffff-ffff-4fff-8fff-fffffffffff1');
 
 -- ----------------------------------------------------------------------------
 -- 1. Vérification du trigger d'inscription (Étape 2.4)
@@ -121,8 +121,8 @@ insert into tap_log (tap) select is(
 
 insert into tap_log (tap) select throws_ok(
   $$update public.profiles set qr_token = repeat('a', 48) where id = 'cccccccc-cccc-4ccc-8ccc-ccccccccccc1'$$,
-  'P0001',
-  'Modifying qr_token directly is forbidden',
+  '42501',
+  'permission denied for table profiles',
   'Client A ne peut pas modifier son qr_token directement'
 );
 
