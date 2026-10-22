@@ -32,6 +32,15 @@ export function parsePublicEnv(rawEnv: Record<string, string | undefined>): Publ
   return parsed.data;
 }
 
+/**
+ * Each NEXT_PUBLIC_* variable is referenced literally so that Next.js can
+ * inline it in client bundles (passing `process.env` as a whole yields an
+ * empty object in the browser).
+ */
 export function getPublicEnv(): PublicEnv {
-  return parsePublicEnv(process.env);
+  return parsePublicEnv({
+    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+  });
 }
