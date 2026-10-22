@@ -9,3 +9,6 @@ supabase/
 Documentation/
 AGENTS.md
 .cursorrules
+.agents/
+.claude/
+skills-lock.json

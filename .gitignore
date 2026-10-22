@@ -39,3 +39,6 @@ Thumbs.db
 !.vscode/settings.json
 !.vscode/extensions.json
 
+
+# agent tooling symlinks (restored by `npx skills`)
+.claude/
