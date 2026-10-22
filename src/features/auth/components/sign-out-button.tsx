@@ -3,9 +3,11 @@
 import type { ReactNode } from "react";
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Button, type ButtonProps } from "@/components/ui/button";
 import { signOutUser } from "@/features/auth/actions/profile-and-invitation-actions";
 import { LOGIN_PATH } from "@/features/auth/constants";
+import { clearStoredIdentity } from "@/features/auth/identity-storage";
 
 export interface SignOutButtonProps {
   readonly variant?: ButtonProps["variant"];
@@ -23,7 +25,12 @@ export function SignOutButton({
 
   const handleSignOut = (): void => {
     startTransition(async () => {
-      await signOutUser();
+      const res = await signOutUser();
+      if (!res.ok) {
+        toast.error(res.error.message);
+        return;
+      }
+      clearStoredIdentity();
       router.replace(LOGIN_PATH);
       router.refresh();
     });

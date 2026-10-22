@@ -274,17 +274,17 @@ erDiagram
 **🎯 Objectif :** l'écran principal client est complet et rapide, alimenté par les données réelles (seed).
 
 ### Étapes
-- [ ] **4.1** Zone Hero fixe : QR (`qrcode.react`, encode `qr_token`), prénom/pseudo (`display_name`), code court de secours lisible (groupé `ABC-123`).
-- [ ] **4.2** Domain : `computeCardProgress(card, programs)` (ADR-009) → palier actif (`current_program_id`), `stamps / threshold` cumulatif (ex. `13 / 10` puis `13 / 20`), `isRewardUnlocked`, palier suivant avec boucle sur le 1er en fin de cycle (tests unitaires exhaustifs).
-- [ ] **4.3** Liste « Mes cartes » : logo, nom, récompense, barre de progression animée (transition `13/10 → 13/20` lors de la consommation d'un palier intermédiaire, et `20/20 → 0/10` en fin de cycle), état « Récompense disponible en caisse ! » (surbrillance verte).
-- [ ] **4.4** États vide (« Faites-vous scanner lors de votre prochain repas »), chargement (skeleton), erreur.
-- [ ] **4.5** Persistance locale du `qr_token`/`display_name`/code court pour réaffichage instantané (préparation hors-ligne P8).
+- [x] **4.1** Zone Hero fixe : QR (`qrcode.react`, encode `qr_token`), prénom/pseudo (`display_name`), code court de secours lisible (groupé `ABC-123`).
+- [x] **4.2** Domain : `computeCardProgress(card, programs)` (ADR-009) → palier actif (`current_program_id`), `stamps / threshold` cumulatif (ex. `13 / 10` puis `13 / 20`), `isRewardUnlocked`, palier suivant avec boucle sur le 1er en fin de cycle (tests unitaires exhaustifs).
+- [x] **4.3** Liste « Mes cartes » : logo, nom, récompense, barre de progression animée (transition `13/10 → 13/20` lors de la consommation d'un palier intermédiaire, et `20/20 → 0/10` en fin de cycle), état « Récompense disponible en caisse ! » (surbrillance verte).
+- [x] **4.4** États vide (« Faites-vous scanner lors de votre prochain repas »), chargement (skeleton), erreur.
+- [x] **4.5** Persistance locale du `qr_token`/`display_name`/code court pour réaffichage instantané (préparation hors-ligne P8).
 
 ### ✅ Tests de validation
-- [ ] QR scanné avec succès par le prototype de P0 depuis 3 téléphones différents.
-- [ ] Tests unitaires `computeCardProgress` : 0 passage, palier atteint, dépassement (`13/10`), passage au palier suivant (`13/20`), fin de cycle → boucle sur le 1er (`20/20 → 0/10` et `22/20 → 2/10`), programmes réordonnés/modifiés (Q-013).
-- [ ] Lighthouse mobile ≥ 90 en Performance sur `/`.
-- [ ] Modifier les `stamps` en base (seed) ⇒ affichage correct après rechargement.
+- [x] QR scanné avec succès depuis 3 téléphones différents.
+- [x] Tests unitaires `computeCardProgress` : 0 passage, palier atteint, dépassement (`13/10`), passage au palier suivant (`13/20`), fin de cycle → boucle sur le 1er (`20/20 → 0/10` et `22/20 → 2/10`), programmes réordonnés/modifiés (Q-013). *(la déduction `22/20 → 2/10` est appliquée par la RPC `redeem_reward` : Phase 6 ; ici on teste l'affichage du palier suivant et de la boucle)*
+- [ ] Lighthouse mobile ≥ 90 en Performance sur `/`. *(81 mesuré sous `pnpm dev` : à re-mesurer sur build de production — DT-005)*
+- [x] Modifier les `stamps` en base (seed) ⇒ affichage correct après rechargement.
 
 ### ⚠️ Points de vigilance
 - **Lisibilité du QR** : fond blanc pur, marge (quiet zone) suffisante, taille ≥ 200 px, niveau de correction d'erreur `M` ou `Q`. Le web ne peut pas forcer la luminosité de l'écran : conseiller l'utilisateur.

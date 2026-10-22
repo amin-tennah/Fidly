@@ -22,3 +22,6 @@ export const OTP_RESEND_COOLDOWN_SECONDS = 60;
 
 /** Must match the CHECK constraint on `profiles.display_name`. */
 export const DISPLAY_NAME_MAX_LENGTH = 60;
+
+/** localStorage key of the device copy of the identity (versioned for future changes). */
+export const IDENTITY_STORAGE_KEY = "fidly.identity.v1";
