@@ -2,6 +2,12 @@ export const APP_ERROR_MESSAGES = {
   UNAUTHORIZED: "Vous devez être connecté pour effectuer cette action.",
   FORBIDDEN: "Vous n'avez pas les droits nécessaires pour cette action.",
   VALIDATION_ERROR: "Les données saisies sont invalides.",
+  OTP_INVALID:
+    "Code invalide ou expiré. Vérifiez le code reçu ou demandez-en un nouveau.",
+  RATE_LIMITED: "Trop de tentatives. Patientez une minute avant de réessayer.",
+  AUTH_FAILED: "La connexion a échoué. Veuillez réessayer.",
+  INVITATION_INVALID:
+    "Cette invitation est invalide, expirée ou déjà utilisée. Contactez l'équipe Fidly.",
   CUSTOMER_NOT_FOUND:
     "Client introuvable. Vérifiez le QR code ou le code à 6 caractères.",
   COOLDOWN_ACTIVE:

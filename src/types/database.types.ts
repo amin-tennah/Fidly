@@ -308,54 +308,64 @@ export type Database = {
       }
       scan_logs: {
         Row: {
-          card_id: string
+          card_id: string | null
           cooldown_overridden: boolean
           created_at: string
           delta: number
           id: string
           idempotency_key: string
           program_id: string
+          restaurant_id: string
           reverses_log_id: string | null
-          staff_id: string
+          staff_id: string | null
           type: Database["public"]["Enums"]["scan_log_type"]
         }
         Insert: {
-          card_id: string
+          card_id?: string | null
           cooldown_overridden?: boolean
           created_at?: string
           delta: number
           id?: string
           idempotency_key: string
           program_id: string
+          restaurant_id: string
           reverses_log_id?: string | null
-          staff_id: string
+          staff_id?: string | null
           type: Database["public"]["Enums"]["scan_log_type"]
         }
         Update: {
-          card_id?: string
+          card_id?: string | null
           cooldown_overridden?: boolean
           created_at?: string
           delta?: number
           id?: string
           idempotency_key?: string
           program_id?: string
+          restaurant_id?: string
           reverses_log_id?: string | null
-          staff_id?: string
+          staff_id?: string | null
           type?: Database["public"]["Enums"]["scan_log_type"]
         }
         Relationships: [
           {
-            foreignKeyName: "scan_logs_card_id_fkey"
-            columns: ["card_id"]
+            foreignKeyName: "scan_logs_card_restaurant_fkey"
+            columns: ["card_id", "restaurant_id"]
             isOneToOne: false
             referencedRelation: "loyalty_cards"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "restaurant_id"]
           },
           {
             foreignKeyName: "scan_logs_program_id_fkey"
             columns: ["program_id"]
             isOneToOne: false
             referencedRelation: "loyalty_programs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scan_logs_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
             referencedColumns: ["id"]
           },
           {
@@ -379,7 +389,22 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_restaurant_invitation: {
+        Args: { p_invitation_id: string }
+        Returns: string
+      }
+      generate_qr_token: { Args: never; Returns: string }
       generate_short_code: { Args: never; Returns: string }
+      list_my_pending_invitations: {
+        Args: never
+        Returns: {
+          expires_at: string
+          invitation_id: string
+          member_role: Database["public"]["Enums"]["restaurant_member_role"]
+          restaurant_id: string
+          restaurant_name: string
+        }[]
+      }
     }
     Enums: {
       restaurant_category:

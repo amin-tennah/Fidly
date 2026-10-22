@@ -21,7 +21,7 @@
     "db:seed": "supabase db push --linked --include-seed",
     "db:reset": "supabase db reset --linked",
     "db:types": "supabase gen types typescript --project-id bduimaxjfsojzankmoje --schema public > src/types/database.types.ts",
-    "db:test": "supabase db query --linked -f supabase/tests/rls_access_matrix.test.sql",
+    "db:test": "supabase db query --linked -f supabase/tests/rls_access_matrix.test.sql && supabase db query --linked -f supabase/tests/invitation_acceptance.test.sql && supabase db query --linked -f supabase/tests/schema_hardening.test.sql",
     "db:advisors": "supabase db advisors --linked",
     "prepare": "husky"
   },
@@ -39,6 +39,8 @@
     "@radix-ui/react-label": "^2.1.17",
     "@radix-ui/react-progress": "^1.2.1",
     "@radix-ui/react-slot": "^1.5.0",
+    "@supabase/ssr": "^0.12.7",
+    "@supabase/supabase-js": "^2.118.0",
     "@yudiel/react-qr-scanner": "^2.6.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

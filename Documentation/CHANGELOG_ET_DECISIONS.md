@@ -35,9 +35,9 @@
 
 ## 🧭 État courant (à mettre à jour à chaque session)
 
-- **Phase en cours :** Phase 2 terminée (2.1 → 2.8 ✅) · Prêt pour Phase 3 (Authentification & rôles)
-- **Dernière session :** Session 5 (2026-10-20)
-- **Prochaine action :** Phase 3 — Étape 3.1 (Clients Supabase `@supabase/ssr` + `@supabase/supabase-js` et proxy/middleware de session sur une branche `feat/phase-3-auth`)
+- **Phase en cours :** Phase 3 terminée (3.1 → 3.7 ✅, validations restantes tracées en DT-003) · Prêt pour Phase 4 (Espace client : QR & cartes)
+- **Dernière session :** Session 13 (2026-10-22) — clôture de la Phase 3
+- **Prochaine action :** Phase 4 — Étape 4.1 sur une branche `feat/phase-4-client-cards` (plan à valider avant de coder)
 - **Bloquants :** Aucun
 
 ---
@@ -72,6 +72,257 @@
 
 **Prochaine étape** : ...
 ==================================================================================== -->
+
+### Session 13 — [2026-10-22] — Clôture de la Phase 3 (validation, commits, merge)
+**Roadmap :** Phase 3 — clôture · **Statut :** ✅ Terminé · **Branche :** `feat/phase-3-auth` → `main`
+
+**Réalisé**
+- db: migration 7 appliquée sur le projet Dev (`pnpm db:push`), types régénérés (`pnpm db:types`), `pnpm db:test` : 20 + 12 + 12 assertions pgTAP `ok`
+- config (Dashboard Supabase, hors dépôt) : provider Google activé, URI de redirection Google Cloud (`…/auth/v1/callback`), templates email « Magic Link » et « Confirm signup » remplacés par le template OTP (`{{ .Token }}`), SMTP d'envoi configuré
+- test: E2E Playwright (garde de routes `/`, `/pro`, `/admin`) : 2/2 ; `lint`, `typecheck`, `test` (30), `format:check` verts
+- chore: `.agents/` et `skills-lock.json` versionnés (outillage d'agent, décision Session 6) ; `.claude/` (liens symboliques) ignoré
+
+**Base de données**
+- Migration : `20261022100001_schema_hardening_audit.sql` appliquée
+- Types régénérés : oui
+
+**Bugs rencontrés**
+| Symptôme | Cause racine | Correctif | Prévention |
+|---|---|---|---|
+| Google : `400 redirect_uri_mismatch` | URI de callback Supabase absente des « URI de redirection autorisés » du client OAuth Google | Ajout de `https://<ref>.supabase.co/auth/v1/callback` dans Google Cloud | Checklist de configuration ci-dessous |
+| Email reçu avec un lien, pas un code | Les templates de `supabase/templates` et `config.toml` ne s'appliquent pas au projet Cloud (ADR-011) | Templates collés dans le Dashboard | Toute modification de template/Auth doit être reportée dans le Dashboard |
+| « Trop de tentatives » à l'envoi du code | Limite d'envoi du SMTP par défaut de Supabase (~2 emails/h) | SMTP personnalisé | Ne pas multiplier les essais avec des adresses fictives |
+| `db push` bloqué sur « Initialising login role… » | Rôle temporaire de la CLI non joignable via le pooler | `SUPABASE_DB_PASSWORD` défini dans le terminal | — |
+
+**Advisors Supabase (acceptés)** : `authenticated_security_definer_function_executable` sur `accept_restaurant_invitation` et `list_my_pending_invitations` (appelables par les utilisateurs connectés par conception ; `auth.uid()` et email vérifié contrôlés en interne) ; `auth_leaked_password_protection` (non applicable : aucun mot de passe).
+
+**Checklist de configuration Supabase/Google (environnement Cloud Dev)**
+- Google Cloud : URI de redirection `https://bduimaxjfsojzankmoje.supabase.co/auth/v1/callback`, utilisateurs test ajoutés tant que l'app est en mode Test
+- Supabase → URL Configuration : Site URL `http://localhost:3000` + `http://localhost:3000/**` (ajouter l'URL Vercel au déploiement)
+- Supabase → Email Templates : « Magic Link » et « Confirm signup » = `supabase/templates/otp.html`
+- Supabase → Email : OTP à 6 chiffres, expiration recommandée 600 s
+
+**Décisions** : Aucune nouvelle (ADR-012/013/014 en Session 12)
+**Dette introduite / remboursée** : DT-003 (validations Phase 3 reportées)
+
+**Non traité (audit)** : `cache()` sur les requêtes de session, code mort `features/scanner`, résultat de `signOutUser` ignoré, `memberships[0]` non ordonné, policy `loyalty_programs` anon sur restaurants inactifs.
+
+**Tests de validation**
+- [x] Connexion Google (navigateur) — OK
+- [x] Connexion OTP : email formaté avec le code, code erroné ⇒ message clair, renvoi bloqué 60 s — OK
+- [x] E2E : visiteur anonyme redirigé vers `/login` (`/`, `/pro`, `/admin`) — OK
+- [ ] Parcours par rôle (client/staff/admin), session persistante, cookie modifié, Google mobile/PWA — reportés (DT-003)
+
+**Prochaine étape** : Phase 4 — Étape 4.1 (QR client, `qrcode.react`, jeton de 20 caractères — ADR-013).
+
+---
+
+### Session 12 — [2026-10-22] — Audit Phase 3 et durcissement du schéma (migration 7)
+**Roadmap :** Phase 3 (clôture) · **Statut :** 🟡 Partiel (migration écrite, non appliquée ; tests manuels à faire) · **Branche :** `feat/phase-3-auth`
+
+**Réalisé**
+- chore: `pnpm format` sur `src/` (19 fichiers) ; `.agents/`, `.claude/` et `skills-lock.json` ajoutés à `.prettierignore` → `pnpm format:check` passe (CI)
+- db: migration 7 `20261022100001_schema_hardening_audit.sql`
+  - `qr_token` : 20 caractères base32 majuscules (100 bits), jetons existants régénérés, contrainte CHECK de format (ADR-013)
+  - `profiles` : `UPDATE` limité à la colonne `display_name` (`signup_restaurant_id` protégé) (ADR-014)
+  - `scan_logs` : colonne `restaurant_id` (rétro-remplie, FK composite `(card_id, restaurant_id)`), `card_id`/`staff_id` nullables en `ON DELETE SET NULL`, trigger d'immutabilité qui n'autorise que l'anonymisation, policy SELECT basée sur `restaurant_id`, index `(restaurant_id, created_at desc)` (ADR-012)
+- test: `supabase/tests/schema_hardening.test.sql` (12 assertions), `rls_access_matrix.test.sql` adapté (colonnes protégées, `restaurant_id`), `db:test` l'exécute
+- docs: `seed.sql` mis à jour (`restaurant_id` des logs)
+
+**Fichiers clés**
+- `supabase/migrations/20261022100001_schema_hardening_audit.sql`
+- `supabase/tests/schema_hardening.test.sql`
+
+**Base de données**
+- Migration : `20261022100001_schema_hardening_audit.sql` — **écrite mais NON appliquée** (à pousser par le porteur du projet)
+- Types régénérés : **non** — à faire après `pnpm db:push` (`scan_logs.card_id`/`staff_id` deviennent nullables, `restaurant_id` ajouté). Le code actuel ne lit pas `scan_logs`, donc `typecheck` passe sans.
+
+**Bugs rencontrés** : Aucun
+
+**Décisions** : ADR-012 (journal anonymisable, RGPD), ADR-013 (format du `qr_token`), ADR-014 (droits de colonne sur `profiles`)
+**Dette introduite / remboursée** : DT-001, DT-002 (cf. registre)
+
+**Non traité (audit, hors périmètre de cette session)** : `cache()` sur les requêtes de session, config OTP (`max_frequency`, `otp_expiry`) à aligner dans le Dashboard, code mort `features/scanner`, résultat de `signOutUser` ignoré, `memberships[0]` non ordonné, policy `loyalty_programs` anon sur restaurants inactifs.
+
+**Tests de validation**
+- [x] `pnpm lint`, `pnpm typecheck`, `pnpm test` (30 tests), `pnpm format:check` — verts
+- [ ] `pnpm db:push` → `pnpm db:types` → `pnpm db:test` (3 fichiers pgTAP) — à exécuter
+- [ ] Tests de validation manuels Phase 3 — à exécuter
+
+**Prochaine étape** : appliquer et tester la migration 7, valider la Phase 3 sur appareils réels, commiter.
+
+---
+
+### Session 11 — [2026-10-20 → 2026-10-22] — Phase 3 : authentification & rôles (consignée rétroactivement)
+**Roadmap :** Phase 3 — Étapes 3.1 → 3.7 · **Statut :** 🟡 Partiel (code livré, tests de validation non cochés) · **Branche :** `feat/phase-3-auth`
+
+> Entrée rédigée lors de l'audit de la Session 12 : le code avait été écrit sans mise à jour du journal.
+
+**Réalisé**
+- feat: clients Supabase (`lib/supabase/server.ts`, `client.ts`, `admin.ts`, `proxy.ts`) et `src/proxy.ts` (rafraîchissement de session via `getClaims()`, redirection optimiste vers `/login?next=…`, default-deny)
+- feat: `/login` (Google OAuth PKCE + OTP email 6 chiffres), `/auth/callback`, `/onboarding` (prénom, Q-010), `/invitation`, déconnexion
+- feat: gardes de routes serveur : `(client)` (session + prénom), `/pro` (membre de `restaurant_members`), `/admin` (`platform_admins`)
+- feat: `lib/server-env.ts` (secrets serveur validés par Zod)
+- db: migration 6 `20261020130001_invitation_rpcs_and_first_name.sql` — prénom seul depuis Google, `private.current_verified_email()`, RPC `list_my_pending_invitations` et `accept_restaurant_invitation` (verrou `FOR UPDATE`, usage unique)
+- test: `auth-domain.test.ts` (redirections, schémas, mapping d'erreurs), `invitation_acceptance.test.sql` (12 assertions), E2E de garde de routes
+- chore: template email OTP FR (`supabase/templates/otp.html`), dépendances `@supabase/ssr` et `@supabase/supabase-js`
+
+**Base de données**
+- Migration : `20261020130001_invitation_rpcs_and_first_name.sql` (appliquée sur le projet Dev)
+- Types régénérés : oui
+
+**Décisions** : ADR-003 (OTP + Google) et ADR-006 (invitation) mis en œuvre
+**Dette introduite / remboursée** : Aucune
+
+**Tests de validation** : voir `04-ROADMAP.md` Phase 3 (aucun coché au 2026-10-22)
+
+**Prochaine étape** : voir Session 12.
+
+---
+
+### Session 10 — [2026-10-22] — Installation du skill `vercel-react-best-practices` (outillage agent)
+**Roadmap :** Hors roadmap (outillage agent) · **Statut :** ✅ Terminé · **Branche :** `feat/phase-3-auth`
+
+**Réalisé**
+- chore: `npx skills add https://github.com/vercel-labs/agent-skills --skill vercel-react-best-practices` — skill installé dans `.agents/skills/vercel-react-best-practices/` (source canonique) + symlink `.claude/skills/vercel-react-best-practices` pour Claude Code
+
+**Fichiers clés**
+- `.agents/skills/vercel-react-best-practices/SKILL.md` — skill de bonnes pratiques React/Next.js (provenance : `vercel-labs/agent-skills`)
+- `.agents/skills/vercel-react-best-practices/rules/*.md` — une cinquantaine de règles détaillées (async, bundle, rendering, rerender, server, JS) référencées par le skill
+- `.agents/skills/vercel-react-best-practices/AGENTS.md`, `README.md` — documentation amont
+- `.claude/skills/vercel-react-best-practices` — symlink vers le skill ci-dessus
+
+**Base de données** : Aucune
+**Bugs rencontrés** : Aucun
+**Décisions** : Aucune (pas d'ADR : outil d'agent, pas une dépendance applicative)
+**Dette introduite / remboursée** : Aucune
+
+**Points de vigilance**
+- Le skill s'exécute avec les permissions complètes de l'agent. Scan tiers : Gen « Safe », Socket 0 alerte, Snyk « Low Risk ». Ne contient que de la documentation (pas de scripts).
+- Ses règles de performance React/Next.js peuvent entrer en conflit avec les règles du projet (`.cursorrules`) ; `.cursorrules` prévaut.
+- Recouvrement possible avec les skills de design installés en Sessions 7 à 9.
+- `.agents/` et `.claude/` restent non suivis par git (cf. Session 6).
+
+**Tests de validation**
+- [x] Installation non interactive réussie (1 skill, 0 erreur)
+- [ ] Relecture du `SKILL.md` et des règles — non faite dans cette session
+
+**Prochaine étape** : inchangée — Phase 3 — Étape 3.1 (`feat/phase-3-auth`).
+
+---
+
+### Session 9 — [2026-10-22] — Installation du skill `web-design-guidelines` (outillage agent)
+**Roadmap :** Hors roadmap (outillage agent) · **Statut :** ✅ Terminé · **Branche :** `feat/phase-3-auth`
+
+**Réalisé**
+- chore: `npx skills add https://github.com/vercel-labs/agent-skills --skill web-design-guidelines` — skill installé dans `.agents/skills/web-design-guidelines/` (source canonique) + symlink `.claude/skills/web-design-guidelines` pour Claude Code
+
+**Fichiers clés**
+- `.agents/skills/web-design-guidelines/SKILL.md` — skill de revue des règles de design web (provenance : `vercel-labs/agent-skills`)
+- `.claude/skills/web-design-guidelines` — symlink vers le skill ci-dessus
+
+**Base de données** : Aucune
+**Bugs rencontrés** : Aucun
+**Décisions** : Aucune (pas d'ADR : outil d'agent, pas une dépendance applicative)
+**Dette introduite / remboursée** : Aucune
+
+**Points de vigilance**
+- Le skill s'exécute avec les permissions complètes de l'agent. Scan tiers : Gen « Safe », Socket 0 alerte, Snyk « Low Risk ». Ne contient que `SKILL.md` (pas de scripts).
+- Recouvrement possible avec `ui-ux-pro-max` (Session 7) et `frontend-design` (Session 8) : à arbitrer selon le besoin.
+- `.agents/` et `.claude/` restent non suivis par git (cf. Session 6).
+
+**Tests de validation**
+- [x] Installation non interactive réussie (1 skill, 0 erreur)
+- [ ] Relecture du `SKILL.md` — non faite dans cette session
+
+**Prochaine étape** : inchangée — Phase 3 — Étape 3.1 (`feat/phase-3-auth`).
+
+---
+
+### Session 8 — [2026-10-22] — Installation du skill `frontend-design` (outillage agent)
+**Roadmap :** Hors roadmap (outillage agent) · **Statut :** ✅ Terminé · **Branche :** `feat/phase-3-auth`
+
+**Réalisé**
+- chore: `npx skills add https://github.com/anthropics/skills --skill frontend-design` — skill installé dans `.agents/skills/frontend-design/` (source canonique) + symlink `.claude/skills/frontend-design` pour Claude Code
+
+**Fichiers clés**
+- `.agents/skills/frontend-design/SKILL.md` — skill de conception d'interfaces frontend (provenance : `anthropics/skills`)
+- `.agents/skills/frontend-design/LICENSE.txt` — licence du skill
+- `.claude/skills/frontend-design` — symlink vers le skill ci-dessus
+
+**Base de données** : Aucune
+**Bugs rencontrés** : Aucun
+**Décisions** : Aucune (pas d'ADR : outil d'agent, pas une dépendance applicative)
+**Dette introduite / remboursée** : Aucune
+
+**Points de vigilance**
+- Le skill s'exécute avec les permissions complètes de l'agent. Scan tiers : Gen « Safe », Socket 0 alerte, Snyk « Low Risk ». Ce skill ne contient que de la documentation (pas de scripts).
+- Recouvrement possible avec `ui-ux-pro-max` (Session 7) sur les conseils UI : à arbitrer selon le besoin.
+- `.agents/` et `.claude/` restent non suivis par git (cf. Session 6).
+
+**Tests de validation**
+- [x] Installation non interactive réussie (1 skill, 0 erreur)
+- [ ] Relecture du `SKILL.md` — non faite dans cette session
+
+**Prochaine étape** : inchangée — Phase 3 — Étape 3.1 (`feat/phase-3-auth`).
+
+---
+
+### Session 7 — [2026-10-22] — Installation du skill `ui-ux-pro-max` (outillage agent)
+**Roadmap :** Hors roadmap (outillage agent) · **Statut :** ✅ Terminé · **Branche :** `feat/phase-3-auth`
+
+**Réalisé**
+- chore: `npx skills add https://github.com/nextlevelbuilder/ui-ux-pro-max-skill --skill ui-ux-pro-max` — skill installé dans `.agents/skills/ui-ux-pro-max/` (source canonique) + symlink `.claude/skills/ui-ux-pro-max` pour Claude Code
+
+**Fichiers clés**
+- `.agents/skills/ui-ux-pro-max/SKILL.md` — skill de conseils UI/UX (provenance : `nextlevelbuilder/ui-ux-pro-max-skill`)
+- `.agents/skills/ui-ux-pro-max/scripts/*.py` — scripts Python (`search.py`, `core.py`, `design_system.py`, `reasoning_contract.py`) exécutés par le skill
+- `.agents/skills/ui-ux-pro-max/data/*.csv` — jeux de données (couleurs, typographies, styles, stacks)
+- `.claude/skills/ui-ux-pro-max` — symlink vers le skill ci-dessus
+
+**Base de données** : Aucune
+**Bugs rencontrés** : Aucun
+**Décisions** : Aucune (pas d'ADR : outil d'agent, pas une dépendance applicative)
+**Dette introduite / remboursée** : Aucune
+
+**Points de vigilance**
+- Le skill s'exécute avec les permissions complètes de l'agent et lance des scripts Python. Scan tiers : Gen « Safe », Socket 0 alerte, Snyk « Low Risk ». Relire les scripts avant tout usage.
+- `.agents/` et `.claude/` restent non suivis par git (cf. Session 6).
+
+**Tests de validation**
+- [x] Installation non interactive réussie (1 skill, 0 erreur)
+- [ ] Relecture des scripts Python — non faite dans cette session
+
+**Prochaine étape** : inchangée — Phase 3 — Étape 3.1 (`feat/phase-3-auth`).
+
+---
+
+### Session 6 — [2026-10-22] — Installation du skill `find-skills` (outillage agent)
+**Roadmap :** Hors roadmap (outillage agent, aucune étape de Phase) · **Statut :** ✅ Terminé · **Branche :** `feat/phase-3-auth`
+
+**Réalisé**
+- chore: `npx skills add https://github.com/vercel-labs/skills --skill find-skills` — skill installé dans `.agents/skills/find-skills/` (source canonique) + symlink `.claude/skills/find-skills` pour Claude Code
+
+**Fichiers clés**
+- `.agents/skills/find-skills/SKILL.md` — skill de recherche de skills (provenance : `vercel-labs/skills`)
+- `.claude/skills/find-skills` — symlink vers le skill ci-dessus
+
+**Base de données** : Aucune
+**Bugs rencontrés** : Aucun
+**Décisions** : Aucune (pas d'ADR : ajout d'un outil d'agent, pas une dépendance applicative ni un changement de stack)
+**Dette introduite / remboursée** : Aucune
+
+**Points de vigilance**
+- Le skill s'exécute avec les permissions complètes de l'agent. Scan tiers : Gen « Safe », Socket 0 alerte, Snyk « Med Risk ». À relire avant utilisation (`.agents/skills/find-skills/SKILL.md`).
+- `.agents/` et `.claude/` sont non suivis par git : décider s'ils doivent être commités ou ignorés.
+
+**Tests de validation**
+- [x] Installation non interactive réussie (1 skill, 0 erreur)
+- [ ] Relecture manuelle du `SKILL.md` — non faite dans cette session
+
+**Prochaine étape** : inchangée — Phase 3 — Étape 3.1 (`feat/phase-3-auth`).
+
+---
 
 ### Session 5 — [2026-10-20] — Implémentation complète de la Phase 2 (Schéma PostgreSQL, RLS, Storage, Seed & Tests pgTAP) & merge sur `main`
 **Roadmap :** Phase 2 — Étapes 2.1 → 2.8 · **Statut :** ✅ Terminé · **Branche :** `main` (après merge de `feat/phase-2-database`)
@@ -292,6 +543,9 @@
 | ADR-009 | Progression : compteur cumulatif sur le cycle (`13/10 → 13/20`) + boucle sur le Palier 1 | ✅ Accepté | 2026-10-19 |
 | ADR-010 | Annulation d'un scan par écriture compensatoire liée (`reverses_log_id`) | ✅ Accepté | 2026-10-19 |
 | ADR-011 | Environnement de dev DB : Projet Supabase Cloud « Dev » lié (`--linked`) sans Docker Desktop | ✅ Accepté | 2026-10-20 |
+| ADR-012 | Journal `scan_logs` : traces d'audit anonymisables, conformité RGPD à la suppression de compte | ✅ Accepté | 2026-10-22 |
+| ADR-013 | `qr_token` : 20 caractères base32 majuscules (100 bits) pour un QR de version 1 | ✅ Accepté | 2026-10-22 |
+| ADR-014 | `profiles` : droits `UPDATE` par colonne (`display_name` seul) | ✅ Accepté | 2026-10-22 |
 
 <!-- ============ TEMPLATE ADR ============
 ### ADR-NNN — Titre
@@ -409,13 +663,49 @@
 - **Conséquences :** ne jamais lier le poste de dev au futur projet de production pour les commandes destructrices (`db:reset`).
 - **Réversibilité :** immédiate (`supabase start` fonctionne sans modification des fichiers SQL si Docker est installé plus tard).
 
+### ADR-012 — Journal `scan_logs` : traces d'audit anonymisables (RGPD)
+- **Date :** 2026-10-22 · **Statut :** ✅ Accepté (demande du porteur de projet : le journal est un simple log, il ne doit pas aller contre le RGPD) · **Phase :** 2/3 (schéma), 6 (RPC), 11 (suppression de compte)
+- **Contexte :** `scan_logs` est immuable (ADR-004/010) mais ses FK vers `loyalty_cards` (CASCADE) et `profiles` (RESTRICT) rendaient la suppression de compte impossible (employé) ou destructrice pour le journal (client). Le journal doit rester utile (stats, audit du restaurateur) sans conserver de donnée rattachable à une personne supprimée.
+- **Options envisagées :**
+  1. Supprimer les logs en cascade avec le compte — ✅ simple ❌ fausse les statistiques du restaurateur, casse la chaîne d'annulation (`reverses_log_id`).
+  2. Conserver les logs avec l'identifiant du client — ❌ donnée personnelle conservée, contraire à l'effacement RGPD.
+  3. Anonymiser : `card_id` et `staff_id` passent à `NULL` (`ON DELETE SET NULL`), le log garde type, delta, programme, restaurant, date — ✅ plus aucun lien avec une personne, stats et audit préservés.
+- **Décision :** Option 3. `scan_logs.restaurant_id` est ajouté (not null, FK composite `(card_id, restaurant_id)` → cohérence garantie par la base ; `ON DELETE SET NULL (card_id)` n'annule que la carte). Le trigger d'immutabilité n'accepte que le passage à `NULL` de `card_id`/`staff_id` ; toute autre modification reste refusée.
+- **Pourquoi :** respecte l'effacement RGPD sans perdre l'audit ; `restaurant_id` évite une jointure pour `/pro/logs` et `/pro/stats` et permet l'index `(restaurant_id, created_at)`.
+- **Conséquences :** un log anonymisé n'est plus visible du client (il n'en a plus) mais reste visible du personnel du restaurant. Les RPC de la Phase 6 doivent renseigner `restaurant_id`. Le nom du client affiché dans les logs doit être lu via la carte (jointure `NULL`-safe).
+- **Réversibilité :** moyenne (migration inverse + re-remplissage impossible pour les logs déjà anonymisés).
+
+### ADR-013 — `qr_token` : 20 caractères base32 majuscules
+- **Date :** 2026-10-22 · **Statut :** ✅ Accepté · **Phase :** 2 (schéma), 4 (affichage)
+- **Contexte :** le jeton initial faisait 48 caractères hexadécimaux, donnant un QR dense (version ≥ 4), plus lent à décoder alors que le scan doit tenir en < 3 s (budget P6). La roadmap vise 16–22 caractères.
+- **Options envisagées :**
+  1. Hexadécimal 48 car. (192 bits) — ✅ simple ❌ QR dense.
+  2. Base64url 22 car. (128 bits) — ✅ compact ❌ mixte majuscules/minuscules → mode octet du QR, moins efficace.
+  3. Base32 majuscule 20 car. (100 bits) — ✅ mode alphanumérique du QR : tient en version 1 niveau M (21×21 modules), modules plus gros donc décodage plus rapide ❌ 100 bits au lieu de 128.
+- **Décision :** Option 3 ; format imposé par `CHECK (qr_token ~ '^[A-Z2-7]{20}$')`, jetons existants régénérés (aucun QR distribué).
+- **Pourquoi :** 100 bits restent infaisables à deviner (2^100) ; le gain de lisibilité et de vitesse sert la contrainte produit n°1. Le rate limiting de la Phase 11 couvre le reste.
+- **Conséquences :** le QR doit encoder le jeton seul (pas d'URL préfixée, sinon repassage en mode octet).
+- **Réversibilité :** facile (régénération des jetons).
+
+### ADR-014 — `profiles` : droits `UPDATE` par colonne
+- **Date :** 2026-10-22 · **Statut :** ✅ Accepté · **Phase :** 3
+- **Contexte :** la policy `profiles_update_own` filtre les lignes, pas les colonnes : un client pouvait modifier `signup_restaurant_id` (attribution ROI, Phase 10).
+- **Options envisagées :**
+  1. Étendre le trigger `protect_profile_columns` — ✅ message explicite ❌ liste noire à maintenir à chaque nouvelle colonne.
+  2. `REVOKE UPDATE` puis `GRANT UPDATE (display_name)` — ✅ liste blanche, refus natif `42501`, toute nouvelle colonne est protégée par défaut.
+- **Décision :** Option 2 ; le trigger est conservé en défense en profondeur.
+- **Conséquences :** toute future colonne éditable par l'utilisateur doit être ajoutée explicitement au `GRANT`.
+- **Réversibilité :** immédiate.
+
 ---
 
 ## 🧾 Dette technique
 
 | ID | Description | Raison du raccourci | Impact | Phase de remboursement | Statut |
 |---|---|---|---|---|---|
-| — | — | — | — | — | — |
+| DT-001 | Suppression du dernier `owner` d'un restaurant : le restaurant reste sans propriétaire (aucun garde-fou) | Cas hors périmètre MVP | 🟠 Restaurant non administrable sans intervention admin | Phase 11 (suppression de compte) | ⏳ Ouverte |
+| DT-002 | La suppression de compte n'est pas encore exposée (pas de Server Action ni d'UI) ; seul le comportement base est en place et testé | Livraison prévue en P11 | 🟠 Obligation RGPD à honorer avant le pilote | Phase 11 | ⏳ Ouverte |
+| DT-003 | Tests de validation Phase 3 non exécutés : parcours par rôle (client/staff/admin) avec une vraie invitation, session persistante, cookie modifié, Google sur iPhone/Android et PWA, E2E de connexion OTP (Inbucket indisponible avec le projet Cloud) | Aucun contenu `/pro` ni PWA à valider avant les Phases 5 et 8 | 🟠 Régression d'accès non détectée | Phases 5 (rôles `/pro`), 8 (PWA) | ⏳ Ouverte |
 
 ---
 
