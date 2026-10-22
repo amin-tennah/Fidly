@@ -132,6 +132,7 @@ erDiagram
     }
     scan_logs {
         uuid id PK
+        uuid restaurant_id FK
         uuid card_id FK
         uuid program_id FK
         uuid staff_id FK
@@ -244,21 +245,21 @@ erDiagram
 **🎯 Objectif :** un client se connecte en 1 tap (Google) ou par code email ; un restaurateur invité accède à `/pro` ; personne n'accède à ce qu'il ne doit pas voir.
 
 ### Étapes
-- [ ] **3.1** `lib/supabase/server.ts`, `client.ts`, middleware/proxy de rafraîchissement de session.
-- [ ] **3.2** Page `/login` : bouton Google OAuth + formulaire email → saisie du code OTP à 6 chiffres. Route `/auth/callback`.
-- [ ] **3.3** SMTP personnalisé (Resend) + template d'email OTP en français aux couleurs Fidly.
-- [ ] **3.4** Onboarding post-inscription : saisie du prénom ou pseudonyme (`display_name`, cf. Q-010) si absent (pré-rempli depuis Google).
-- [ ] **3.5** Garde de routes : `/` et `/pro` exigent une session ; `/pro` exige une appartenance à `restaurant_members` ; `/admin` exige `platform_admins`. Redirection vers `/login?next=...`.
-- [ ] **3.6** Flux d'invitation restaurateur (ADR-006) : l'admin crée le restaurant et émet une invitation liée à un email (`restaurant_invitations`) → le restaurateur crée lui-même son compte avec cet email → il est rattaché comme `owner` (l'UI d'invitation des employés `staff` est reportée en Post-MVP — Q-011).
-- [ ] **3.7** Déconnexion.
+- [x] **3.1** `lib/supabase/server.ts`, `client.ts`, middleware/proxy de rafraîchissement de session.
+- [x] **3.2** Page `/login` : bouton Google OAuth + formulaire email → saisie du code OTP à 6 chiffres. Route `/auth/callback`.
+- [x] **3.3** SMTP personnalisé (Resend) + template d'email OTP en français aux couleurs Fidly.
+- [x] **3.4** Onboarding post-inscription : saisie du prénom ou pseudonyme (`display_name`, cf. Q-010) si absent (pré-rempli depuis Google).
+- [x] **3.5** Garde de routes : `/` et `/pro` exigent une session ; `/pro` exige une appartenance à `restaurant_members` ; `/admin` exige `platform_admins`. Redirection vers `/login?next=...`.
+- [x] **3.6** Flux d'invitation restaurateur (ADR-006) : l'admin crée le restaurant et émet une invitation liée à un email (`restaurant_invitations`) → le restaurateur crée lui-même son compte avec cet email → il est rattaché comme `owner` (l'UI d'invitation des employés `staff` est reportée en Post-MVP — Q-011).
+- [x] **3.7** Déconnexion.
 
 ### ✅ Tests de validation
-- [ ] Connexion Google OK sur iPhone et Android (navigateur **et** PWA installée si déjà disponible).
-- [ ] Connexion OTP OK ; code expiré ou erroné ⇒ message clair ; renvoi limité dans le temps.
-- [ ] Un client accédant à `/pro` est redirigé ; un staff accède à `/pro` ; seul un admin accède à `/admin`.
-- [ ] Session conservée après fermeture/réouverture du navigateur.
-- [ ] Modification manuelle du cookie/JWT côté client ⇒ aucun accès supplémentaire (RLS fait foi).
-- [ ] E2E Playwright : connexion OTP (via boîte mail locale Inbucket/Mailpit de Supabase en dev).
+- [x] Connexion Google OK (navigateur ; le test iPhone/Android et PWA installée est reporté — DT-003).
+- [x] Connexion OTP OK ; code expiré ou erroné ⇒ message clair ; renvoi limité dans le temps.
+- [ ] Un client accédant à `/pro` est redirigé ; un staff accède à `/pro` ; seul un admin accède à `/admin`. *(redirection des visiteurs anonymes vérifiée par E2E ; parcours par rôle reporté — DT-003)*
+- [ ] Session conservée après fermeture/réouverture du navigateur. *(reporté — DT-003)*
+- [ ] Modification manuelle du cookie/JWT côté client ⇒ aucun accès supplémentaire (RLS fait foi). *(reporté — DT-003)*
+- [ ] E2E Playwright : connexion OTP (via boîte mail locale Inbucket/Mailpit de Supabase en dev). *(non applicable avec le projet Cloud Dev, ADR-011 — DT-003)*
 
 ### ⚠️ Points de vigilance
 - **Magic Link en PWA iOS** : le lien s'ouvre dans Safari, pas dans la PWA installée ⇒ session dans le mauvais contexte (raison de l'ADR-003).
@@ -287,7 +288,7 @@ erDiagram
 
 ### ⚠️ Points de vigilance
 - **Lisibilité du QR** : fond blanc pur, marge (quiet zone) suffisante, taille ≥ 200 px, niveau de correction d'erreur `M` ou `Q`. Le web ne peut pas forcer la luminosité de l'écran : conseiller l'utilisateur.
-- Le `qr_token` doit rester court (≈ 16–22 caractères) pour un QR peu dense, donc plus rapide à décoder.
+- Le `qr_token` fait 20 caractères base32 majuscules (ADR-013) : le QR doit encoder **le jeton seul** (pas d'URL) pour rester en version 1.
 - Aucune logique de progression dans les composants : tout passe par `domain/`.
 
 ---
@@ -466,7 +467,7 @@ Parcours complet sur 2 téléphones : inscription client → configuration resta
 
 ### ✅ Tests de validation
 - [ ] Tentatives manuelles d'attaque : escalade de rôle, lecture des cartes d'autrui, rejeu de requête, QR forgé, brute force du code court ⇒ toutes bloquées.
-- [ ] Suppression de compte ⇒ données personnelles supprimées/anonymisées, logs conservés anonymisés.
+- [ ] Suppression de compte ⇒ données personnelles supprimées/anonymisées, logs conservés anonymisés (ADR-012 : `card_id`/`staff_id` passent à `NULL`).
 - [ ] Erreur volontaire en production ⇒ remontée dans Sentry avec contexte, sans donnée personnelle.
 - [ ] **Pilote** : ≥ 90 % des scans < 5 s d'interaction totale, 0 point perdu ou en double, retours du restaurateur consignés dans le CHANGELOG.
 
