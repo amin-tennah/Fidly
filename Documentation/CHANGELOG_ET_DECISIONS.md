@@ -35,9 +35,9 @@
 
 ## 🧭 État courant (à mettre à jour à chaque session)
 
-- **Phase en cours :** Phase 3 terminée (3.1 → 3.7 ✅, validations restantes tracées en DT-003) · Prêt pour Phase 4 (Espace client : QR & cartes)
-- **Dernière session :** Session 13 (2026-10-22) — clôture de la Phase 3
-- **Prochaine action :** Phase 4 — Étape 4.1 sur une branche `feat/phase-4-client-cards` (plan à valider avant de coder)
+- **Phase en cours :** Phase 4 terminée (4.1 → 4.5 ✅, Lighthouse Performance à re-mesurer en production : DT-005) · Prêt pour Phase 5 (Espace restaurateur : fiche et programmes)
+- **Dernière session :** Session 14 (2026-10-22) — Phase 4 : QR client et cartes de fidélité
+- **Prochaine action :** Phase 5 — Étape 5.1 sur une branche `feat/phase-5-pro-settings` (plan à valider avant de coder : upload Storage et réordonnancement par glisser-déposer touchent à la sécurité et aux dépendances)
 - **Bloquants :** Aucun
 
 ---
@@ -72,6 +72,50 @@
 
 **Prochaine étape** : ...
 ==================================================================================== -->
+
+### Session 14 — [2026-10-22] — Phase 4 : QR client et cartes de fidélité
+**Roadmap :** Phase 4 — Étapes 4.1 → 4.5 · **Statut :** ✅ Terminé (une mesure de performance à refaire en production, DT-005) · **Branche :** `feat/phase-4-client-cards` → `main`
+
+**Réalisé**
+- feat(4.2): `computeCardProgress` (ADR-009) : `stamps / threshold` cumulatif (`13/10`, `13/20`), barre plafonnée, palier suivant avec boucle sur le 1er, bascule sur le palier actif suivant si le palier courant est désactivé (Q-013), `null` sans palier actif
+- feat(4.1): `CustomerQrHero` : QR du `qr_token` seul (`qrcode.react`, niveau M, fond blanc, marge de 4 modules, 232 px) + code de secours `ABC DEF`
+- feat(4.3/4.4): liste « Mes cartes de fidélité » (récompense du palier, barre, surbrillance verte + « Récompense disponible en caisse ! »), état vide, `loading.tsx` adapté, erreur via `error.tsx` (la requête lève en cas d'erreur base)
+- feat(4.5): copie locale de l'identité (`localStorage`, clé `fidly.identity.v1`), effacée à la déconnexion
+- perf: `cache()` React sur les lectures de session (suppression des appels Supabase en double entre layout et page)
+- fix: `SignOutButton` n'ignore plus le résultat de `signOutUser` (toast d'erreur) ; `memberships` triées par date
+- refactor: la page `/` n'est plus qu'un assemblage ; bannières pro extraites dans `ProAccessBanners`
+- dev: script `supabase/dev/attach_dev_cards.sql` (scénarios `progress`, `unlocked`, `chained`, `clean`) pour tester avec votre compte
+
+**Fichiers clés**
+- `src/features/loyalty/` — `domain/` (progression, code court + tests), `queries/list-my-loyalty-cards.ts`, `components/`
+- `src/features/auth/identity-storage.ts`, `hooks/use-persist-identity.ts` — persistance locale
+- `src/app/(client)/page.tsx` — assemblage de l'écran
+- `supabase/dev/attach_dev_cards.sql` — données de test (jamais une migration)
+
+**Base de données** : aucune migration, types inchangés.
+
+**Bugs rencontrés** : Aucun
+
+**Décisions** : Aucun nouvel ADR (jeton local et format QR : cf. ADR-005/013)
+**Dette introduite / remboursée** : DT-004
+
+**Points de vigilance**
+- Le QR mesure 29×29 modules (version 1) avec un jeton de 20 caractères majuscules ; en minuscules il passerait à 33×33, en hexadécimal 48 car. à 41×41 (vérifié).
+- Le jeton local est un secret d'appareil : il n'y a pas encore de révocation du `qr_token` (ADR-005).
+- La partie « lecture » de la copie locale (réaffichage hors-ligne) arrive avec le service worker de la Phase 8 ; seule l'écriture et l'effacement existent.
+
+**Tests de validation**
+- [x] `pnpm lint`, `pnpm typecheck`, `pnpm test` (48 tests dont 18 nouveaux sur `computeCardProgress` / `formatShortCode`), `pnpm format:check`, `pnpm build` — verts
+- [x] QR d'un jeton de 20 caractères : 29×29 modules (version 1) — vérifié par script
+- [x] QR scanné avec succès depuis 3 téléphones différents — OK
+- [x] Scénarios du script SQL (`progress`, `unlocked`, `chained`, `clean`) ⇒ affichage correct après rechargement — OK
+- [x] Code de secours, `localStorage` (écriture et effacement à la déconnexion), rendu à 375 px — OK
+- [x] Lighthouse mobile sous `pnpm dev` : Accessibilité 99, Bonnes pratiques 100, SEO 100 ; FCP 0,9 s, LCP 1,5 s, CLS 0
+- [ ] Lighthouse Performance ≥ 90 : **81 sous `pnpm dev`** (TBT 790 ms dû au bundle JS non minifié du serveur de dev) — à re-mesurer sur build de production (DT-005)
+
+**Prochaine étape** : valider manuellement, commiter et fusionner, puis Phase 5 (espace restaurateur : fiche et programmes).
+
+---
 
 ### Session 13 — [2026-10-22] — Clôture de la Phase 3 (validation, commits, merge)
 **Roadmap :** Phase 3 — clôture · **Statut :** ✅ Terminé · **Branche :** `feat/phase-3-auth` → `main`
@@ -706,6 +750,8 @@
 | DT-001 | Suppression du dernier `owner` d'un restaurant : le restaurant reste sans propriétaire (aucun garde-fou) | Cas hors périmètre MVP | 🟠 Restaurant non administrable sans intervention admin | Phase 11 (suppression de compte) | ⏳ Ouverte |
 | DT-002 | La suppression de compte n'est pas encore exposée (pas de Server Action ni d'UI) ; seul le comportement base est en place et testé | Livraison prévue en P11 | 🟠 Obligation RGPD à honorer avant le pilote | Phase 11 | ⏳ Ouverte |
 | DT-003 | Tests de validation Phase 3 non exécutés : parcours par rôle (client/staff/admin) avec une vraie invitation, session persistante, cookie modifié, Google sur iPhone/Android et PWA, E2E de connexion OTP (Inbucket indisponible avec le projet Cloud) | Aucun contenu `/pro` ni PWA à valider avant les Phases 5 et 8 | 🟠 Régression d'accès non détectée | Phases 5 (rôles `/pro`), 8 (PWA) | ⏳ Ouverte |
+| DT-004 | Le logo du restaurant n'est pas affiché sur les cartes (initiale seulement) : aucun upload n'existe avant l'étape 5.3, et `next/image` exige la configuration du domaine Storage | Logos inexistants avant la Phase 5 | 🟢 Cosmétique | Phase 5 (5.3) | ⏳ Ouverte |
+| DT-005 | Lighthouse Performance mesuré à 81 sous `pnpm dev` (TBT 790 ms, bundle non minifié) : le seuil ≥ 90 n'est pas confirmé sur un build de production | Mesure faite avant tout déploiement | 🟠 Objectif de la contrainte produit n°1 non vérifié | Phase 11 (11.4), ou dès le 1er déploiement Vercel | ⏳ Ouverte |
 
 ---
 
