@@ -12,6 +12,11 @@ export function toMinutes(time: string): number {
   return Number(hours) * 60 + Number(minutes);
 }
 
+/** A slot closing at or before its opening time ends the next day (e.g. 22:00 → 04:30). */
+export function crossesMidnight(slot: TimeSlot): boolean {
+  return toMinutes(slot.close) < toMinutes(slot.open);
+}
+
 /** End of a slot in minutes from the day start; past `MINUTES_PER_DAY` when it crosses midnight. */
 function endMinutes(slot: TimeSlot): number {
   const open = toMinutes(slot.open);

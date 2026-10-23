@@ -35,7 +35,7 @@
 
 ## 🧭 État courant (à mettre à jour à chaque session)
 
-- **Phase en cours :** Phase 5 (Espace restaurateur) — 5.1 ✅ · 5.2 ✅ (code ; validation manuelle à faire) · 5.3 → 5.4 à faire sur `feat/phase-5-pro-settings` · 5.5 (admin) sur une branche séparée
+- **Phase en cours :** Phase 5 (Espace restaurateur) — 5.1 ✅ · 5.2 ✅ · 5.3 → 5.4 à faire sur `feat/phase-5-pro-settings` · 5.5 (admin) sur une branche séparée
 - **Dernière session :** Session 16 (2026-10-23) — Phase 5.2 : fiche de l'établissement
 - **Prochaine action :** valider 5.2 à la main, puis 5.3 (upload logo/couverture : migration Storage owner uniquement, compression client, `next/image`)
 - **Bloquants :** Aucun
@@ -74,13 +74,14 @@
 ==================================================================================== -->
 
 ### Session 16 — [2026-10-23] — Phase 5.2 : fiche de l'établissement
-**Roadmap :** Phase 5 — Étape 5.2 · **Statut :** 🟡 Partiel (code et tests verts ; validation manuelle de l'écran à faire) · **Branche :** `feat/phase-5-pro-settings`
+**Roadmap :** Phase 5 — Étape 5.2 · **Statut :** ✅ Terminé · **Branche :** `feat/phase-5-pro-settings`
 
 **Réalisé**
 - db: migration 8 — `UPDATE` de `restaurants` limité aux colonnes `name`, `category`, `opening_hours`, `logo_path`, `cover_path` ; RPC `set_restaurant_address` (adresse + `geography` cohérentes, owner ou admin) ; colonne `cover_path` ; CHECK sur `opening_hours` (objet JSON) et la longueur de l'adresse
 - feat(5.2): `/pro/settings` pour l'owner : nom + catégorie (react-hook-form + Zod), adresse avec autocomplétion, éditeur d'horaires par jour (jusqu'à 3 créneaux, fermeture après minuit permise, chevauchements refusés) ; le `staff` voit un résumé en lecture seule
 - feat: autocomplétion via la Server Action `searchAddresses` (appel serveur à l'API Géoplateforme de l'IGN, réponse validée par Zod, cache 1 h, saisie debouncée à 300 ms, 3 caractères minimum) ; seule une suggestion choisie (donc de vraies coordonnées) peut être enregistrée
 - feat: garde `authorizeRestaurantOwner` commune aux actions (session, puis rôle owner, puis Zod)
+- fix: retour d'essai — un créneau passant minuit (ex. 22:00–04:30) appartient au jour d'ouverture ; l'écran l'indique (« Ferme le lendemain à … ») et `validateWeek` refuse un chevauchement avec le premier créneau du jour suivant (dimanche → lundi inclus)
 
 **Fichiers clés**
 - `supabase/migrations/20261023100001_restaurant_profile_editing.sql`, `supabase/tests/restaurant_profile.test.sql` (11 assertions)
@@ -103,8 +104,8 @@
 
 **Tests de validation**
 - [x] `pnpm db:test` : 20 + 12 + 12 + 11 assertions pgTAP `ok` ; `pnpm db:advisors` : seulement les avertissements acceptés
-- [x] `pnpm lint`, `pnpm typecheck`, `pnpm test` (64 tests dont 16 nouveaux), `pnpm build` — verts
-- [ ] Parcours manuel de `/pro/settings` (nom, catégorie, adresse, horaires, rechargement, vue staff) — à faire
+- [x] `pnpm lint`, `pnpm typecheck`, `pnpm test` (67 tests dont 19 nouveaux), `pnpm build` — verts
+- [x] Parcours manuel de `/pro/settings` (nom, adresse, horaires et créneaux, vue staff) — OK par le porteur de projet ; l'ambiguïté des créneaux après minuit a conduit au correctif ci-dessus
 
 **Prochaine étape** : 5.3 — upload du logo et de la couverture.
 

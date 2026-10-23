@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DAY_LABELS, MAX_SLOTS_PER_DAY } from "@/features/restaurants/constants";
+import { crossesMidnight } from "@/features/restaurants/domain/opening-hours";
 import type { OpeningHoursEditor } from "@/features/restaurants/hooks/use-opening-hours-editor";
 import type { DayKey, TimeSlot } from "@/features/restaurants/types";
 
@@ -21,29 +22,36 @@ function SlotRow({ day, editor, slot, index }: SlotRowProps): ReactNode {
   const position = index + 1;
 
   return (
-    <div className="flex items-center gap-2">
-      <Input
-        type="time"
-        aria-label={`${label} : ouverture du créneau ${position}`}
-        value={slot.open}
-        onChange={(e) => editor.updateSlot(day, index, { open: e.target.value })}
-      />
-      <span aria-hidden="true">–</span>
-      <Input
-        type="time"
-        aria-label={`${label} : fermeture du créneau ${position}`}
-        value={slot.close}
-        onChange={(e) => editor.updateSlot(day, index, { close: e.target.value })}
-      />
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        aria-label={`${label} : supprimer le créneau ${position}`}
-        onClick={() => editor.removeSlot(day, index)}
-      >
-        <X className="size-4" aria-hidden="true" />
-      </Button>
+    <div className="space-y-1">
+      <div className="flex items-center gap-2">
+        <Input
+          type="time"
+          aria-label={`${label} : ouverture du créneau ${position}`}
+          value={slot.open}
+          onChange={(e) => editor.updateSlot(day, index, { open: e.target.value })}
+        />
+        <span aria-hidden="true">–</span>
+        <Input
+          type="time"
+          aria-label={`${label} : fermeture du créneau ${position}`}
+          value={slot.close}
+          onChange={(e) => editor.updateSlot(day, index, { close: e.target.value })}
+        />
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          aria-label={`${label} : supprimer le créneau ${position}`}
+          onClick={() => editor.removeSlot(day, index)}
+        >
+          <X className="size-4" aria-hidden="true" />
+        </Button>
+      </div>
+      {crossesMidnight(slot) ? (
+        <p className="text-muted-foreground text-xs">
+          Ferme le lendemain à {slot.close}. Pas besoin de le ressaisir le jour suivant.
+        </p>
+      ) : null}
     </div>
   );
 }

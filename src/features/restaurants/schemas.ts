@@ -10,6 +10,7 @@ import {
   isValidTime,
   validateDaySlots,
 } from "@/features/restaurants/domain/opening-hours";
+import { validateWeek } from "@/features/restaurants/domain/validate-week";
 
 const restaurantIdSchema = z.uuid("Établissement invalide.");
 
@@ -50,7 +51,14 @@ const daySlotsSchema = z
     }
   });
 
-export const openingHoursSchema = z.partialRecord(z.enum(DAY_KEYS), daySlotsSchema);
+export const openingHoursSchema = z
+  .partialRecord(z.enum(DAY_KEYS), daySlotsSchema)
+  .superRefine((hours, ctx) => {
+    const message = validateWeek(hours);
+    if (message) {
+      ctx.addIssue({ code: "custom", message });
+    }
+  });
 
 export const updateOpeningHoursSchema = z.object({
   restaurantId: restaurantIdSchema,
