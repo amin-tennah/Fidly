@@ -97,7 +97,8 @@
 
 **Tests de validation**
 - [x] `pnpm lint`, `pnpm typecheck`, `pnpm test` (52 tests dont 4 nouveaux) — verts
-- [ ] Rendu à 375 px, bascule entre deux établissements, accès d'un client à `/pro` — à vérifier manuellement
+- [x] Invitation → acceptation → `/pro` avec les 4 onglets, en-tête « Gérant », sélecteur avec 2 établissements — OK (captures du porteur de projet)
+- [ ] Bascule effective de l'établissement actif et accès d'un simple client à `/pro` — non vérifiés
 
 **Prochaine étape** : 5.2 — fiche de l'établissement.
 
