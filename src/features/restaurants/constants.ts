@@ -15,39 +15,15 @@ export const PRO_NAV_ITEMS = [
   { href: PRO_SETTINGS_PATH, label: "Réglages", icon: "settings" },
 ] as const;
 
-/** Must match the CHECK constraint on `restaurants.name`. */
-export const RESTAURANT_NAME_MAX_LENGTH = 120;
+export {
+  RESTAURANT_CATEGORY_LABELS,
+  RESTAURANT_CATEGORY_VALUES,
+  RESTAURANT_NAME_MAX_LENGTH,
+  RESTAURANT_TIME_ZONE,
+} from "@/lib/restaurant-fields";
+
 /** Must match `restaurants_address_length_chk`. */
 export const ADDRESS_MAX_LENGTH = 200;
-
-/** Mirrors the `restaurant_category` enum (checked by the compiler against the DB types). */
-export const RESTAURANT_CATEGORY_VALUES = [
-  "fast_food",
-  "burger",
-  "tacos",
-  "pizza",
-  "asian",
-  "bakery",
-  "coffee_shop",
-  "other",
-] as const;
-
-export const RESTAURANT_CATEGORY_LABELS: Record<
-  (typeof RESTAURANT_CATEGORY_VALUES)[number],
-  string
-> = {
-  fast_food: "Restauration rapide",
-  burger: "Burger",
-  tacos: "Tacos",
-  pizza: "Pizza",
-  asian: "Asiatique",
-  bakery: "Boulangerie",
-  coffee_shop: "Café",
-  other: "Autre",
-};
-
-/** Opening hours are read in the local time of the (French) restaurants. */
-export const RESTAURANT_TIME_ZONE = "Europe/Paris";
 
 export const DAY_KEYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
 

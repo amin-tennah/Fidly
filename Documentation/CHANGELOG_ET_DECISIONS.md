@@ -35,9 +35,9 @@
 
 ## 🧭 État courant (à mettre à jour à chaque session)
 
-- **Phase en cours :** Phase 5 (Espace restaurateur) — 5.1 ✅ · 5.2 ✅ · 5.3 ✅ · 5.4 ✅ (image de récompense à valider à la main) · 5.5 (admin) à faire sur la branche `feat/phase-5-admin`
-- **Dernière session :** Session 21 (2026-10-23) — Phase 5 : réglages en lecture d'abord
-- **Prochaine action :** valider l'image de récompense, fusionner `feat/phase-5-pro-settings` dans `main`, puis 5.5 (créer un restaurant, inviter l'owner, QR du chevalet en PNG) sur `feat/phase-5-admin`
+- **Phase en cours :** Phase 5 (Espace restaurateur) — 5.1 → 5.4 ✅ (fusionnées dans `main`) · 5.5 🟡 sur `feat/phase-5-admin` (code prêt ; `db:test` et validation manuelle à faire)
+- **Dernière session :** Session 22 (2026-10-23) — Phase 5.5 : back-office `/admin`
+- **Prochaine action :** `pnpm db:test`, valider `/admin` à la main (création, invitation, chevalet), fusionner `feat/phase-5-admin` dans `main`, clore la Phase 5, puis Phase 6 (scanner)
 - **Bloquants :** Aucun
 
 ---
@@ -72,6 +72,41 @@
 
 **Prochaine étape** : ...
 ==================================================================================== -->
+
+### Session 22 — [2026-10-23] — Phase 5.5 : back-office `/admin`
+**Roadmap :** Phase 5 — Étape 5.5 · **Statut :** 🟡 Partiel (code, lint, typecheck, tests unitaires et build verts ; `pnpm db:test` et validation manuelle à faire) · **Branche :** `feat/phase-5-admin` (créée depuis `main` après fusion de `feat/phase-5-pro-settings`)
+
+**Réalisé**
+- feat(5.5): `/admin` — formulaire « Nouveau restaurant » (nom, catégorie, email du gérant) qui crée le restaurant et l'invitation `owner` ; liste des restaurants avec gérants rattachés et invitations en attente (email, date d'expiration) ; « Inviter un gérant » pour une réinvitation ; « Chevalet (PNG) »
+- feat: chevalet imprimable en PNG (A6 portrait, 300 dpi) composé dans le navigateur : nom du restaurant (taille ajustée à la largeur), QR de `<NEXT_PUBLIC_APP_URL>/?ref=<slug>` (niveau de correction Q, marge de 4 modules, agrandi d'un facteur entier sans lissage), légende et pied de page ; aucune dépendance ajoutée
+- feat: garde `authorizePlatformAdmin` (session, puis ligne dans `platform_admins`, puis Zod) ; slug généré depuis le nom avec suffixe sur conflit ; annulation du restaurant si l'invitation échoue (ADR-018)
+- refactor: constantes miroir de `restaurants` (catégories, longueur du nom, fuseau) déplacées dans `src/lib/restaurant-fields.ts`, partagées par `restaurants` et `admin`
+- test: 12 tests unitaires (slug, URL du chevalet, ajustement de police, expiration à 14 jours, schémas, date) ; `supabase/tests/admin_backoffice.test.sql` (9 assertions : l'admin crée/invite/lit/supprime, le slug est unique, owner et client refusés)
+
+**Fichiers clés**
+- `src/features/admin/` — `actions/` (garde, écritures, actions), `queries/list-admin-restaurants.ts`, `domain/` (`slugify`, `easel`, `format-date` + tests), `utils/render-easel-png.ts`, `components/`
+- `src/app/admin/page.tsx`, `supabase/tests/admin_backoffice.test.sql`
+
+**Base de données** : aucune migration (policies existantes).
+
+**Points d'attention**
+- `NEXT_PUBLIC_APP_URL` doit valoir l'URL de production avant d'imprimer un chevalet (par défaut `http://localhost:3000`) ; une erreur ici imprime des QR inutilisables.
+- Les invitations ne sont pas envoyées par email : l'admin transmet au gérant l'adresse de connexion et l'email à utiliser (rappel affiché à la création).
+- Le paramètre `?ref=<slug>` est porté par le QR mais **pas encore exploité** : l'attribution à l'inscription est l'étape 10.1.
+- Un restaurant ne peut pas encore être désactivé depuis `/admin` (droits UPDATE retirés, ADR-018).
+
+**Bugs rencontrés** : Aucun
+**Décisions** : ADR-018
+**Dette introduite / remboursée** : Aucune
+
+**Tests de validation**
+- [x] `pnpm lint`, `pnpm typecheck`, `pnpm test` (109 dont 13 nouveaux), `pnpm build` — verts
+- [ ] `pnpm db:test` (9 assertions `admin_backoffice` + suites existantes) — à exécuter
+- [ ] À la main avec un compte admin : créer un restaurant et son invitation, ouvrir `/invitation` avec l'email invité, accepter, atteindre `/pro` ; réinviter ; télécharger le chevalet, le scanner et lire l'URL ; un non-admin est redirigé hors de `/admin` — à faire
+
+**Prochaine étape** : après validation, fusion de `feat/phase-5-admin` dans `main` et clôture de la Phase 5 ; puis Phase 6 (scanner).
+
+---
 
 ### Session 21 — [2026-10-23] — Phase 5 : réglages en lecture d'abord (retour d'ergonomie)
 **Roadmap :** Phase 5 — ergonomie de `/pro/settings` · **Statut :** 🟡 Partiel (code, lint, typecheck, tests, build verts ; validation visuelle à faire) · **Branche :** `feat/phase-5-pro-settings`
@@ -808,6 +843,7 @@
 | ADR-015 | Recadrage d'image : `react-easy-crop` | ✅ Accepté | 2026-10-23 |
 | ADR-016 | Programmes de fidélité : écriture par RPC, règles de paliers, `@dnd-kit` | ✅ Accepté | 2026-10-23 |
 | ADR-017 | Feature partagée `media` (cadrage, compression, stockage des images) | ✅ Accepté | 2026-10-23 |
+| ADR-018 | Back-office : session admin + RLS plutôt que client service role | ✅ Accepté | 2026-10-23 |
 
 <!-- ============ TEMPLATE ADR ============
 ### ADR-NNN — Titre
@@ -993,6 +1029,17 @@
 - **Décision :** Option 3 (`features/media/`, entrées `index.ts` côté client et `server.ts` côté serveur). Les actions restent dans chaque feature (rôle owner, champs Zod, colonne ou RPC à mettre à jour).
 - **Conséquences :** `kind` ∈ `logo` · `cover` · `reward` ; seules `logo` et `cover` sont acceptées par l'action des restaurants (une image de récompense ne peut donc jamais écraser la couverture).
 - **Réversibilité :** facile (déplacement de fichiers).
+
+
+### ADR-018 — Back-office : session admin + RLS plutôt que client service role
+- **Date :** 2026-10-23 · **Statut :** ✅ Accepté · **Phase :** 5 (étape 5.5)
+- **Contexte :** `/admin` doit créer un restaurant, émettre des invitations et lister restaurants, gérants et invitations. La Session 16 prévoyait le client service role pour les actions d'administration.
+- **Options envisagées :**
+  1. Client service role (contourne la RLS) — ✅ aucune limite ❌ une erreur de code donne un accès total ; interdit « dans le flux utilisateur standard » (`.cursorrules` §6).
+  2. Session de l'admin + policies existantes (`restaurants_insert_admin`, `restaurant_invitations_insert_admin`, lectures admin, `restaurants_delete_admin`) — ✅ la base reste la dernière ligne de défense, aucun secret manipulé ❌ ne permet pas de modifier `is_active`, `subscription_status` ou `slug` (droits UPDATE retirés, migration 8).
+- **Décision :** Option 2 pour la 5.5 (testée en pgTAP : un admin peut, un owner et un client ne peuvent pas). Le client service role n'est pas utilisé ; il ne le sera que si une action le exige (désactivation d'un restaurant, abonnement : Phase 11/12), avec un nouvel ADR.
+- **Conséquences :** création du restaurant puis de l'invitation en deux écritures ; si la seconde échoue, le restaurant est supprimé (annulation compensatoire, policy DELETE admin). Le slug vient du nom (`slugify`), suffixé `-2`, `-3`… sur conflit d'unicité (code 23505).
+- **Réversibilité :** immédiate.
 
 ---
 

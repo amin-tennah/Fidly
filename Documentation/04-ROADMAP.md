@@ -302,7 +302,7 @@ erDiagram
 - [x] **5.2** `/pro/settings` — fiche : nom, catégorie, adresse (autocomplétion API Adresse → coordonnées stockées en `geography`), horaires d'ouverture (éditeur par jour, stocké en JSONB validé par Zod).
 - [x] **5.3** Upload logo + couverture : compression/redimensionnement côté client, validation MIME/taille côté serveur, Supabase Storage.
 - [x] **5.4** Programmes : création/édition/suppression (seuil cumulatif, libellé, image de récompense), **réordonnancement par glisser-déposer** (`@dnd-kit`), mise à jour atomique des positions.
-- [ ] **5.5** Back-office `/admin` minimal : créer un restaurant, inviter l'owner, générer le **QR du chevalet** (`/?ref=<slug>`) en PDF/PNG imprimable.
+- [x] **5.5** Back-office `/admin` minimal : créer un restaurant, inviter l'owner, générer le **QR du chevalet** (`/?ref=<slug>`) en PDF/PNG imprimable. *(PNG A6 300 dpi ; code prêt sur `feat/phase-5-admin`, validation manuelle en attente)*
 
 ### ✅ Tests de validation
 - [ ] Chronomètre : un testeur non technique configure une fiche + 2 programmes en < 5 min. *(à faire avec un vrai testeur — reporté au pilote, DT-006)*
