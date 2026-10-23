@@ -81,6 +81,7 @@
 - feat: chevalet imprimable en PNG (A6 portrait, 300 dpi) composé dans le navigateur : nom du restaurant (taille ajustée à la largeur), QR de `<NEXT_PUBLIC_APP_URL>/?ref=<slug>` (niveau de correction Q, marge de 4 modules, agrandi d'un facteur entier sans lissage), légende et pied de page ; aucune dépendance ajoutée
 - feat: garde `authorizePlatformAdmin` (session, puis ligne dans `platform_admins`, puis Zod) ; slug généré depuis le nom avec suffixe sur conflit ; annulation du restaurant si l'invitation échoue (ADR-018)
 - refactor: constantes miroir de `restaurants` (catégories, longueur du nom, fuseau) déplacées dans `src/lib/restaurant-fields.ts`, partagées par `restaurants` et `admin`
+- fix: retour d'essai — un admin connecté ne voyait aucun accès à `/admin` depuis l'accueil client (seuls les gérants avaient leur raccourci) : lien « Accéder au back-office Fidly → » affiché aux membres de `platform_admins`
 - dev: script `supabase/dev/make_platform_admin.sql` (ajoute ou retire un compte dans `platform_admins` depuis le SQL Editor ; l'application ne peut pas le faire)
 - test: 12 tests unitaires (slug, URL du chevalet, ajustement de police, expiration à 14 jours, schémas, date) ; `supabase/tests/admin_backoffice.test.sql` (9 assertions : l'admin crée/invite/lit/supprime, le slug est unique, owner et client refusés)
 

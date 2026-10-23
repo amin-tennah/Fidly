@@ -1,6 +1,10 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { INVITATION_PATH, PRO_HOME_PATH } from "@/features/auth/constants";
+import {
+  ADMIN_HOME_PATH,
+  INVITATION_PATH,
+  PRO_HOME_PATH,
+} from "@/features/auth/constants";
 import type {
   PendingRestaurantInvitation,
   RestaurantMembershipSummary,
@@ -9,12 +13,14 @@ import type {
 export interface ProAccessBannersProps {
   readonly invitations: readonly PendingRestaurantInvitation[];
   readonly memberships: readonly RestaurantMembershipSummary[];
+  readonly isPlatformAdmin: boolean;
 }
 
-/** Shortcuts shown on the client home for restaurant staff and invited owners. */
+/** Shortcuts shown on the client home for restaurant staff, invited owners and platform admins. */
 export function ProAccessBanners({
   invitations,
   memberships,
+  isPlatformAdmin,
 }: ProAccessBannersProps): ReactNode {
   const firstInvitation = invitations[0];
   const firstMembership = memberships[0];
@@ -35,6 +41,14 @@ export function ProAccessBanners({
           className="text-accent inline-block text-xs font-semibold underline-offset-4 hover:underline"
         >
           Accéder à l&apos;espace restaurateur ({firstMembership.restaurantName}) →
+        </Link>
+      ) : null}
+      {isPlatformAdmin ? (
+        <Link
+          href={ADMIN_HOME_PATH}
+          className="text-accent inline-block text-xs font-semibold underline-offset-4 hover:underline"
+        >
+          Accéder au back-office Fidly →
         </Link>
       ) : null}
     </>
