@@ -81,6 +81,7 @@
 - feat: chevalet imprimable en PNG (A6 portrait, 300 dpi) composé dans le navigateur : nom du restaurant (taille ajustée à la largeur), QR de `<NEXT_PUBLIC_APP_URL>/?ref=<slug>` (niveau de correction Q, marge de 4 modules, agrandi d'un facteur entier sans lissage), légende et pied de page ; aucune dépendance ajoutée
 - feat: garde `authorizePlatformAdmin` (session, puis ligne dans `platform_admins`, puis Zod) ; slug généré depuis le nom avec suffixe sur conflit ; annulation du restaurant si l'invitation échoue (ADR-018)
 - refactor: constantes miroir de `restaurants` (catégories, longueur du nom, fuseau) déplacées dans `src/lib/restaurant-fields.ts`, partagées par `restaurants` et `admin`
+- dev: script `supabase/dev/make_platform_admin.sql` (ajoute ou retire un compte dans `platform_admins` depuis le SQL Editor ; l'application ne peut pas le faire)
 - test: 12 tests unitaires (slug, URL du chevalet, ajustement de police, expiration à 14 jours, schémas, date) ; `supabase/tests/admin_backoffice.test.sql` (9 assertions : l'admin crée/invite/lit/supprime, le slug est unique, owner et client refusés)
 
 **Fichiers clés**
@@ -101,7 +102,7 @@
 
 **Tests de validation**
 - [x] `pnpm lint`, `pnpm typecheck`, `pnpm test` (109 dont 13 nouveaux), `pnpm build` — verts
-- [ ] `pnpm db:test` (9 assertions `admin_backoffice` + suites existantes) — à exécuter
+- [x] `pnpm db:test` : 20 + 12 + 12 + 11 + 6 + 19 + 9 assertions `ok` (dont les 9 de `admin_backoffice`)
 - [ ] À la main avec un compte admin : créer un restaurant et son invitation, ouvrir `/invitation` avec l'email invité, accepter, atteindre `/pro` ; réinviter ; télécharger le chevalet, le scanner et lire l'URL ; un non-admin est redirigé hors de `/admin` — à faire
 
 **Prochaine étape** : après validation, fusion de `feat/phase-5-admin` dans `main` et clôture de la Phase 5 ; puis Phase 6 (scanner).
