@@ -14,6 +14,7 @@ function tier(
     threshold,
     rewardLabel: `Reward ${position}`,
     isActive: true,
+    rewardImageUrl: null,
     ...overrides,
   };
 }

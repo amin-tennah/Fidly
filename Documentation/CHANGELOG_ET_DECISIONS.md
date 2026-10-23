@@ -35,9 +35,9 @@
 
 ## 🧭 État courant (à mettre à jour à chaque session)
 
-- **Phase en cours :** Phase 4 terminée (4.1 → 4.5 ✅, Lighthouse Performance 86 accepté : DT-005) · Prêt pour Phase 5 (Espace restaurateur : fiche et programmes)
-- **Dernière session :** Session 14 (2026-10-22) — Phase 4 : QR client et cartes de fidélité
-- **Prochaine action :** Phase 5 — Étape 5.1 sur une branche `feat/phase-5-pro-settings` (plan à valider avant de coder : upload Storage et réordonnancement par glisser-déposer touchent à la sécurité et aux dépendances)
+- **Phase en cours :** Phase 5 (Espace restaurateur) — 5.1 ✅ · 5.2 ✅ · 5.3 ✅ · 5.4 ✅ (image de récompense à valider à la main) · 5.5 (admin) à faire sur la branche `feat/phase-5-admin`
+- **Dernière session :** Session 21 (2026-10-23) — Phase 5 : réglages en lecture d'abord
+- **Prochaine action :** valider l'image de récompense, fusionner `feat/phase-5-pro-settings` dans `main`, puis 5.5 (créer un restaurant, inviter l'owner, QR du chevalet en PNG) sur `feat/phase-5-admin`
 - **Bloquants :** Aucun
 
 ---
@@ -72,6 +72,221 @@
 
 **Prochaine étape** : ...
 ==================================================================================== -->
+
+### Session 21 — [2026-10-23] — Phase 5 : réglages en lecture d'abord (retour d'ergonomie)
+**Roadmap :** Phase 5 — ergonomie de `/pro/settings` · **Statut :** 🟡 Partiel (code, lint, typecheck, tests, build verts ; validation visuelle à faire) · **Branche :** `feat/phase-5-pro-settings`
+
+**Constat du porteur de projet** : tout était déplié en permanence, la page était longue et sans vue d'ensemble.
+
+**Réalisé**
+- feat: `/pro/settings` s'ouvre en **lecture** — carte d'en-tête (bannière 16:9, logo qui chevauche la bannière, nom, catégorie, adresse), carte « Horaires d'ouverture » (semaine compacte, jour courant mis en évidence, fermeture après minuit indiquée « (lendemain) »), carte « Programmes de fidélité » (paliers actifs avec leur image, nombre de paliers désactivés)
+- feat: **modification à la demande** — petit bouton appareil photo sur la bannière et sur le logo (choix, cadrage, envoi) ; crayon à côté du nom/catégorie et de l'adresse (formulaire sur place, un seul ouvert à la fois) ; bouton « Modifier » sur les horaires et sur les programmes qui remplace le résumé par l'éditeur existant, « Terminer » pour revenir
+- feat: l'**équipier** voit la même page en lecture seule (sans boutons) ; les actions serveur et la base refusent de toute façon tout autre rôle qu'owner
+- refactor: `SectionCard` partagé (titre + bascule Modifier/Terminer) ; éditeurs sans carte ni titre ; l'éditeur des programmes reste ouvert entre deux actions (la section n'est pas remontée, seul l'éditeur est réinitialisé par sa clé)
+- feat: `formatDay` / `formatSlot` / `todayDayKey` (jour lu dans le fuseau Europe/Paris, pas celui du serveur ni du navigateur) + 6 tests
+- chore: composants remplacés supprimés (`owner-settings`, `restaurant-summary-card`, `image-upload-card`, cartes d'édition)
+
+**Base de données** : aucune migration.
+**Bugs rencontrés** : Aucun
+**Décisions** : Aucun nouvel ADR (pas de changement d'architecture : composition de composants existants)
+**Dette introduite / remboursée** : Aucune
+
+**Tests de validation**
+- [x] `pnpm lint`, `pnpm typecheck`, `pnpm test` (96 dont 6 nouveaux), `pnpm build` — verts
+- [ ] À la main : lecture seule propre à 375 px, bannière et logo (changement, cadrage), nom/catégorie, adresse, horaires, programmes (ajout, glisser-déposer, image), vue équipier sans bouton — à vérifier
+
+**Prochaine étape** : valider le rendu, puis fusion dans `main` et 5.5 (`/admin`).
+
+---
+
+### Session 20 — [2026-10-23] — Phase 5.4 (fin) : image de récompense et feature partagée `media`
+**Roadmap :** Phase 5 — Étape 5.4 · **Statut :** ✅ Terminé (validation manuelle de l'image de récompense à faire) · **Branche :** `feat/phase-5-pro-settings`
+
+**Réalisé**
+- refactor: feature `media` (ADR-017) — cadrage, compression, détection du format, chemins, envoi et suppression Storage ; `restaurants` l'utilise sans changement de comportement
+- feat(5.4): image de récompense par palier — ajout ou changement avec cadrage 4:3, retrait, miniature dans la liste ; Server Actions `uploadProgramImage` / `removeProgramImage` (owner, champs Zod, taille et format réel, palier vérifié comme appartenant au restaurant, RPC `set_loyalty_program_image`, ancien fichier supprimé, fichier annulé si la RPC échoue)
+- feat: l'image de récompense s'affiche sur la carte de fidélité du client
+- feat: composant partagé `components/shared/reward-image.tsx`
+
+**Fichiers clés**
+- `src/features/media/` — `constants`, `domain/` (+ tests), `utils/compress-image.ts`, `hooks/use-image-upload-flow.ts`, `components/` (cadrage, sélecteur), `actions/` (validation, stockage), `server.ts`, `index.ts`
+- `src/features/programs/actions/program-image*.ts`, `hooks/use-program-image.ts`, `components/program-image-field.tsx`
+
+**Base de données** : aucune migration (la RPC existe depuis la migration 11).
+
+**Bugs rencontrés** : Aucun
+**Décisions** : ADR-017
+**Dette introduite / remboursée** : Aucune
+
+**Tests de validation**
+- [x] `pnpm lint`, `pnpm typecheck`, `pnpm test` (90), `pnpm build` — verts
+- [ ] Image de récompense à la main : ajout avec cadrage, remplacement (ancien fichier supprimé du bucket), retrait, image visible sur la carte client, refus d'un faux `.jpg` — à faire
+- [ ] Roadmap 5.4 : « Réordonner ⇒ ordre persistant, aucune position en double » vérifié (écran validé par le porteur de projet) ; « Staff non owner ne peut pas modifier » vérifié en SQL (pgTAP) et par l'UI
+
+**Prochaine étape** : 5.5 — back-office `/admin` sur la branche `feat/phase-5-admin`.
+
+---
+
+### Session 19 — [2026-10-23] — Phase 5.4 (en cours) : programmes de fidélité, base de données et règles
+**Roadmap :** Phase 5 — Étape 5.4 · **Statut :** ✅ Terminé (écran validé par le porteur de projet ; image de récompense : voir Session 20) · **Branche :** `feat/phase-5-pro-settings`
+
+**Réalisé**
+- db: migration 10 — plus d'écriture directe sur `loyalty_programs` ; RPC `create_loyalty_program`, `update_loyalty_program`, `set_loyalty_program_active` (basculement des cartes sur le palier actif suivant en conservant `stamps`, boucle sur le premier), `reorder_loyalty_programs` (décalage puis réécriture, seuils conservés sur les places) ; contrôle central `private.assert_program_rules` (5 actifs max, seuils croissants) ; images de récompense limitées au dossier du restaurant
+- test: `supabase/tests/loyalty_programs.test.sql` (16 assertions) ; `rls_access_matrix.test.sql` adapté (l'owner modifie un palier via RPC)
+- feat: `src/features/programs/` — règles pures (`findRuleViolation`, `suggestNextThreshold`, `previewReorder`), schémas Zod, mapping des erreurs des RPC, constantes ; 4 nouveaux codes d'erreur dans `lib/errors.ts`
+- chore: dépendances `@dnd-kit/*` (ADR-016)
+- feat (écrit, à valider) : section « Programmes de fidélité » de `/pro/settings` — liste triable par glisser-déposer (souris, tactile, clavier), ajout, édition, désactivation, réactivation ; contrôle local des règles avant l'appel ; remise à l'état serveur par `key` ; accès owner uniquement via `authorizeRestaurantOwner` (entrée serveur `features/restaurants/server.ts`)
+
+**Base de données**
+- Migration 10 : `20261023120001_loyalty_program_rpcs.sql` — appliquée ; `pnpm db:test` : 16/16 sur les programmes, 20/20 sur la matrice RLS
+- Migration 11 : `20261023130001_program_image_rpc.sql` — appliquée : `update_loyalty_program` ne prend plus que le seuil et le libellé ; nouvelle RPC `set_loyalty_program_image` (chemin dans le dossier du restaurant, ou NULL). Raison : les types générés exigent un chemin d'image non nul pour `update_loyalty_program`, ce qui aurait imposé un cast ; une RPC dédiée est aussi plus sûre (modifier un texte ne peut plus effacer l'image)
+- Types régénérés : oui (après la migration 11)
+- Advisors : 4 avertissements `authenticated_security_definer_function_executable` de plus (create/update/set_active/reorder), acceptés pour la même raison que les précédents (rôle owner/admin vérifié dans la fonction)
+
+**À savoir pour la Phase 6** : si tous les paliers sont désactivés puis qu'un nouveau est créé, des cartes peuvent encore pointer un palier inactif ; `record_visit` / `redeem_reward` devront résoudre le palier courant comme le fait `computeCardProgress`.
+
+**Décisions** : ADR-016
+**Dette introduite / remboursée** : Aucune
+
+**Tests de validation**
+- [x] `pnpm lint`, `pnpm typecheck`, `pnpm test` (86 tests dont 9 nouveaux) — verts
+- [x] Migration 10 : `db:push`, `db:types`, `db:test`, `db:advisors` — OK
+- [x] Migration 11 : `db:push`, `db:types`, `db:test` (19/19 programmes, 20/20 matrice, autres suites vertes), `typecheck`, `lint`, `test` (90), `build` — OK
+- [ ] Écran des programmes à la main (ajout, refus d'un seuil non croissant, 6ᵉ palier, édition, glisser-déposer souris et doigt, désactivation/réactivation, carte client après désactivation) — à faire
+
+**Prochaine étape** : après application de la migration, actions serveur et écran `/pro/settings` (liste, création, édition, désactivation, glisser-déposer, image de récompense).
+
+---
+
+### Session 18 — [2026-10-23] — Phase 5.3 (suite) : cadrage du logo et de la couverture
+**Roadmap :** Phase 5 — Étape 5.3 · **Statut :** 🟡 Partiel (code, lint, typecheck, tests et build verts ; validation manuelle à faire) · **Branche :** `feat/phase-5-pro-settings`
+
+**Réalisé**
+- feat(5.3): écran de cadrage plein écran avant l'envoi — cadre en pointillés (carré pour le logo, 16:9 pour la couverture), image déplaçable, zoom au pincement, à la molette et au curseur, boutons Annuler / Valider le cadrage
+- feat: la compression découpe la zone cadrée dans l'image source (arrondi et bornes dans `clampCropArea`, taille de sortie plafonnée à 800 px par `computeOutputSize`), puis ré-encode comme avant ; le serveur est inchangé
+- chore: dépendance `react-easy-crop` (ADR-015)
+
+**Fichiers clés**
+- `src/features/restaurants/components/image-crop-dialog.tsx`, `zoom-slider.tsx`, `image-upload-card.tsx`
+- `src/features/restaurants/hooks/use-image-upload.ts` — flux choisir → cadrer → envoyer
+- `src/features/restaurants/domain/crop-geometry.ts` (+ tests), `utils/compress-image.ts`
+
+**Base de données** : aucune migration.
+
+**Bugs rencontrés** : Aucun
+**Décisions** : ADR-015
+**Dette introduite / remboursée** : Aucune
+
+**Tests de validation**
+- [x] `pnpm lint`, `pnpm typecheck`, `pnpm test` (77 tests dont 5 nouveaux), `pnpm build` — verts
+- [ ] Cadrage d'un logo (carré) et d'une couverture (16:9) sur téléphone : déplacement, pincement, résultat conforme au cadre ; annulation ; photo prise à la verticale (orientation correcte) — à vérifier
+
+**Prochaine étape** : 5.4 — programmes de fidélité.
+
+---
+
+### Session 17 — [2026-10-23] — Phase 5.3 : logo et photo de couverture
+**Roadmap :** Phase 5 — Étape 5.3 · **Statut :** 🟡 Partiel (migration 9 appliquée et validée ; reste le recadrage de l'image, demandé au retour d'essai) · **Branche :** `feat/phase-5-pro-settings`
+
+**Réalisé**
+- db: migration 9 — écriture dans le bucket `restaurant-media` réservée à l'**owner** du dossier `<restaurant_id>/` (admin inclus) ; les policies de la migration 5 ouvraient aussi l'écriture au `staff`. Lecture publique inchangée.
+- feat(5.3): cartes « Logo » et « Photo de couverture » dans `/pro/settings` (owner) ; compression dans le navigateur (≈ 800 px, WebP, repli JPEG, qualité abaissée jusqu'à passer sous 800 Ko) ; refus explicite d'un fichier non image ou de plus de 5 Mo avant tout traitement
+- feat: Server Action `uploadRestaurantImage` — owner, puis champs Zod, taille, et **format réel lu dans les octets** (JPEG, PNG, WebP ; le type MIME déclaré n'est jamais cru) ; nouveau chemin à chaque envoi (pas de cache périmé), ancien fichier supprimé, annulation du fichier si la mise à jour de la colonne échoue
+- fix: retour d'essai — le logo n'apparaissait nulle part côté pro : avatar du restaurant dans l'en-tête de `/pro` (owner et staff), couverture dans la vue staff ; composant partagé `components/shared/restaurant-avatar.tsx` (réutilisé par les cartes de fidélité)
+- feat: `next/image` configuré pour le seul chemin public `restaurant-media` du projet (`next.config.ts`) ; le logo s'affiche sur les cartes de fidélité du client (**DT-004 remboursée**)
+
+**Fichiers clés**
+- `supabase/migrations/20261023110001_storage_owner_only_writes.sql`, `supabase/tests/storage_media.test.sql` (6 assertions, ajouté à `db:test`)
+- `src/features/restaurants/` — `actions/` (`upload-restaurant-image`, `parse-image-upload`, `store-restaurant-image`), `domain/` (`detect-image-type`, `media-path` + tests), `utils/compress-image.ts`, `hooks/use-image-upload.ts`, `components/image-upload-card.tsx`
+- `src/lib/supabase/media-url.ts` — URL publique d'un média ; `next.config.ts`
+
+**Base de données**
+- Migration : `20261023110001_storage_owner_only_writes.sql` — appliquée
+- Types régénérés : non concerné (aucune table modifiée)
+
+**Bugs rencontrés** : Aucun
+
+**Décisions** : Aucun nouvel ADR. Choix notés : upload via Server Action plutôt que depuis le navigateur vers Storage (validation du format réel côté serveur) ; plafond de l'image traitée à 800 Ko pour rester sous la limite de 1 Mo des Server Actions (pas de changement de configuration).
+**Dette introduite / remboursée** : DT-004 remboursée. Note : la suppression directe dans `storage.objects` est bloquée par Supabase, donc la policy DELETE owner n'est pas testable en pgTAP (elle passe par l'API Storage, exercée par l'action).
+
+**Tests de validation**
+- [x] `pnpm lint`, `pnpm typecheck`, `pnpm test` (72 tests dont 5 nouveaux), `pnpm build` — verts
+- [x] `pnpm db:push` → `pnpm db:test` (20 + 12 + 12 + 11 + 6 assertions `ok`) → `pnpm db:advisors` (avertissements acceptés uniquement) — OK
+- [x] Aperçu à jour (logo et couverture), refus > 5 Mo, logo visible sur la carte client, pas de carte d'upload côté staff — OK par le porteur de projet
+- [ ] Remplacement (ancien fichier supprimé du bucket) et refus d'un faux `.jpg` — non vérifiés
+
+**Prochaine étape** : 5.4 — programmes de fidélité.
+
+---
+
+### Session 16 — [2026-10-23] — Phase 5.2 : fiche de l'établissement
+**Roadmap :** Phase 5 — Étape 5.2 · **Statut :** ✅ Terminé · **Branche :** `feat/phase-5-pro-settings`
+
+**Réalisé**
+- db: migration 8 — `UPDATE` de `restaurants` limité aux colonnes `name`, `category`, `opening_hours`, `logo_path`, `cover_path` ; RPC `set_restaurant_address` (adresse + `geography` cohérentes, owner ou admin) ; colonne `cover_path` ; CHECK sur `opening_hours` (objet JSON) et la longueur de l'adresse
+- feat(5.2): `/pro/settings` pour l'owner : nom + catégorie (react-hook-form + Zod), adresse avec autocomplétion, éditeur d'horaires par jour (jusqu'à 3 créneaux, fermeture après minuit permise, chevauchements refusés) ; le `staff` voit un résumé en lecture seule
+- feat: autocomplétion via la Server Action `searchAddresses` (appel serveur à l'API Géoplateforme de l'IGN, réponse validée par Zod, cache 1 h, saisie debouncée à 300 ms, 3 caractères minimum) ; seule une suggestion choisie (donc de vraies coordonnées) peut être enregistrée
+- feat: garde `authorizeRestaurantOwner` commune aux actions (session, puis rôle owner, puis Zod)
+- fix: retour d'essai — un créneau passant minuit (ex. 22:00–04:30) appartient au jour d'ouverture ; l'écran l'indique (« Ferme le lendemain à … ») et `validateWeek` refuse un chevauchement avec le premier créneau du jour suivant (dimanche → lundi inclus)
+
+**Fichiers clés**
+- `supabase/migrations/20261023100001_restaurant_profile_editing.sql`, `supabase/tests/restaurant_profile.test.sql` (11 assertions)
+- `src/features/restaurants/` — `domain/` (`opening-hours`, `edit-opening-hours`, `parse-address-suggestions`, tests), `actions/`, `queries/get-restaurant-profile.ts`, `hooks/`, `components/`
+- `src/app/pro/settings/page.tsx`
+
+**Base de données**
+- Migration : `20261023100001_restaurant_profile_editing.sql` appliquée (`pnpm db:push`)
+- Types régénérés : oui
+
+**Bugs rencontrés**
+| Symptôme | Cause racine | Correctif | Prévention |
+|---|---|---|---|
+| `pnpm db:push` sans sortie, bloqué | La CLI attend le mot de passe de la base | Saisie du mot de passe / `SUPABASE_DB_PASSWORD` | Lancer les commandes `db:*` dans le terminal de l'utilisateur |
+
+**Advisors Supabase (acceptés)** : `authenticated_security_definer_function_executable` sur `set_restaurant_address` (appelable par les utilisateurs connectés par conception ; rôle owner/admin vérifié en début de fonction), en plus des deux fonctions d'invitation déjà acceptées.
+
+**Décisions** : Aucun nouvel ADR. Choix notés : API Adresse = Géoplateforme IGN (ADR-007, l'ancien domaine `api-adresse.data.gouv.fr` est abandonné) ; les actions d'administration sur `restaurants` (`is_active`, `subscription_status`, `slug`) passeront par le client service role côté serveur en 5.5, l'UPDATE direct étant retiré aux admins aussi.
+**Dette introduite / remboursée** : Aucune
+
+**Tests de validation**
+- [x] `pnpm db:test` : 20 + 12 + 12 + 11 assertions pgTAP `ok` ; `pnpm db:advisors` : seulement les avertissements acceptés
+- [x] `pnpm lint`, `pnpm typecheck`, `pnpm test` (67 tests dont 19 nouveaux), `pnpm build` — verts
+- [x] Parcours manuel de `/pro/settings` (nom, adresse, horaires et créneaux, vue staff) — OK par le porteur de projet ; l'ambiguïté des créneaux après minuit a conduit au correctif ci-dessus
+
+**Prochaine étape** : 5.3 — upload du logo et de la couverture.
+
+---
+
+### Session 15 — [2026-10-23] — Phase 5.1 : layout `/pro` et navigation basse
+**Roadmap :** Phase 5 — Étape 5.1 · **Statut :** ✅ Terminé · **Branche :** `feat/phase-5-pro-settings`
+
+**Réalisé**
+- feat(5.1): layout `/pro` avec en-tête (rôle, nom de l'établissement), navigation basse Scanner · Logs · Stats · Réglages (cibles ≥ 56 px, `aria-current`) et sélecteur d'établissement si plusieurs memberships
+- feat: établissement actif mémorisé dans un cookie `httpOnly` ; la Server Action `selectActiveRestaurant` vérifie session, appartenance et Zod avant de le poser ; la lecture re-valide toujours le cookie contre les memberships (`resolveActiveMembership`, domain testé)
+- feat: pages placeholder `/pro/logs`, `/pro/stats`, `/pro/settings` ; `/pro` devient l'emplacement du scanner (Phase 6)
+- Découpage décidé avec le porteur de projet : 5.1 → 5.4 sur cette branche, 5.5 (admin, chevalet en **PNG**, sans dépendance) sur une branche séparée ; colonne `cover_path` ajoutée en 5.3 ; API Adresse à vérifier avant 5.2
+
+**Fichiers clés**
+- `src/features/restaurants/` — constantes, `domain/resolve-active-membership.ts` (+ tests), `queries/get-active-membership.ts`, `actions/select-restaurant.ts`, composants de navigation
+- `src/app/pro/layout.tsx` — garde + coque de l'espace pro
+- `src/components/shared/coming-soon-card.tsx` — placeholder d'écran futur
+
+**Base de données** : aucune migration, types inchangés.
+
+**Constats d'audit pour 5.2 → 5.4 (à corriger par migration)** : UPDATE owner sur `restaurants` non limité par colonne (`subscription_status`, `slug`, `is_active` modifiables) ; policies Storage ouvertes aux `staff` ; DELETE physique de `loyalty_programs` permis par la RLS alors que les FK sont en `RESTRICT`.
+
+**Bugs rencontrés** : Aucun
+**Décisions** : Aucun nouvel ADR (le cookie n'est qu'une préférence, jamais une autorisation)
+**Dette introduite / remboursée** : Aucune
+
+**Tests de validation**
+- [x] `pnpm lint`, `pnpm typecheck`, `pnpm test` (52 tests dont 4 nouveaux) — verts
+- [x] Invitation → acceptation → `/pro` avec les 4 onglets, en-tête « Gérant », sélecteur avec 2 établissements — OK (captures du porteur de projet)
+- [ ] Bascule effective de l'établissement actif et accès d'un simple client à `/pro` — non vérifiés
+
+**Prochaine étape** : 5.2 — fiche de l'établissement.
+
+---
 
 ### Session 14 — [2026-10-22] — Phase 4 : QR client et cartes de fidélité
 **Roadmap :** Phase 4 — Étapes 4.1 → 4.5 · **Statut :** ✅ Terminé (Lighthouse Performance 86, écart au seuil de 90 accepté : DT-005) · **Branche :** `feat/phase-4-client-cards` → `main`
@@ -590,6 +805,9 @@
 | ADR-012 | Journal `scan_logs` : traces d'audit anonymisables, conformité RGPD à la suppression de compte | ✅ Accepté | 2026-10-22 |
 | ADR-013 | `qr_token` : 20 caractères base32 majuscules (100 bits) pour un QR de version 1 | ✅ Accepté | 2026-10-22 |
 | ADR-014 | `profiles` : droits `UPDATE` par colonne (`display_name` seul) | ✅ Accepté | 2026-10-22 |
+| ADR-015 | Recadrage d'image : `react-easy-crop` | ✅ Accepté | 2026-10-23 |
+| ADR-016 | Programmes de fidélité : écriture par RPC, règles de paliers, `@dnd-kit` | ✅ Accepté | 2026-10-23 |
+| ADR-017 | Feature partagée `media` (cadrage, compression, stockage des images) | ✅ Accepté | 2026-10-23 |
 
 <!-- ============ TEMPLATE ADR ============
 ### ADR-NNN — Titre
@@ -741,6 +959,41 @@
 - **Conséquences :** toute future colonne éditable par l'utilisateur doit être ajoutée explicitement au `GRANT`.
 - **Réversibilité :** immédiate.
 
+
+### ADR-015 — Recadrage d'image : `react-easy-crop`
+- **Date :** 2026-10-23 · **Statut :** ✅ Accepté · **Phase :** 5 (étape 5.3)
+- **Contexte :** le gérant doit cadrer son logo et sa couverture (cadre en pointillés, déplacement, zoom) avant l'envoi, depuis un téléphone.
+- **Options envisagées :**
+  1. Code maison (pointer events + canvas) — ✅ aucune dépendance ❌ zoom à deux doigts, limites de déplacement et clavier à réécrire et à tester sur appareils.
+  2. `react-easy-crop` 6.2.4 — ✅ glissement, pincement, molette, clavier ; MIT ; publiée le 2026-10-06 ; peer `react >=16.4` ; une seule dépendance (`normalize-wheel`) ; ~10 Ko gzip ❌ une dépendance de plus.
+- **Décision :** Option 2. Seul l'écran de cadrage (chargé à la sélection d'un fichier) l'utilise ; la géométrie (arrondi, bornes, taille de sortie) reste en fonctions pures testées (`domain/crop-geometry.ts`) et le serveur re-valide tout (format réel, taille, owner).
+- **Conséquences :** le cadre en pointillés passe par `style.cropAreaStyle` (seule API de la librairie, seul usage de style inline justifié) ; logo carré (affiché rond ou arrondi selon l'écran), couverture 16:9.
+- **Réversibilité :** facile (un seul composant à remplacer).
+
+
+### ADR-016 — Programmes de fidélité : écriture par RPC, règles de paliers, `@dnd-kit`
+- **Date :** 2026-10-23 · **Statut :** ✅ Accepté · **Phase :** 5 (étape 5.4)
+- **Contexte :** les seuils sont cumulatifs (ADR-009) et l'ordre des paliers est défini ; réordonner, éditer ou retirer un palier touche aux cartes en cours (Q-013), aux logs (FK `RESTRICT`) et à `UNIQUE(restaurant_id, position)`.
+- **Règles tranchées avec le porteur de projet :** seuils des paliers actifs **strictement croissants** (refusé sinon) ; **5 paliers actifs maximum** ; désactiver le dernier palier actif reste **permis** (les cartes affichent « programme indisponible » jusqu'à un nouveau palier) ; au réordonnancement les **seuils restent sur les places** (le palier remonté prend le seuil de sa nouvelle place).
+- **Options envisagées pour l'écriture :**
+  1. Policies INSERT/UPDATE/DELETE directes — ✅ simple ❌ impossible d'imposer les règles inter-lignes, de basculer les cartes, ni de réordonner sans violation transitoire de `UNIQUE`.
+  2. RPC uniquement (`create_`, `update_`, `set_…_active`, `reorder_loyalty_programs`), droits DML retirés — ✅ atomique, verrou du restaurant, règles appliquées par la base ❌ plus de SQL à tester.
+- **Décision :** Option 2 (migration 10). Pas de suppression physique : désactivation (`is_active = false`).
+- **Dépendance :** `@dnd-kit/core` 6.3.1, `sortable` 10.0.0, `utilities` 3.2.2 (MIT, peer React ≥ 16.8). Point de vigilance : dernières publications en décembre 2024 (la nouvelle génération `@dnd-kit/react` est encore en 0.x). Retenue car stable, très utilisée et prévue par la roadmap.
+- **Réversibilité :** repli possible par des boutons monter/descendre (même RPC `reorder_loyalty_programs`), sans toucher à la base.
+
+
+### ADR-017 — Feature partagée `media` (cadrage, compression, stockage des images)
+- **Date :** 2026-10-23 · **Statut :** ✅ Accepté · **Phase :** 5 (étape 5.4)
+- **Contexte :** logo et couverture (5.3) utilisaient du code d'image rangé dans `restaurants` ; l'image de récompense des paliers (5.4) en a besoin aussi. Un import profond d'une feature dans l'autre est interdit (`.cursorrules` §2), et `programs` dépend déjà de `restaurants`.
+- **Options envisagées :**
+  1. `programs` importe le code d'image de `restaurants` — ✅ rapide ❌ `restaurants` devient le propriétaire d'un code générique ; risque de dépendance circulaire.
+  2. Dupliquer — ❌ interdit (> 5 lignes identiques).
+  3. Feature `media` : cadrage (`react-easy-crop`), compression, détection du vrai format, chemins `<restaurant_id>/<kind>-<uuid>.<ext>`, envoi/suppression Storage — ✅ une seule implémentation, dépendances à sens unique (`restaurants` et `programs` → `media`).
+- **Décision :** Option 3 (`features/media/`, entrées `index.ts` côté client et `server.ts` côté serveur). Les actions restent dans chaque feature (rôle owner, champs Zod, colonne ou RPC à mettre à jour).
+- **Conséquences :** `kind` ∈ `logo` · `cover` · `reward` ; seules `logo` et `cover` sont acceptées par l'action des restaurants (une image de récompense ne peut donc jamais écraser la couverture).
+- **Réversibilité :** facile (déplacement de fichiers).
+
 ---
 
 ## 🧾 Dette technique
@@ -750,8 +1003,9 @@
 | DT-001 | Suppression du dernier `owner` d'un restaurant : le restaurant reste sans propriétaire (aucun garde-fou) | Cas hors périmètre MVP | 🟠 Restaurant non administrable sans intervention admin | Phase 11 (suppression de compte) | ⏳ Ouverte |
 | DT-002 | La suppression de compte n'est pas encore exposée (pas de Server Action ni d'UI) ; seul le comportement base est en place et testé | Livraison prévue en P11 | 🟠 Obligation RGPD à honorer avant le pilote | Phase 11 | ⏳ Ouverte |
 | DT-003 | Tests de validation Phase 3 non exécutés : parcours par rôle (client/staff/admin) avec une vraie invitation, session persistante, cookie modifié, Google sur iPhone/Android et PWA, E2E de connexion OTP (Inbucket indisponible avec le projet Cloud) | Aucun contenu `/pro` ni PWA à valider avant les Phases 5 et 8 | 🟠 Régression d'accès non détectée | Phases 5 (rôles `/pro`), 8 (PWA) | ⏳ Ouverte |
-| DT-004 | Le logo du restaurant n'est pas affiché sur les cartes (initiale seulement) : aucun upload n'existe avant l'étape 5.3, et `next/image` exige la configuration du domaine Storage | Logos inexistants avant la Phase 5 | 🟢 Cosmétique | Phase 5 (5.3) | ⏳ Ouverte |
+| DT-004 | Le logo du restaurant n'est pas affiché sur les cartes (initiale seulement) : aucun upload n'existe avant l'étape 5.3, et `next/image` exige la configuration du domaine Storage | Logos inexistants avant la Phase 5 | 🟢 Cosmétique | Phase 5 (5.3) | ✔️ Remboursée (Session 17) |
 | DT-005 | Lighthouse Performance de `/` à 86 sur build de production local (seuil de la roadmap : 90) ; mesure locale, sans CDN ni région Vercel | Écart jugé suffisant à ce stade par le porteur de projet | 🟢 Marge faible vis-à-vis de la contrainte produit n°1 | Phase 11 (11.4) : re-mesure sur Vercel ; analyser le bundle si < 90 | ⏳ Ouverte |
+| DT-006 | Test chronomètre de la Phase 5 (un testeur non technique configure fiche + 2 paliers en < 5 min) non réalisé : il demande un vrai testeur | Pas de testeur disponible à ce stade | 🟢 L'ergonomie a été revue après retour du porteur de projet (Session 21) | Pilote (Phase 11.6) | ⏳ Ouverte |
 
 ---
 

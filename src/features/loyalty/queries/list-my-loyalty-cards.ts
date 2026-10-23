@@ -2,6 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { computeCardProgress } from "@/features/loyalty/domain/compute-card-progress";
 import type { LoyaltyCardView, LoyaltyProgramSummary } from "@/features/loyalty/types";
+import { getRestaurantMediaUrl } from "@/lib/supabase/media-url";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type ProgramsByRestaurant = ReadonlyMap<string, readonly LoyaltyProgramSummary[]>;
@@ -12,7 +13,9 @@ async function listProgramsByRestaurant(
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from("loyalty_programs")
-    .select("id, restaurant_id, position, threshold, reward_label, is_active")
+    .select(
+      "id, restaurant_id, position, threshold, reward_label, reward_image_path, is_active",
+    )
     .in("restaurant_id", [...restaurantIds]);
 
   if (error) {
@@ -27,6 +30,7 @@ async function listProgramsByRestaurant(
       threshold: row.threshold,
       rewardLabel: row.reward_label,
       isActive: row.is_active,
+      rewardImageUrl: getRestaurantMediaUrl(row.reward_image_path),
     };
     byRestaurant.set(row.restaurant_id, [
       ...(byRestaurant.get(row.restaurant_id) ?? []),
@@ -46,7 +50,9 @@ export const listMyLoyaltyCards = cache(
     const supabase = await createSupabaseServerClient();
     const { data, error } = await supabase
       .from("loyalty_cards")
-      .select("id, restaurant_id, current_program_id, stamps, restaurants ( name, slug )")
+      .select(
+        "id, restaurant_id, current_program_id, stamps, restaurants ( name, slug, logo_path )",
+      )
       .eq("user_id", userId)
       .order("last_visit_at", { ascending: false, nullsFirst: false });
 
@@ -72,6 +78,7 @@ export const listMyLoyaltyCards = cache(
           cardId: row.id,
           restaurantName: row.restaurants.name,
           restaurantSlug: row.restaurants.slug,
+          restaurantLogoUrl: getRestaurantMediaUrl(row.restaurants.logo_path),
           progress,
         },
       ];

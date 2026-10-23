@@ -298,18 +298,18 @@ erDiagram
 **🎯 Objectif :** un restaurateur configure son établissement et ses programmes en moins de 5 minutes, sans aide.
 
 ### Étapes
-- [ ] **5.1** Layout `/pro` : navigation basse (Scanner · Logs · Stats · Réglages), sélecteur d'établissement si membre de plusieurs.
-- [ ] **5.2** `/pro/settings` — fiche : nom, catégorie, adresse (autocomplétion API Adresse → coordonnées stockées en `geography`), horaires d'ouverture (éditeur par jour, stocké en JSONB validé par Zod).
-- [ ] **5.3** Upload logo + couverture : compression/redimensionnement côté client, validation MIME/taille côté serveur, Supabase Storage.
-- [ ] **5.4** Programmes : création/édition/suppression (seuil cumulatif, libellé, image de récompense), **réordonnancement par glisser-déposer** (`@dnd-kit`), mise à jour atomique des positions.
+- [x] **5.1** Layout `/pro` : navigation basse (Scanner · Logs · Stats · Réglages), sélecteur d'établissement si membre de plusieurs.
+- [x] **5.2** `/pro/settings` — fiche : nom, catégorie, adresse (autocomplétion API Adresse → coordonnées stockées en `geography`), horaires d'ouverture (éditeur par jour, stocké en JSONB validé par Zod).
+- [x] **5.3** Upload logo + couverture : compression/redimensionnement côté client, validation MIME/taille côté serveur, Supabase Storage.
+- [x] **5.4** Programmes : création/édition/suppression (seuil cumulatif, libellé, image de récompense), **réordonnancement par glisser-déposer** (`@dnd-kit`), mise à jour atomique des positions.
 - [ ] **5.5** Back-office `/admin` minimal : créer un restaurant, inviter l'owner, générer le **QR du chevalet** (`/?ref=<slug>`) en PDF/PNG imprimable.
 
 ### ✅ Tests de validation
-- [ ] Chronomètre : un testeur non technique configure une fiche + 2 programmes en < 5 min.
-- [ ] Réordonner les programmes ⇒ ordre persistant, aucune position en double (contrainte `UNIQUE` respectée).
-- [ ] Upload d'un fichier non-image ou > 5 Mo ⇒ refus explicite.
-- [ ] Un staff (non owner) ne peut pas modifier la fiche ni les programmes (UI **et** RLS).
-- [ ] Les changements apparaissent côté client (P4) après rechargement.
+- [ ] Chronomètre : un testeur non technique configure une fiche + 2 programmes en < 5 min. *(à faire avec un vrai testeur — reporté au pilote, DT-006)*
+- [x] Réordonner les programmes ⇒ ordre persistant, aucune position en double (contrainte `UNIQUE` respectée). *(RPC atomique ; pgTAP 19/19 ; validé à la main)*
+- [x] Upload d'un fichier non-image ou > 5 Mo ⇒ refus explicite. *(> 5 Mo testé à la main ; faux `.jpg` refusé par lecture des octets : tests unitaires)*
+- [x] Un staff (non owner) ne peut pas modifier la fiche ni les programmes (UI **et** RLS). *(UI en lecture seule validée ; RLS, droits de colonne, RPC et Storage : pgTAP)*
+- [x] Les changements apparaissent côté client (P4) après rechargement. *(logo et image de récompense sur la carte client validés)*
 
 ### ⚠️ Points de vigilance
 - **Modifier un programme alors que des clients ont des cartes en cours (Q-013)** : application immédiate du nouveau seuil aux cartes en cours ; la désactivation d'un programme bascule les cartes concernées sur le palier actif suivant en conservant `stamps`.

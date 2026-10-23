@@ -265,6 +265,7 @@ export type Database = {
         Row: {
           address: string | null
           category: Database["public"]["Enums"]["restaurant_category"]
+          cover_path: string | null
           created_at: string
           id: string
           is_active: boolean
@@ -279,6 +280,7 @@ export type Database = {
         Insert: {
           address?: string | null
           category?: Database["public"]["Enums"]["restaurant_category"]
+          cover_path?: string | null
           created_at?: string
           id?: string
           is_active?: boolean
@@ -293,6 +295,7 @@ export type Database = {
         Update: {
           address?: string | null
           category?: Database["public"]["Enums"]["restaurant_category"]
+          cover_path?: string | null
           created_at?: string
           id?: string
           is_active?: boolean
@@ -393,6 +396,15 @@ export type Database = {
         Args: { p_invitation_id: string }
         Returns: string
       }
+      create_loyalty_program: {
+        Args: {
+          p_restaurant_id: string
+          p_reward_image_path?: string
+          p_reward_label: string
+          p_threshold: number
+        }
+        Returns: string
+      }
       generate_qr_token: { Args: never; Returns: string }
       generate_short_code: { Args: never; Returns: string }
       list_my_pending_invitations: {
@@ -404,6 +416,35 @@ export type Database = {
           restaurant_id: string
           restaurant_name: string
         }[]
+      }
+      reorder_loyalty_programs: {
+        Args: { p_program_ids: string[]; p_restaurant_id: string }
+        Returns: undefined
+      }
+      set_loyalty_program_active: {
+        Args: { p_is_active: boolean; p_program_id: string }
+        Returns: undefined
+      }
+      set_loyalty_program_image: {
+        Args: { p_program_id: string; p_reward_image_path?: string }
+        Returns: undefined
+      }
+      set_restaurant_address: {
+        Args: {
+          p_address: string
+          p_lat: number
+          p_lng: number
+          p_restaurant_id: string
+        }
+        Returns: undefined
+      }
+      update_loyalty_program: {
+        Args: {
+          p_program_id: string
+          p_reward_label: string
+          p_threshold: number
+        }
+        Returns: undefined
       }
     }
     Enums: {

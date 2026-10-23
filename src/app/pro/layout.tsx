@@ -14,6 +14,9 @@ import {
   listMyPendingInvitations,
   listMyRestaurantMemberships,
 } from "@/features/auth/queries/get-session-context";
+import { ProBottomNav, ProHeader } from "@/features/restaurants";
+import { getActiveMembership } from "@/features/restaurants/queries/get-active-membership";
+import { getRestaurantProfile } from "@/features/restaurants/queries/get-restaurant-profile";
 
 interface ProLayoutProps {
   readonly children: ReactNode;
@@ -32,14 +35,26 @@ export default async function ProLayout({
     redirect(withNextParam(ONBOARDING_PATH, PRO_HOME_PATH));
   }
 
-  const memberships = await listMyRestaurantMemberships(user.id);
-  if (memberships.length === 0) {
+  const [memberships, active] = await Promise.all([
+    listMyRestaurantMemberships(user.id),
+    getActiveMembership(user.id),
+  ]);
+  if (!active) {
     const pendingInvitations = await listMyPendingInvitations();
-    if (pendingInvitations.length > 0) {
-      redirect(INVITATION_PATH);
-    }
-    redirect(CLIENT_HOME_PATH);
+    redirect(pendingInvitations.length > 0 ? INVITATION_PATH : CLIENT_HOME_PATH);
   }
 
-  return <>{children}</>;
+  const restaurant = await getRestaurantProfile(active.restaurantId);
+
+  return (
+    <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-6 px-4 pt-6 pb-24">
+      <ProHeader
+        memberships={memberships}
+        active={active}
+        logoUrl={restaurant?.logoUrl ?? null}
+      />
+      {children}
+      <ProBottomNav />
+    </div>
+  );
 }
