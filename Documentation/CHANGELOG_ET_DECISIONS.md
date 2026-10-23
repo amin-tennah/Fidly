@@ -35,9 +35,9 @@
 
 ## 🧭 État courant (à mettre à jour à chaque session)
 
-- **Phase en cours :** Phase 5 (Espace restaurateur) — 5.1 ✅ · 5.2 ✅ · 5.3 ✅ (code, migration 9 appliquée ; cadrage à valider sur téléphone) · 5.4 à faire sur `feat/phase-5-pro-settings` · 5.5 (admin) sur une branche séparée
-- **Dernière session :** Session 18 (2026-10-23) — Phase 5.3 : cadrage du logo et de la couverture
-- **Prochaine action :** valider le cadrage à la main, puis 5.4 (programmes : CRUD, soft delete, glisser-déposer `@dnd-kit` — dépendance à justifier par un ADR)
+- **Phase en cours :** Phase 5 (Espace restaurateur) — 5.1 ✅ · 5.2 ✅ · 5.3 ✅ · 5.4 🟡 (migration 10 et règles écrites, à appliquer ; interface à faire) · 5.5 (admin) sur une branche séparée
+- **Dernière session :** Session 19 (2026-10-23) — Phase 5.4 (en cours) : programmes de fidélité, base et règles
+- **Prochaine action :** `pnpm db:push`, `db:types`, `db:test`, `db:advisors`, puis actions serveur et écran des programmes
 - **Bloquants :** Aucun
 
 ---
@@ -72,6 +72,32 @@
 
 **Prochaine étape** : ...
 ==================================================================================== -->
+
+### Session 19 — [2026-10-23] — Phase 5.4 (en cours) : programmes de fidélité, base de données et règles
+**Roadmap :** Phase 5 — Étape 5.4 · **Statut :** 🟡 Partiel (migration 10 et tests écrits, **non appliqués** ; interface à faire après régénération des types) · **Branche :** `feat/phase-5-pro-settings`
+
+**Réalisé**
+- db: migration 10 — plus d'écriture directe sur `loyalty_programs` ; RPC `create_loyalty_program`, `update_loyalty_program`, `set_loyalty_program_active` (basculement des cartes sur le palier actif suivant en conservant `stamps`, boucle sur le premier), `reorder_loyalty_programs` (décalage puis réécriture, seuils conservés sur les places) ; contrôle central `private.assert_program_rules` (5 actifs max, seuils croissants) ; images de récompense limitées au dossier du restaurant
+- test: `supabase/tests/loyalty_programs.test.sql` (16 assertions) ; `rls_access_matrix.test.sql` adapté (l'owner modifie un palier via RPC)
+- feat: `src/features/programs/` — règles pures (`findRuleViolation`, `suggestNextThreshold`, `previewReorder`), schémas Zod, mapping des erreurs des RPC, constantes ; 4 nouveaux codes d'erreur dans `lib/errors.ts`
+- chore: dépendances `@dnd-kit/*` (ADR-016)
+
+**Base de données**
+- Migration : `20261023120001_loyalty_program_rpcs.sql` — **écrite, NON appliquée**
+- Types régénérés : non (à faire après `pnpm db:push`)
+
+**À savoir pour la Phase 6** : si tous les paliers sont désactivés puis qu'un nouveau est créé, des cartes peuvent encore pointer un palier inactif ; `record_visit` / `redeem_reward` devront résoudre le palier courant comme le fait `computeCardProgress`.
+
+**Décisions** : ADR-016
+**Dette introduite / remboursée** : Aucune
+
+**Tests de validation**
+- [x] `pnpm lint`, `pnpm typecheck`, `pnpm test` (86 tests dont 9 nouveaux) — verts
+- [ ] `pnpm db:push` → `pnpm db:types` → `pnpm db:test` (16 + anciens) → `pnpm db:advisors` — à exécuter
+
+**Prochaine étape** : après application de la migration, actions serveur et écran `/pro/settings` (liste, création, édition, désactivation, glisser-déposer, image de récompense).
+
+---
 
 ### Session 18 — [2026-10-23] — Phase 5.3 (suite) : cadrage du logo et de la couverture
 **Roadmap :** Phase 5 — Étape 5.3 · **Statut :** 🟡 Partiel (code, lint, typecheck, tests et build verts ; validation manuelle à faire) · **Branche :** `feat/phase-5-pro-settings`
@@ -721,6 +747,7 @@
 | ADR-013 | `qr_token` : 20 caractères base32 majuscules (100 bits) pour un QR de version 1 | ✅ Accepté | 2026-10-22 |
 | ADR-014 | `profiles` : droits `UPDATE` par colonne (`display_name` seul) | ✅ Accepté | 2026-10-22 |
 | ADR-015 | Recadrage d'image : `react-easy-crop` | ✅ Accepté | 2026-10-23 |
+| ADR-016 | Programmes de fidélité : écriture par RPC, règles de paliers, `@dnd-kit` | ✅ Accepté | 2026-10-23 |
 
 <!-- ============ TEMPLATE ADR ============
 ### ADR-NNN — Titre
@@ -882,6 +909,18 @@
 - **Décision :** Option 2. Seul l'écran de cadrage (chargé à la sélection d'un fichier) l'utilise ; la géométrie (arrondi, bornes, taille de sortie) reste en fonctions pures testées (`domain/crop-geometry.ts`) et le serveur re-valide tout (format réel, taille, owner).
 - **Conséquences :** le cadre en pointillés passe par `style.cropAreaStyle` (seule API de la librairie, seul usage de style inline justifié) ; logo carré (affiché rond ou arrondi selon l'écran), couverture 16:9.
 - **Réversibilité :** facile (un seul composant à remplacer).
+
+
+### ADR-016 — Programmes de fidélité : écriture par RPC, règles de paliers, `@dnd-kit`
+- **Date :** 2026-10-23 · **Statut :** ✅ Accepté · **Phase :** 5 (étape 5.4)
+- **Contexte :** les seuils sont cumulatifs (ADR-009) et l'ordre des paliers est défini ; réordonner, éditer ou retirer un palier touche aux cartes en cours (Q-013), aux logs (FK `RESTRICT`) et à `UNIQUE(restaurant_id, position)`.
+- **Règles tranchées avec le porteur de projet :** seuils des paliers actifs **strictement croissants** (refusé sinon) ; **5 paliers actifs maximum** ; désactiver le dernier palier actif reste **permis** (les cartes affichent « programme indisponible » jusqu'à un nouveau palier) ; au réordonnancement les **seuils restent sur les places** (le palier remonté prend le seuil de sa nouvelle place).
+- **Options envisagées pour l'écriture :**
+  1. Policies INSERT/UPDATE/DELETE directes — ✅ simple ❌ impossible d'imposer les règles inter-lignes, de basculer les cartes, ni de réordonner sans violation transitoire de `UNIQUE`.
+  2. RPC uniquement (`create_`, `update_`, `set_…_active`, `reorder_loyalty_programs`), droits DML retirés — ✅ atomique, verrou du restaurant, règles appliquées par la base ❌ plus de SQL à tester.
+- **Décision :** Option 2 (migration 10). Pas de suppression physique : désactivation (`is_active = false`).
+- **Dépendance :** `@dnd-kit/core` 6.3.1, `sortable` 10.0.0, `utilities` 3.2.2 (MIT, peer React ≥ 16.8). Point de vigilance : dernières publications en décembre 2024 (la nouvelle génération `@dnd-kit/react` est encore en 0.x). Retenue car stable, très utilisée et prévue par la roadmap.
+- **Réversibilité :** repli possible par des boutons monter/descendre (même RPC `reorder_loyalty_programs`), sans toucher à la base.
 
 ---
 

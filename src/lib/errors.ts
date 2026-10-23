@@ -16,6 +16,12 @@ export const APP_ERROR_MESSAGES = {
   REVERSAL_EXPIRED:
     "Le délai de 10 minutes pour annuler ce scan est dépassé. Demandez au gérant.",
   REVERSAL_ALREADY_DONE: "Cette opération a déjà été annulée.",
+  PROGRAM_THRESHOLDS_INVALID:
+    "Les seuils doivent augmenter d'un palier à l'autre (ex. 10, puis 20, puis 30).",
+  PROGRAM_LIMIT_REACHED: "Vous ne pouvez pas avoir plus de 5 paliers actifs.",
+  PROGRAM_ORDER_INVALID:
+    "L'ordre des paliers a changé entre-temps. Rechargez la page et réessayez.",
+  PROGRAM_NOT_FOUND: "Ce palier est introuvable.",
   INTERNAL_ERROR: "Une erreur inattendue est survenue. Veuillez réessayer.",
 } as const;
 

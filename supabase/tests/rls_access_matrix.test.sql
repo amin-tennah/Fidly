@@ -184,14 +184,14 @@ insert into tap_log (tap) select is(
   'Owner 1 ne peut PAS modifier le restaurant d''un autre restaurateur'
 );
 
-update public.loyalty_programs
-set reward_label = 'Burger + Boisson offerts'
-where id = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb1';
+select public.update_loyalty_program(
+  'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb1', 10, 'Burger + Boisson offerts', null
+);
 
 insert into tap_log (tap) select is(
   (select reward_label from public.loyalty_programs where id = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb1'),
   'Burger + Boisson offerts',
-  'Owner 1 peut modifier les loyalty_programs de son restaurant'
+  'Owner 1 peut modifier les loyalty_programs de son restaurant (via RPC)'
 );
 
 insert into tap_log (tap) select is(
