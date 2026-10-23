@@ -3,6 +3,8 @@ import { notFound, redirect } from "next/navigation";
 import type { ReactNode } from "react";
 import { buildLoginPath } from "@/features/auth";
 import { getAuthenticatedUser } from "@/features/auth/queries/get-session-context";
+import { ProgramsCard, programsSignature } from "@/features/programs";
+import { listRestaurantPrograms } from "@/features/programs/queries/list-restaurant-programs";
 import { OwnerSettings } from "@/features/restaurants/components/owner-settings";
 import { RestaurantSummaryCard } from "@/features/restaurants/components/restaurant-summary-card";
 import { PRO_SETTINGS_PATH } from "@/features/restaurants/constants";
@@ -27,5 +29,15 @@ export default async function ProSettingsPage(): Promise<ReactNode> {
   if (active.role !== "owner") {
     return <RestaurantSummaryCard profile={profile} />;
   }
-  return <OwnerSettings key={profile.id} profile={profile} />;
+  const programs = await listRestaurantPrograms(profile.id);
+  return (
+    <div className="space-y-4">
+      <OwnerSettings key={profile.id} profile={profile} />
+      <ProgramsCard
+        key={programsSignature(programs)}
+        restaurantId={profile.id}
+        programs={programs}
+      />
+    </div>
+  );
 }

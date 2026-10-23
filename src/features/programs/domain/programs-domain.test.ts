@@ -1,7 +1,15 @@
 import { describe, expect, it } from "vitest";
 import type { ProgramView } from "@/features/programs/types";
 import { mapProgramRpcError } from "./map-program-error";
-import { findRuleViolation, previewReorder, suggestNextThreshold } from "./program-rules";
+import {
+  describeViolation,
+  findRuleViolation,
+  previewCreate,
+  previewReorder,
+  previewUpdate,
+  programsSignature,
+  suggestNextThreshold,
+} from "./program-rules";
 
 function program(
   id: string,
@@ -83,5 +91,41 @@ describe("mapProgramRpcError", () => {
 
   it("falls back to a generic error for anything else", () => {
     expect(mapProgramRpcError("connection reset")).toBe("INTERNAL_ERROR");
+  });
+});
+
+describe("local previews", () => {
+  const programs = [program("a", 1, 10), program("b", 2, 20)];
+
+  it("flags a created tier that does not exceed the last threshold", () => {
+    const created = previewCreate(programs, { threshold: 15, rewardLabel: "x" });
+    expect(findRuleViolation(created)).toBe("not_increasing");
+    expect(
+      findRuleViolation(previewCreate(programs, { threshold: 30, rewardLabel: "x" })),
+    ).toBeNull();
+  });
+
+  it("flags an edit that breaks the order and accepts a harmless one", () => {
+    expect(
+      findRuleViolation(
+        previewUpdate(programs, "a", { threshold: 25, rewardLabel: "a" }),
+      ),
+    ).toBe("not_increasing");
+    expect(
+      findRuleViolation(
+        previewUpdate(programs, "b", { threshold: 25, rewardLabel: "b" }),
+      ),
+    ).toBeNull();
+  });
+
+  it("describes violations in French", () => {
+    expect(describeViolation("too_many")).toContain("5 paliers");
+    expect(describeViolation("not_increasing")).toContain("seuils");
+  });
+
+  it("changes its signature when a tier changes", () => {
+    const edited = previewUpdate(programs, "a", { threshold: 11, rewardLabel: "a" });
+    expect(programsSignature(edited)).not.toBe(programsSignature(programs));
+    expect(programsSignature(programs)).toBe(programsSignature([...programs]));
   });
 });
