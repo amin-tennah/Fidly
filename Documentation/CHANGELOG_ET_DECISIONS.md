@@ -35,9 +35,9 @@
 
 ## 🧭 État courant (à mettre à jour à chaque session)
 
-- **Phase en cours :** Phase 4 terminée (4.1 → 4.5 ✅, Lighthouse Performance 86 accepté : DT-005) · Prêt pour Phase 5 (Espace restaurateur : fiche et programmes)
-- **Dernière session :** Session 14 (2026-10-22) — Phase 4 : QR client et cartes de fidélité
-- **Prochaine action :** Phase 5 — Étape 5.1 sur une branche `feat/phase-5-pro-settings` (plan à valider avant de coder : upload Storage et réordonnancement par glisser-déposer touchent à la sécurité et aux dépendances)
+- **Phase en cours :** Phase 5 (Espace restaurateur) — 5.1 ✅ · 5.2 → 5.4 à faire sur `feat/phase-5-pro-settings` · 5.5 (admin) sur une branche séparée
+- **Dernière session :** Session 15 (2026-10-23) — Phase 5.1 : layout `/pro` et navigation basse
+- **Prochaine action :** Étape 5.2 — migration 8 (droits de colonne sur `restaurants` + RPC `update_restaurant_profile`), fiche `/pro/settings`, API Adresse
 - **Bloquants :** Aucun
 
 ---
@@ -72,6 +72,36 @@
 
 **Prochaine étape** : ...
 ==================================================================================== -->
+
+### Session 15 — [2026-10-23] — Phase 5.1 : layout `/pro` et navigation basse
+**Roadmap :** Phase 5 — Étape 5.1 · **Statut :** ✅ Terminé · **Branche :** `feat/phase-5-pro-settings`
+
+**Réalisé**
+- feat(5.1): layout `/pro` avec en-tête (rôle, nom de l'établissement), navigation basse Scanner · Logs · Stats · Réglages (cibles ≥ 56 px, `aria-current`) et sélecteur d'établissement si plusieurs memberships
+- feat: établissement actif mémorisé dans un cookie `httpOnly` ; la Server Action `selectActiveRestaurant` vérifie session, appartenance et Zod avant de le poser ; la lecture re-valide toujours le cookie contre les memberships (`resolveActiveMembership`, domain testé)
+- feat: pages placeholder `/pro/logs`, `/pro/stats`, `/pro/settings` ; `/pro` devient l'emplacement du scanner (Phase 6)
+- Découpage décidé avec le porteur de projet : 5.1 → 5.4 sur cette branche, 5.5 (admin, chevalet en **PNG**, sans dépendance) sur une branche séparée ; colonne `cover_path` ajoutée en 5.3 ; API Adresse à vérifier avant 5.2
+
+**Fichiers clés**
+- `src/features/restaurants/` — constantes, `domain/resolve-active-membership.ts` (+ tests), `queries/get-active-membership.ts`, `actions/select-restaurant.ts`, composants de navigation
+- `src/app/pro/layout.tsx` — garde + coque de l'espace pro
+- `src/components/shared/coming-soon-card.tsx` — placeholder d'écran futur
+
+**Base de données** : aucune migration, types inchangés.
+
+**Constats d'audit pour 5.2 → 5.4 (à corriger par migration)** : UPDATE owner sur `restaurants` non limité par colonne (`subscription_status`, `slug`, `is_active` modifiables) ; policies Storage ouvertes aux `staff` ; DELETE physique de `loyalty_programs` permis par la RLS alors que les FK sont en `RESTRICT`.
+
+**Bugs rencontrés** : Aucun
+**Décisions** : Aucun nouvel ADR (le cookie n'est qu'une préférence, jamais une autorisation)
+**Dette introduite / remboursée** : Aucune
+
+**Tests de validation**
+- [x] `pnpm lint`, `pnpm typecheck`, `pnpm test` (52 tests dont 4 nouveaux) — verts
+- [ ] Rendu à 375 px, bascule entre deux établissements, accès d'un client à `/pro` — à vérifier manuellement
+
+**Prochaine étape** : 5.2 — fiche de l'établissement.
+
+---
 
 ### Session 14 — [2026-10-22] — Phase 4 : QR client et cartes de fidélité
 **Roadmap :** Phase 4 — Étapes 4.1 → 4.5 · **Statut :** ✅ Terminé (Lighthouse Performance 86, écart au seuil de 90 accepté : DT-005) · **Branche :** `feat/phase-4-client-cards` → `main`
