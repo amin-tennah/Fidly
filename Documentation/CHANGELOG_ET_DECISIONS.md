@@ -35,9 +35,9 @@
 
 ## 🧭 État courant (à mettre à jour à chaque session)
 
-- **Phase en cours :** Phase 5 (Espace restaurateur) — 5.1 → 5.4 ✅ (fusionnées dans `main`) · 5.5 🟡 sur `feat/phase-5-admin` (code prêt ; `db:test` et validation manuelle à faire)
+- **Phase en cours :** Phase 5 terminée (5.1 → 5.5 ✅, fusionnée dans `main`) · Prêt pour la Phase 6 (scanner et validation de passage)
 - **Dernière session :** Session 22 (2026-10-23) — Phase 5.5 : back-office `/admin`
-- **Prochaine action :** `pnpm db:test`, valider `/admin` à la main (création, invitation, chevalet), fusionner `feat/phase-5-admin` dans `main`, clore la Phase 5, puis Phase 6 (scanner)
+- **Prochaine action :** Phase 6 — étape 6.1 sur une branche `feat/phase-6-scanner` (plan à valider avant de coder : RPC `lookup_customer`, `record_visit`, `redeem_reward`, `reverse_scan` touchent au schéma et à la sécurité)
 - **Bloquants :** Aucun
 
 ---
@@ -74,7 +74,7 @@
 ==================================================================================== -->
 
 ### Session 22 — [2026-10-23] — Phase 5.5 : back-office `/admin`
-**Roadmap :** Phase 5 — Étape 5.5 · **Statut :** 🟡 Partiel (code, lint, typecheck, tests unitaires et build verts ; `pnpm db:test` et validation manuelle à faire) · **Branche :** `feat/phase-5-admin` (créée depuis `main` après fusion de `feat/phase-5-pro-settings`)
+**Roadmap :** Phase 5 — Étape 5.5 · **Statut :** ✅ Terminé (validé par le porteur de projet) · **Branche :** `feat/phase-5-admin` → `main`
 
 **Réalisé**
 - feat(5.5): `/admin` — formulaire « Nouveau restaurant » (nom, catégorie, email du gérant) qui crée le restaurant et l'invitation `owner` ; liste des restaurants avec gérants rattachés et invitations en attente (email, date d'expiration) ; « Inviter un gérant » pour une réinvitation ; « Chevalet (PNG) »
@@ -104,9 +104,9 @@
 **Tests de validation**
 - [x] `pnpm lint`, `pnpm typecheck`, `pnpm test` (109 dont 13 nouveaux), `pnpm build` — verts
 - [x] `pnpm db:test` : 20 + 12 + 12 + 11 + 6 + 19 + 9 assertions `ok` (dont les 9 de `admin_backoffice`)
-- [ ] À la main avec un compte admin : créer un restaurant et son invitation, ouvrir `/invitation` avec l'email invité, accepter, atteindre `/pro` ; réinviter ; télécharger le chevalet, le scanner et lire l'URL ; un non-admin est redirigé hors de `/admin` — à faire
+- [x] À la main avec un compte admin (accès obtenu par `make_platform_admin.sql`) : parcours de `/admin` validé par le porteur de projet (« ça me paraît bien »)
 
-**Prochaine étape** : après validation, fusion de `feat/phase-5-admin` dans `main` et clôture de la Phase 5 ; puis Phase 6 (scanner).
+**Prochaine étape** : Phase 6 — scanner et validation de passage (plan et règles métier à valider avant de coder).
 
 ---
 
