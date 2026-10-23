@@ -84,3 +84,9 @@ export const IMAGE_MAX_SIDE_PX = 800;
 export const IMAGE_QUALITY_START = 0.85;
 export const IMAGE_QUALITY_STEP = 0.1;
 export const IMAGE_QUALITY_MIN = 0.4;
+
+/** Crop frame ratio (width / height): square logo, 16:9 cover. */
+export const IMAGE_ASPECTS = { logo: 1, cover: 16 / 9 } as const;
+export const CROP_MIN_ZOOM = 1;
+export const CROP_MAX_ZOOM = 4;
+export const CROP_ZOOM_STEP = 0.05;

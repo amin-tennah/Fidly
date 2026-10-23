@@ -6,8 +6,10 @@ import { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { ImageKind } from "@/features/restaurants/domain/media-path";
-import { useImageUpload } from "@/features/restaurants/hooks/use-image-upload";
+import { IMAGE_ASPECTS } from "@/features/restaurants/constants";
+import { useImageUploadFlow } from "@/features/restaurants/hooks/use-image-upload";
 import { cn } from "@/lib/utils";
+import { ImageCropDialog } from "./image-crop-dialog";
 
 export interface ImageUploadCardProps {
   readonly restaurantId: string;
@@ -17,7 +19,7 @@ export interface ImageUploadCardProps {
 }
 
 const PREVIEW_CLASSES: Record<ImageKind, string> = {
-  logo: "size-24 rounded-full",
+  logo: "size-24 rounded-lg",
   cover: "aspect-video w-full rounded-lg",
 };
 
@@ -69,14 +71,53 @@ function buttonLabel(isPending: boolean, hasImage: boolean): string {
   return hasImage ? "Changer l'image" : "Choisir une image";
 }
 
+interface PickImageButtonProps {
+  readonly title: string;
+  readonly label: string;
+  readonly disabled: boolean;
+  readonly onFile: (file: File) => void;
+}
+
+function PickImageButton({
+  title,
+  label,
+  disabled,
+  onFile,
+}: PickImageButtonProps): ReactNode {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  return (
+    <>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        className="sr-only"
+        aria-label={`Choisir : ${title}`}
+        onChange={(event) => forwardFirstFile(event, onFile)}
+      />
+      <Button
+        type="button"
+        variant="outline"
+        size="lg"
+        className="w-full"
+        disabled={disabled}
+        onClick={() => inputRef.current?.click()}
+      >
+        {label}
+      </Button>
+    </>
+  );
+}
+
 export function ImageUploadCard({
   restaurantId,
   kind,
   title,
   currentUrl,
 }: ImageUploadCardProps): ReactNode {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const { isPending, upload } = useImageUpload(restaurantId, kind);
+  const flow = useImageUploadFlow(restaurantId, kind);
+  const { isPending, source } = flow;
 
   return (
     <Card>
@@ -85,25 +126,22 @@ export function ImageUploadCard({
       </CardHeader>
       <CardContent className="space-y-3">
         <ImagePreview kind={kind} url={currentUrl} title={title} isPending={isPending} />
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
-          className="sr-only"
-          aria-label={`Choisir : ${title}`}
-          onChange={(event) => forwardFirstFile(event, upload)}
-        />
-        <Button
-          type="button"
-          variant="outline"
-          size="lg"
-          className="w-full"
+        <PickImageButton
+          title={title}
+          label={buttonLabel(isPending, currentUrl !== null)}
           disabled={isPending}
-          onClick={() => inputRef.current?.click()}
-        >
-          {buttonLabel(isPending, currentUrl !== null)}
-        </Button>
+          onFile={flow.choose}
+        />
       </CardContent>
+      {source ? (
+        <ImageCropDialog
+          imageUrl={source.url}
+          aspect={IMAGE_ASPECTS[kind]}
+          title={title}
+          onCancel={flow.cancel}
+          onConfirm={flow.confirm}
+        />
+      ) : null}
     </Card>
   );
 }

@@ -35,9 +35,9 @@
 
 ## 🧭 État courant (à mettre à jour à chaque session)
 
-- **Phase en cours :** Phase 5 (Espace restaurateur) — 5.1 ✅ · 5.2 ✅ · 5.3 🟡 (code prêt ; migration 9 à appliquer et validation manuelle) · 5.4 à faire sur `feat/phase-5-pro-settings` · 5.5 (admin) sur une branche séparée
-- **Dernière session :** Session 17 (2026-10-23) — Phase 5.3 : logo et couverture
-- **Prochaine action :** appliquer la migration 9 (`pnpm db:push`, `db:test`, `db:advisors`), valider l'upload à la main, puis 5.4 (programmes : CRUD, soft delete, glisser-déposer `@dnd-kit`)
+- **Phase en cours :** Phase 5 (Espace restaurateur) — 5.1 ✅ · 5.2 ✅ · 5.3 ✅ (code, migration 9 appliquée ; cadrage à valider sur téléphone) · 5.4 à faire sur `feat/phase-5-pro-settings` · 5.5 (admin) sur une branche séparée
+- **Dernière session :** Session 18 (2026-10-23) — Phase 5.3 : cadrage du logo et de la couverture
+- **Prochaine action :** valider le cadrage à la main, puis 5.4 (programmes : CRUD, soft delete, glisser-déposer `@dnd-kit` — dépendance à justifier par un ADR)
 - **Bloquants :** Aucun
 
 ---
@@ -72,6 +72,33 @@
 
 **Prochaine étape** : ...
 ==================================================================================== -->
+
+### Session 18 — [2026-10-23] — Phase 5.3 (suite) : cadrage du logo et de la couverture
+**Roadmap :** Phase 5 — Étape 5.3 · **Statut :** 🟡 Partiel (code, lint, typecheck, tests et build verts ; validation manuelle à faire) · **Branche :** `feat/phase-5-pro-settings`
+
+**Réalisé**
+- feat(5.3): écran de cadrage plein écran avant l'envoi — cadre en pointillés (carré pour le logo, 16:9 pour la couverture), image déplaçable, zoom au pincement, à la molette et au curseur, boutons Annuler / Valider le cadrage
+- feat: la compression découpe la zone cadrée dans l'image source (arrondi et bornes dans `clampCropArea`, taille de sortie plafonnée à 800 px par `computeOutputSize`), puis ré-encode comme avant ; le serveur est inchangé
+- chore: dépendance `react-easy-crop` (ADR-015)
+
+**Fichiers clés**
+- `src/features/restaurants/components/image-crop-dialog.tsx`, `zoom-slider.tsx`, `image-upload-card.tsx`
+- `src/features/restaurants/hooks/use-image-upload.ts` — flux choisir → cadrer → envoyer
+- `src/features/restaurants/domain/crop-geometry.ts` (+ tests), `utils/compress-image.ts`
+
+**Base de données** : aucune migration.
+
+**Bugs rencontrés** : Aucun
+**Décisions** : ADR-015
+**Dette introduite / remboursée** : Aucune
+
+**Tests de validation**
+- [x] `pnpm lint`, `pnpm typecheck`, `pnpm test` (77 tests dont 5 nouveaux), `pnpm build` — verts
+- [ ] Cadrage d'un logo (carré) et d'une couverture (16:9) sur téléphone : déplacement, pincement, résultat conforme au cadre ; annulation ; photo prise à la verticale (orientation correcte) — à vérifier
+
+**Prochaine étape** : 5.4 — programmes de fidélité.
+
+---
 
 ### Session 17 — [2026-10-23] — Phase 5.3 : logo et photo de couverture
 **Roadmap :** Phase 5 — Étape 5.3 · **Statut :** 🟡 Partiel (migration 9 appliquée et validée ; reste le recadrage de l'image, demandé au retour d'essai) · **Branche :** `feat/phase-5-pro-settings`
@@ -693,6 +720,7 @@
 | ADR-012 | Journal `scan_logs` : traces d'audit anonymisables, conformité RGPD à la suppression de compte | ✅ Accepté | 2026-10-22 |
 | ADR-013 | `qr_token` : 20 caractères base32 majuscules (100 bits) pour un QR de version 1 | ✅ Accepté | 2026-10-22 |
 | ADR-014 | `profiles` : droits `UPDATE` par colonne (`display_name` seul) | ✅ Accepté | 2026-10-22 |
+| ADR-015 | Recadrage d'image : `react-easy-crop` | ✅ Accepté | 2026-10-23 |
 
 <!-- ============ TEMPLATE ADR ============
 ### ADR-NNN — Titre
@@ -843,6 +871,17 @@
 - **Décision :** Option 2 ; le trigger est conservé en défense en profondeur.
 - **Conséquences :** toute future colonne éditable par l'utilisateur doit être ajoutée explicitement au `GRANT`.
 - **Réversibilité :** immédiate.
+
+
+### ADR-015 — Recadrage d'image : `react-easy-crop`
+- **Date :** 2026-10-23 · **Statut :** ✅ Accepté · **Phase :** 5 (étape 5.3)
+- **Contexte :** le gérant doit cadrer son logo et sa couverture (cadre en pointillés, déplacement, zoom) avant l'envoi, depuis un téléphone.
+- **Options envisagées :**
+  1. Code maison (pointer events + canvas) — ✅ aucune dépendance ❌ zoom à deux doigts, limites de déplacement et clavier à réécrire et à tester sur appareils.
+  2. `react-easy-crop` 6.2.4 — ✅ glissement, pincement, molette, clavier ; MIT ; publiée le 2026-10-06 ; peer `react >=16.4` ; une seule dépendance (`normalize-wheel`) ; ~10 Ko gzip ❌ une dépendance de plus.
+- **Décision :** Option 2. Seul l'écran de cadrage (chargé à la sélection d'un fichier) l'utilise ; la géométrie (arrondi, bornes, taille de sortie) reste en fonctions pures testées (`domain/crop-geometry.ts`) et le serveur re-valide tout (format réel, taille, owner).
+- **Conséquences :** le cadre en pointillés passe par `style.cropAreaStyle` (seule API de la librairie, seul usage de style inline justifié) ; logo carré (affiché rond ou arrondi selon l'écran), couverture 16:9.
+- **Réversibilité :** facile (un seul composant à remplacer).
 
 ---
 

@@ -6,6 +6,11 @@ import {
   MAX_SOURCE_IMAGE_BYTES,
   MAX_UPLOAD_BYTES,
 } from "@/features/restaurants/constants";
+import {
+  clampCropArea,
+  computeOutputSize,
+} from "@/features/restaurants/domain/crop-geometry";
+import type { CropArea } from "@/features/restaurants/types";
 
 /** Browser-only. Refuses non-images and files above the source limit with a French message. */
 export function assertAcceptableSource(file: File): void {
@@ -25,13 +30,17 @@ function toBlob(
   return new Promise((resolve) => canvas.toBlob(resolve, type, quality));
 }
 
-async function drawScaled(file: File): Promise<HTMLCanvasElement> {
+async function drawCropped(file: File, crop: CropArea): Promise<HTMLCanvasElement> {
   const bitmap = await createImageBitmap(file);
-  const ratio = Math.min(1, IMAGE_MAX_SIDE_PX / Math.max(bitmap.width, bitmap.height));
+  const source = clampCropArea(crop, bitmap.width, bitmap.height);
+  const size = computeOutputSize(source, IMAGE_MAX_SIDE_PX);
   const canvas = document.createElement("canvas");
-  canvas.width = Math.max(1, Math.round(bitmap.width * ratio));
-  canvas.height = Math.max(1, Math.round(bitmap.height * ratio));
-  canvas.getContext("2d")?.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  canvas.width = size.width;
+  canvas.height = size.height;
+  const { x, y, width, height } = source;
+  canvas
+    .getContext("2d")
+    ?.drawImage(bitmap, x, y, width, height, 0, 0, size.width, size.height);
   bitmap.close();
   return canvas;
 }
@@ -53,12 +62,15 @@ async function encodeUnderLimit(canvas: HTMLCanvasElement): Promise<Blob | null>
   return null;
 }
 
-/** Resizes to `IMAGE_MAX_SIDE_PX` and re-encodes (WebP, else JPEG) below `MAX_UPLOAD_BYTES`. */
-export async function compressImage(file: File): Promise<Blob> {
+/**
+ * Keeps only the chosen `crop`, resizes it to `IMAGE_MAX_SIDE_PX` and re-encodes it
+ * (WebP, else JPEG) below `MAX_UPLOAD_BYTES`.
+ */
+export async function compressImage(file: File, crop: CropArea): Promise<Blob> {
   assertAcceptableSource(file);
   let canvas: HTMLCanvasElement;
   try {
-    canvas = await drawScaled(file);
+    canvas = await drawCropped(file, crop);
   } catch {
     throw new Error("Impossible de lire cette image.");
   }
