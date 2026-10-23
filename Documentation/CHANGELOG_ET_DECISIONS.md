@@ -74,12 +74,13 @@
 ==================================================================================== -->
 
 ### Session 17 — [2026-10-23] — Phase 5.3 : logo et photo de couverture
-**Roadmap :** Phase 5 — Étape 5.3 · **Statut :** 🟡 Partiel (code, lint, typecheck, tests unitaires et build verts ; migration 9 non appliquée, validation manuelle à faire) · **Branche :** `feat/phase-5-pro-settings`
+**Roadmap :** Phase 5 — Étape 5.3 · **Statut :** 🟡 Partiel (migration 9 appliquée et validée ; reste le recadrage de l'image, demandé au retour d'essai) · **Branche :** `feat/phase-5-pro-settings`
 
 **Réalisé**
 - db: migration 9 — écriture dans le bucket `restaurant-media` réservée à l'**owner** du dossier `<restaurant_id>/` (admin inclus) ; les policies de la migration 5 ouvraient aussi l'écriture au `staff`. Lecture publique inchangée.
 - feat(5.3): cartes « Logo » et « Photo de couverture » dans `/pro/settings` (owner) ; compression dans le navigateur (≈ 800 px, WebP, repli JPEG, qualité abaissée jusqu'à passer sous 800 Ko) ; refus explicite d'un fichier non image ou de plus de 5 Mo avant tout traitement
 - feat: Server Action `uploadRestaurantImage` — owner, puis champs Zod, taille, et **format réel lu dans les octets** (JPEG, PNG, WebP ; le type MIME déclaré n'est jamais cru) ; nouveau chemin à chaque envoi (pas de cache périmé), ancien fichier supprimé, annulation du fichier si la mise à jour de la colonne échoue
+- fix: retour d'essai — le logo n'apparaissait nulle part côté pro : avatar du restaurant dans l'en-tête de `/pro` (owner et staff), couverture dans la vue staff ; composant partagé `components/shared/restaurant-avatar.tsx` (réutilisé par les cartes de fidélité)
 - feat: `next/image` configuré pour le seul chemin public `restaurant-media` du projet (`next.config.ts`) ; le logo s'affiche sur les cartes de fidélité du client (**DT-004 remboursée**)
 
 **Fichiers clés**
@@ -88,7 +89,7 @@
 - `src/lib/supabase/media-url.ts` — URL publique d'un média ; `next.config.ts`
 
 **Base de données**
-- Migration : `20261023110001_storage_owner_only_writes.sql` — **écrite, NON appliquée** (à pousser par le porteur du projet)
+- Migration : `20261023110001_storage_owner_only_writes.sql` — appliquée
 - Types régénérés : non concerné (aucune table modifiée)
 
 **Bugs rencontrés** : Aucun
@@ -98,8 +99,9 @@
 
 **Tests de validation**
 - [x] `pnpm lint`, `pnpm typecheck`, `pnpm test` (72 tests dont 5 nouveaux), `pnpm build` — verts
-- [ ] `pnpm db:push` → `pnpm db:test` (6 assertions Storage) → `pnpm db:advisors` — à exécuter
-- [ ] Upload d'un logo et d'une couverture, remplacement (ancien fichier supprimé), refus d'un PDF/texte renommé en `.jpg`, refus > 5 Mo, vue staff sans cartes, logo visible sur la carte client — à vérifier manuellement
+- [x] `pnpm db:push` → `pnpm db:test` (20 + 12 + 12 + 11 + 6 assertions `ok`) → `pnpm db:advisors` (avertissements acceptés uniquement) — OK
+- [x] Aperçu à jour (logo et couverture), refus > 5 Mo, logo visible sur la carte client, pas de carte d'upload côté staff — OK par le porteur de projet
+- [ ] Remplacement (ancien fichier supprimé du bucket) et refus d'un faux `.jpg` — non vérifiés
 
 **Prochaine étape** : 5.4 — programmes de fidélité.
 

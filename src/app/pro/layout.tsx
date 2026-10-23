@@ -16,6 +16,7 @@ import {
 } from "@/features/auth/queries/get-session-context";
 import { ProBottomNav, ProHeader } from "@/features/restaurants";
 import { getActiveMembership } from "@/features/restaurants/queries/get-active-membership";
+import { getRestaurantProfile } from "@/features/restaurants/queries/get-restaurant-profile";
 
 interface ProLayoutProps {
   readonly children: ReactNode;
@@ -43,9 +44,15 @@ export default async function ProLayout({
     redirect(pendingInvitations.length > 0 ? INVITATION_PATH : CLIENT_HOME_PATH);
   }
 
+  const restaurant = await getRestaurantProfile(active.restaurantId);
+
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-6 px-4 pt-6 pb-24">
-      <ProHeader memberships={memberships} active={active} />
+      <ProHeader
+        memberships={memberships}
+        active={active}
+        logoUrl={restaurant?.logoUrl ?? null}
+      />
       {children}
       <ProBottomNav />
     </div>

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { ReactNode } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RESTAURANT_CATEGORY_LABELS } from "@/features/restaurants/constants";
@@ -13,6 +14,17 @@ export function RestaurantSummaryCard({
 }: RestaurantSummaryCardProps): ReactNode {
   return (
     <Card>
+      {profile.coverUrl ? (
+        <div className="relative aspect-video w-full overflow-hidden rounded-lg">
+          <Image
+            src={profile.coverUrl}
+            alt=""
+            fill
+            sizes="(max-width: 448px) 100vw, 448px"
+            className="object-cover"
+          />
+        </div>
+      ) : null}
       <CardHeader>
         <CardTitle className="text-base">{profile.name}</CardTitle>
       </CardHeader>

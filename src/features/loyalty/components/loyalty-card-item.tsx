@@ -1,42 +1,12 @@
-import Image from "next/image";
 import type { ReactNode } from "react";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { RestaurantAvatar } from "@/components/shared/restaurant-avatar";
 import type { CardProgress, LoyaltyCardView } from "@/features/loyalty/types";
 import { cn } from "@/lib/utils";
 
 export interface LoyaltyCardItemProps {
   readonly card: LoyaltyCardView;
-}
-
-const AVATAR_PX = 40;
-
-function RestaurantAvatar({
-  name,
-  logoUrl,
-}: {
-  readonly name: string;
-  readonly logoUrl: string | null;
-}): ReactNode {
-  if (logoUrl) {
-    return (
-      <Image
-        src={logoUrl}
-        alt=""
-        width={AVATAR_PX}
-        height={AVATAR_PX}
-        className="size-10 shrink-0 rounded-full object-cover"
-      />
-    );
-  }
-  return (
-    <span
-      aria-hidden="true"
-      className="bg-secondary text-secondary-foreground flex size-10 shrink-0 items-center justify-center rounded-full text-base font-bold"
-    >
-      {name.trim().charAt(0).toUpperCase()}
-    </span>
-  );
 }
 
 function ProgressSection({ progress }: { readonly progress: CardProgress }): ReactNode {
