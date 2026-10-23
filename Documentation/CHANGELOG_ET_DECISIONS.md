@@ -35,9 +35,9 @@
 
 ## 🧭 État courant (à mettre à jour à chaque session)
 
-- **Phase en cours :** Phase 5 (Espace restaurateur) — 5.1 ✅ · 5.2 → 5.4 à faire sur `feat/phase-5-pro-settings` · 5.5 (admin) sur une branche séparée
-- **Dernière session :** Session 15 (2026-10-23) — Phase 5.1 : layout `/pro` et navigation basse
-- **Prochaine action :** Étape 5.2 — migration 8 (droits de colonne sur `restaurants` + RPC `update_restaurant_profile`), fiche `/pro/settings`, API Adresse
+- **Phase en cours :** Phase 5 (Espace restaurateur) — 5.1 ✅ · 5.2 ✅ (code ; validation manuelle à faire) · 5.3 → 5.4 à faire sur `feat/phase-5-pro-settings` · 5.5 (admin) sur une branche séparée
+- **Dernière session :** Session 16 (2026-10-23) — Phase 5.2 : fiche de l'établissement
+- **Prochaine action :** valider 5.2 à la main, puis 5.3 (upload logo/couverture : migration Storage owner uniquement, compression client, `next/image`)
 - **Bloquants :** Aucun
 
 ---
@@ -72,6 +72,43 @@
 
 **Prochaine étape** : ...
 ==================================================================================== -->
+
+### Session 16 — [2026-10-23] — Phase 5.2 : fiche de l'établissement
+**Roadmap :** Phase 5 — Étape 5.2 · **Statut :** 🟡 Partiel (code et tests verts ; validation manuelle de l'écran à faire) · **Branche :** `feat/phase-5-pro-settings`
+
+**Réalisé**
+- db: migration 8 — `UPDATE` de `restaurants` limité aux colonnes `name`, `category`, `opening_hours`, `logo_path`, `cover_path` ; RPC `set_restaurant_address` (adresse + `geography` cohérentes, owner ou admin) ; colonne `cover_path` ; CHECK sur `opening_hours` (objet JSON) et la longueur de l'adresse
+- feat(5.2): `/pro/settings` pour l'owner : nom + catégorie (react-hook-form + Zod), adresse avec autocomplétion, éditeur d'horaires par jour (jusqu'à 3 créneaux, fermeture après minuit permise, chevauchements refusés) ; le `staff` voit un résumé en lecture seule
+- feat: autocomplétion via la Server Action `searchAddresses` (appel serveur à l'API Géoplateforme de l'IGN, réponse validée par Zod, cache 1 h, saisie debouncée à 300 ms, 3 caractères minimum) ; seule une suggestion choisie (donc de vraies coordonnées) peut être enregistrée
+- feat: garde `authorizeRestaurantOwner` commune aux actions (session, puis rôle owner, puis Zod)
+
+**Fichiers clés**
+- `supabase/migrations/20261023100001_restaurant_profile_editing.sql`, `supabase/tests/restaurant_profile.test.sql` (11 assertions)
+- `src/features/restaurants/` — `domain/` (`opening-hours`, `edit-opening-hours`, `parse-address-suggestions`, tests), `actions/`, `queries/get-restaurant-profile.ts`, `hooks/`, `components/`
+- `src/app/pro/settings/page.tsx`
+
+**Base de données**
+- Migration : `20261023100001_restaurant_profile_editing.sql` appliquée (`pnpm db:push`)
+- Types régénérés : oui
+
+**Bugs rencontrés**
+| Symptôme | Cause racine | Correctif | Prévention |
+|---|---|---|---|
+| `pnpm db:push` sans sortie, bloqué | La CLI attend le mot de passe de la base | Saisie du mot de passe / `SUPABASE_DB_PASSWORD` | Lancer les commandes `db:*` dans le terminal de l'utilisateur |
+
+**Advisors Supabase (acceptés)** : `authenticated_security_definer_function_executable` sur `set_restaurant_address` (appelable par les utilisateurs connectés par conception ; rôle owner/admin vérifié en début de fonction), en plus des deux fonctions d'invitation déjà acceptées.
+
+**Décisions** : Aucun nouvel ADR. Choix notés : API Adresse = Géoplateforme IGN (ADR-007, l'ancien domaine `api-adresse.data.gouv.fr` est abandonné) ; les actions d'administration sur `restaurants` (`is_active`, `subscription_status`, `slug`) passeront par le client service role côté serveur en 5.5, l'UPDATE direct étant retiré aux admins aussi.
+**Dette introduite / remboursée** : Aucune
+
+**Tests de validation**
+- [x] `pnpm db:test` : 20 + 12 + 12 + 11 assertions pgTAP `ok` ; `pnpm db:advisors` : seulement les avertissements acceptés
+- [x] `pnpm lint`, `pnpm typecheck`, `pnpm test` (64 tests dont 16 nouveaux), `pnpm build` — verts
+- [ ] Parcours manuel de `/pro/settings` (nom, catégorie, adresse, horaires, rechargement, vue staff) — à faire
+
+**Prochaine étape** : 5.3 — upload du logo et de la couverture.
+
+---
 
 ### Session 15 — [2026-10-23] — Phase 5.1 : layout `/pro` et navigation basse
 **Roadmap :** Phase 5 — Étape 5.1 · **Statut :** ✅ Terminé · **Branche :** `feat/phase-5-pro-settings`
