@@ -185,7 +185,7 @@ insert into tap_log (tap) select is(
 );
 
 select public.update_loyalty_program(
-  'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb1', 10, 'Burger + Boisson offerts', null
+  'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb1', 10, 'Burger + Boisson offerts'
 );
 
 insert into tap_log (tap) select is(

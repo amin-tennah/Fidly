@@ -35,9 +35,9 @@
 
 ## 🧭 État courant (à mettre à jour à chaque session)
 
-- **Phase en cours :** Phase 5 (Espace restaurateur) — 5.1 ✅ · 5.2 ✅ · 5.3 ✅ · 5.4 🟡 (migration 10 et règles écrites, à appliquer ; interface à faire) · 5.5 (admin) sur une branche séparée
-- **Dernière session :** Session 19 (2026-10-23) — Phase 5.4 (en cours) : programmes de fidélité, base et règles
-- **Prochaine action :** `pnpm db:push`, `db:types`, `db:test`, `db:advisors`, puis actions serveur et écran des programmes
+- **Phase en cours :** Phase 5 (Espace restaurateur) — 5.1 ✅ · 5.2 ✅ · 5.3 ✅ · 5.4 🟡 (migrations 10 appliquée, 11 à appliquer ; interface écrite, à valider) · 5.5 (admin) sur une branche séparée
+- **Dernière session :** Session 19 (2026-10-23) — Phase 5.4 (en cours) : programmes de fidélité
+- **Prochaine action :** `pnpm db:push`, `db:types`, `db:test`, puis `typecheck` ; valider l'écran des programmes ; ensuite image de récompense (RPC `set_loyalty_program_image` déjà prévue)
 - **Bloquants :** Aucun
 
 ---
@@ -74,17 +74,20 @@
 ==================================================================================== -->
 
 ### Session 19 — [2026-10-23] — Phase 5.4 (en cours) : programmes de fidélité, base de données et règles
-**Roadmap :** Phase 5 — Étape 5.4 · **Statut :** 🟡 Partiel (migration 10 et tests écrits, **non appliqués** ; interface à faire après régénération des types) · **Branche :** `feat/phase-5-pro-settings`
+**Roadmap :** Phase 5 — Étape 5.4 · **Statut :** 🟡 Partiel (migration 10 appliquée et testée ; migration 11 écrite, **non appliquée** ; interface écrite mais non commitée tant que les types ne sont pas régénérés) · **Branche :** `feat/phase-5-pro-settings`
 
 **Réalisé**
 - db: migration 10 — plus d'écriture directe sur `loyalty_programs` ; RPC `create_loyalty_program`, `update_loyalty_program`, `set_loyalty_program_active` (basculement des cartes sur le palier actif suivant en conservant `stamps`, boucle sur le premier), `reorder_loyalty_programs` (décalage puis réécriture, seuils conservés sur les places) ; contrôle central `private.assert_program_rules` (5 actifs max, seuils croissants) ; images de récompense limitées au dossier du restaurant
 - test: `supabase/tests/loyalty_programs.test.sql` (16 assertions) ; `rls_access_matrix.test.sql` adapté (l'owner modifie un palier via RPC)
 - feat: `src/features/programs/` — règles pures (`findRuleViolation`, `suggestNextThreshold`, `previewReorder`), schémas Zod, mapping des erreurs des RPC, constantes ; 4 nouveaux codes d'erreur dans `lib/errors.ts`
 - chore: dépendances `@dnd-kit/*` (ADR-016)
+- feat (écrit, à valider) : section « Programmes de fidélité » de `/pro/settings` — liste triable par glisser-déposer (souris, tactile, clavier), ajout, édition, désactivation, réactivation ; contrôle local des règles avant l'appel ; remise à l'état serveur par `key` ; accès owner uniquement via `authorizeRestaurantOwner` (entrée serveur `features/restaurants/server.ts`)
 
 **Base de données**
-- Migration : `20261023120001_loyalty_program_rpcs.sql` — **écrite, NON appliquée**
-- Types régénérés : non (à faire après `pnpm db:push`)
+- Migration 10 : `20261023120001_loyalty_program_rpcs.sql` — appliquée ; `pnpm db:test` : 16/16 sur les programmes, 20/20 sur la matrice RLS
+- Migration 11 : `20261023130001_program_image_rpc.sql` — **écrite, NON appliquée** : `update_loyalty_program` ne prend plus que le seuil et le libellé ; nouvelle RPC `set_loyalty_program_image` (chemin dans le dossier du restaurant, ou NULL). Raison : les types générés exigent un chemin d'image non nul pour `update_loyalty_program`, ce qui aurait imposé un cast ; une RPC dédiée est aussi plus sûre (modifier un texte ne peut plus effacer l'image)
+- Types régénérés : après la migration 10 oui ; **à refaire après la migration 11**
+- Advisors : 4 avertissements `authenticated_security_definer_function_executable` de plus (create/update/set_active/reorder), acceptés pour la même raison que les précédents (rôle owner/admin vérifié dans la fonction)
 
 **À savoir pour la Phase 6** : si tous les paliers sont désactivés puis qu'un nouveau est créé, des cartes peuvent encore pointer un palier inactif ; `record_visit` / `redeem_reward` devront résoudre le palier courant comme le fait `computeCardProgress`.
 
@@ -93,7 +96,8 @@
 
 **Tests de validation**
 - [x] `pnpm lint`, `pnpm typecheck`, `pnpm test` (86 tests dont 9 nouveaux) — verts
-- [ ] `pnpm db:push` → `pnpm db:types` → `pnpm db:test` (16 + anciens) → `pnpm db:advisors` — à exécuter
+- [x] Migration 10 : `db:push`, `db:types`, `db:test`, `db:advisors` — OK
+- [ ] Migration 11 : `db:push` → `db:types` → `db:test` (19 assertions programmes) → `typecheck` — à exécuter
 
 **Prochaine étape** : après application de la migration, actions serveur et écran `/pro/settings` (liste, création, édition, désactivation, glisser-déposer, image de récompense).
 

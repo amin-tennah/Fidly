@@ -18,7 +18,7 @@ create temp table tap_log (
 grant insert, select on table tap_log to anon, authenticated;
 grant usage, select on sequence tap_log_seq_seq to anon, authenticated;
 
-insert into tap_log (tap) select plan(16);
+insert into tap_log (tap) select plan(19);
 
 -- Fixtures (superuser) : R1 vide, R3 avec 3 paliers et une carte, R4 avec 5 paliers actifs
 insert into public.restaurants (id, slug, name, category, is_active)
@@ -89,7 +89,7 @@ insert into tap_log (tap) select throws_ok(
 insert into tap_log (tap) select throws_ok(
   $$ select public.update_loyalty_program(
        (select id from public.loyalty_programs where restaurant_id = 'a5a5a5a5-aaaa-4aaa-8aaa-aaaaaaaaaaa1' and reward_label = 'Dessert'),
-       25, 'Dessert', null) $$,
+       25, 'Dessert') $$,
   'P0001', 'thresholds_not_increasing',
   'Modifier un seuil au-dessus du palier suivant est refusé'
 );
@@ -97,7 +97,7 @@ insert into tap_log (tap) select throws_ok(
 -- 5. Édition autorisée
 do $$ begin perform public.update_loyalty_program(
   (select id from public.loyalty_programs where restaurant_id = 'a5a5a5a5-aaaa-4aaa-8aaa-aaaaaaaaaaa1' and reward_label = 'Dessert'),
-  10, 'Dessert XL', null
+  10, 'Dessert XL'
 ); end $$;
 
 insert into tap_log (tap) select is(
@@ -174,6 +174,32 @@ insert into tap_log (tap) select throws_ok(
   $$ select public.create_loyalty_program('a5a5a5a5-aaaa-4aaa-8aaa-aaaaaaaaaaa4', 60, 'Sixième palier') $$,
   'P0001', 'too_many_programs',
   'Un sixième palier actif est refusé'
+);
+
+-- 14-16. Image de palier : dossier du restaurant uniquement
+do $$ begin perform public.set_loyalty_program_image(
+  'b5b5b5b5-bbbb-4bbb-8bbb-bbbbbbbbbbb4',
+  'a5a5a5a5-aaaa-4aaa-8aaa-aaaaaaaaaaa4/reward-test.webp'
+); end $$;
+
+insert into tap_log (tap) select is(
+  (select reward_image_path from public.loyalty_programs where id = 'b5b5b5b5-bbbb-4bbb-8bbb-bbbbbbbbbbb4'),
+  'a5a5a5a5-aaaa-4aaa-8aaa-aaaaaaaaaaa4/reward-test.webp',
+  'Owner peut associer une image de son dossier à un palier'
+);
+
+insert into tap_log (tap) select throws_ok(
+  $$ select public.set_loyalty_program_image('b5b5b5b5-bbbb-4bbb-8bbb-bbbbbbbbbbb4', 'a5a5a5a5-aaaa-4aaa-8aaa-aaaaaaaaaaa1/reward-test.webp') $$,
+  '22023', 'invalid_media_path',
+  'Une image d''un autre dossier est refusée'
+);
+
+do $$ begin perform public.set_loyalty_program_image('b5b5b5b5-bbbb-4bbb-8bbb-bbbbbbbbbbb4'); end $$;
+
+insert into tap_log (tap) select is(
+  (select reward_image_path from public.loyalty_programs where id = 'b5b5b5b5-bbbb-4bbb-8bbb-bbbbbbbbbbb4'),
+  null,
+  'Appeler la RPC sans chemin retire l''image'
 );
 
 -- ----------------------------------------------------------------------------
