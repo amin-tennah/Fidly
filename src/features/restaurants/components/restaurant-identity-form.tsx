@@ -6,7 +6,6 @@ import { useTransition } from "react";
 import { useForm, type UseFormReturn } from "react-hook-form";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -28,9 +27,10 @@ import {
   type RestaurantIdentityInput,
 } from "@/features/restaurants/schemas";
 
-export interface RestaurantIdentityCardProps {
+export interface RestaurantIdentityFormProps {
   readonly restaurantId: string;
   readonly initialValues: RestaurantIdentityInput;
+  readonly onDone: () => void;
 }
 
 interface FieldsProps {
@@ -87,6 +87,7 @@ function CategoryField({ form, isPending }: FieldsProps): ReactNode {
 function useIdentityForm(
   restaurantId: string,
   initialValues: RestaurantIdentityInput,
+  onDone: () => void,
 ): {
   readonly form: UseFormReturn<RestaurantIdentityInput>;
   readonly isPending: boolean;
@@ -103,6 +104,7 @@ function useIdentityForm(
       const res = await updateRestaurantIdentity({ restaurantId, ...values });
       if (res.ok) {
         toast.success("Informations enregistrées.");
+        onDone();
       } else {
         toast.error(res.error.message);
       }
@@ -112,32 +114,36 @@ function useIdentityForm(
   return { form, isPending, submit };
 }
 
-export function RestaurantIdentityCard({
+/** Inline form for the name and category of the restaurant. */
+export function RestaurantIdentityForm({
   restaurantId,
   initialValues,
-}: RestaurantIdentityCardProps): ReactNode {
-  const { form, isPending, submit } = useIdentityForm(restaurantId, initialValues);
+  onDone,
+}: RestaurantIdentityFormProps): ReactNode {
+  const { form, isPending, submit } = useIdentityForm(
+    restaurantId,
+    initialValues,
+    onDone,
+  );
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-base">Votre établissement</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form
-            noValidate
-            className="space-y-4"
-            onSubmit={(e) => void form.handleSubmit(submit)(e)}
-          >
-            <NameField form={form} isPending={isPending} />
-            <CategoryField form={form} isPending={isPending} />
-            <Button type="submit" size="lg" className="w-full" disabled={isPending}>
-              {isPending ? "Enregistrement…" : "Enregistrer"}
-            </Button>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+    <Form {...form}>
+      <form
+        noValidate
+        className="space-y-3"
+        onSubmit={(e) => void form.handleSubmit(submit)(e)}
+      >
+        <NameField form={form} isPending={isPending} />
+        <CategoryField form={form} isPending={isPending} />
+        <div className="flex gap-3">
+          <Button type="button" variant="outline" className="flex-1" onClick={onDone}>
+            Annuler
+          </Button>
+          <Button type="submit" className="flex-1" disabled={isPending}>
+            {isPending ? "Enregistrement…" : "Enregistrer"}
+          </Button>
+        </div>
+      </form>
+    </Form>
   );
 }

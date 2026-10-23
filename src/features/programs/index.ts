@@ -1,3 +1,2 @@
-export { ProgramsCard } from "./components/programs-card";
+export { ProgramsSection } from "./components/programs-section";
 export type { ProgramView } from "./types";
-export { programsSignature } from "./domain/program-rules";

@@ -2,7 +2,7 @@
 
 import type { ChangeEvent, ReactNode } from "react";
 import { useRef } from "react";
-import { Button } from "@/components/ui/button";
+import { Button, type ButtonProps } from "@/components/ui/button";
 
 export interface PickImageButtonProps {
   readonly title: string;
@@ -10,6 +10,12 @@ export interface PickImageButtonProps {
   readonly disabled: boolean;
   readonly onFile: (file: File) => void;
   readonly className?: string;
+  readonly variant?: ButtonProps["variant"];
+  readonly size?: ButtonProps["size"];
+  /** Optional icon shown before the label. */
+  readonly icon?: ReactNode;
+  /** Keeps the label for screen readers only (compact icon button). */
+  readonly iconOnly?: boolean;
 }
 
 /** Hands the chosen file over and resets the input so the same file can be picked again. */
@@ -31,6 +37,10 @@ export function PickImageButton({
   disabled,
   onFile,
   className,
+  variant = "outline",
+  size = "lg",
+  icon,
+  iconOnly = false,
 }: PickImageButtonProps): ReactNode {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -46,13 +56,14 @@ export function PickImageButton({
       />
       <Button
         type="button"
-        variant="outline"
-        size="lg"
+        variant={variant}
+        size={size}
         className={className}
         disabled={disabled}
         onClick={() => inputRef.current?.click()}
       >
-        {label}
+        {icon}
+        {iconOnly ? <span className="sr-only">{label}</span> : label}
       </Button>
     </>
   );

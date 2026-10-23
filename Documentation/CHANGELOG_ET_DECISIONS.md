@@ -36,7 +36,7 @@
 ## 🧭 État courant (à mettre à jour à chaque session)
 
 - **Phase en cours :** Phase 5 (Espace restaurateur) — 5.1 ✅ · 5.2 ✅ · 5.3 ✅ · 5.4 ✅ (image de récompense à valider à la main) · 5.5 (admin) à faire sur la branche `feat/phase-5-admin`
-- **Dernière session :** Session 20 (2026-10-23) — Phase 5.4 (fin) : image de récompense et feature `media`
+- **Dernière session :** Session 21 (2026-10-23) — Phase 5 : réglages en lecture d'abord
 - **Prochaine action :** valider l'image de récompense, fusionner `feat/phase-5-pro-settings` dans `main`, puis 5.5 (créer un restaurant, inviter l'owner, QR du chevalet en PNG) sur `feat/phase-5-admin`
 - **Bloquants :** Aucun
 
@@ -72,6 +72,32 @@
 
 **Prochaine étape** : ...
 ==================================================================================== -->
+
+### Session 21 — [2026-10-23] — Phase 5 : réglages en lecture d'abord (retour d'ergonomie)
+**Roadmap :** Phase 5 — ergonomie de `/pro/settings` · **Statut :** 🟡 Partiel (code, lint, typecheck, tests, build verts ; validation visuelle à faire) · **Branche :** `feat/phase-5-pro-settings`
+
+**Constat du porteur de projet** : tout était déplié en permanence, la page était longue et sans vue d'ensemble.
+
+**Réalisé**
+- feat: `/pro/settings` s'ouvre en **lecture** — carte d'en-tête (bannière 16:9, logo qui chevauche la bannière, nom, catégorie, adresse), carte « Horaires d'ouverture » (semaine compacte, jour courant mis en évidence, fermeture après minuit indiquée « (lendemain) »), carte « Programmes de fidélité » (paliers actifs avec leur image, nombre de paliers désactivés)
+- feat: **modification à la demande** — petit bouton appareil photo sur la bannière et sur le logo (choix, cadrage, envoi) ; crayon à côté du nom/catégorie et de l'adresse (formulaire sur place, un seul ouvert à la fois) ; bouton « Modifier » sur les horaires et sur les programmes qui remplace le résumé par l'éditeur existant, « Terminer » pour revenir
+- feat: l'**équipier** voit la même page en lecture seule (sans boutons) ; les actions serveur et la base refusent de toute façon tout autre rôle qu'owner
+- refactor: `SectionCard` partagé (titre + bascule Modifier/Terminer) ; éditeurs sans carte ni titre ; l'éditeur des programmes reste ouvert entre deux actions (la section n'est pas remontée, seul l'éditeur est réinitialisé par sa clé)
+- feat: `formatDay` / `formatSlot` / `todayDayKey` (jour lu dans le fuseau Europe/Paris, pas celui du serveur ni du navigateur) + 6 tests
+- chore: composants remplacés supprimés (`owner-settings`, `restaurant-summary-card`, `image-upload-card`, cartes d'édition)
+
+**Base de données** : aucune migration.
+**Bugs rencontrés** : Aucun
+**Décisions** : Aucun nouvel ADR (pas de changement d'architecture : composition de composants existants)
+**Dette introduite / remboursée** : Aucune
+
+**Tests de validation**
+- [x] `pnpm lint`, `pnpm typecheck`, `pnpm test` (96 dont 6 nouveaux), `pnpm build` — verts
+- [ ] À la main : lecture seule propre à 375 px, bannière et logo (changement, cadrage), nom/catégorie, adresse, horaires, programmes (ajout, glisser-déposer, image), vue équipier sans bouton — à vérifier
+
+**Prochaine étape** : valider le rendu, puis fusion dans `main` et 5.5 (`/admin`).
+
+---
 
 ### Session 20 — [2026-10-23] — Phase 5.4 (fin) : image de récompense et feature partagée `media`
 **Roadmap :** Phase 5 — Étape 5.4 · **Statut :** ✅ Terminé (validation manuelle de l'image de récompense à faire) · **Branche :** `feat/phase-5-pro-settings`

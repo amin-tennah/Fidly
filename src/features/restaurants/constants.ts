@@ -46,6 +46,9 @@ export const RESTAURANT_CATEGORY_LABELS: Record<
   other: "Autre",
 };
 
+/** Opening hours are read in the local time of the (French) restaurants. */
+export const RESTAURANT_TIME_ZONE = "Europe/Paris";
+
 export const DAY_KEYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
 
 export const DAY_LABELS = {

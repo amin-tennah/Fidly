@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 const SIZES = {
   md: { px: 40, classes: "size-10 text-base" },
   lg: { px: 56, classes: "size-14 text-xl" },
+  xl: { px: 80, classes: "size-20 text-3xl" },
 } as const;
 
 export interface RestaurantAvatarProps {

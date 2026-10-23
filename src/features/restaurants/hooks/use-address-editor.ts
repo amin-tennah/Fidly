@@ -55,14 +55,16 @@ function useSaveAddress(
 export function useAddressEditor(
   restaurantId: string,
   currentAddress: string | null,
+  onSaved: () => void,
 ): AddressEditor {
   const [query, setQuery] = useState(currentAddress ?? "");
   const [isTyping, setIsTyping] = useState(false);
   const [selected, setSelected] = useState<AddressSuggestion | null>(null);
   const { suggestions, hasFailed } = useAddressSearch(isTyping ? query : "");
-  const { isPending, save } = useSaveAddress(restaurantId, selected, () =>
-    setSelected(null),
-  );
+  const { isPending, save } = useSaveAddress(restaurantId, selected, () => {
+    setSelected(null);
+    onSaved();
+  });
 
   const type = (value: string): void => {
     setSelected(null);

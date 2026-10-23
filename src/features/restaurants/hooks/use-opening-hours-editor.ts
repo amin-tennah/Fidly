@@ -26,6 +26,7 @@ export interface OpeningHoursEditor {
 export function useOpeningHoursEditor(
   restaurantId: string,
   initialHours: OpeningHours,
+  onSaved: () => void,
 ): OpeningHoursEditor {
   const [hours, setHours] = useState<OpeningHours>(initialHours);
   const [isPending, startTransition] = useTransition();
@@ -35,6 +36,7 @@ export function useOpeningHoursEditor(
       const res = await updateOpeningHours({ restaurantId, openingHours: hours });
       if (res.ok) {
         toast.success("Horaires enregistrés.");
+        onSaved();
       } else {
         toast.error(res.error.message);
       }

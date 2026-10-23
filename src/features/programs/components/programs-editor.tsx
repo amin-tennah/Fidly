@@ -3,7 +3,6 @@
 import { Plus } from "lucide-react";
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MAX_ACTIVE_PROGRAMS } from "@/features/programs/constants";
 import {
   useProgramsBoard,
@@ -14,7 +13,7 @@ import { InactivePrograms } from "./inactive-programs";
 import { ProgramForm } from "./program-form";
 import { SortableProgramList } from "./sortable-program-list";
 
-export interface ProgramsCardProps {
+export interface ProgramsEditorProps {
   readonly restaurantId: string;
   readonly programs: readonly ProgramView[];
 }
@@ -48,28 +47,27 @@ function AddProgram({ board }: { readonly board: ProgramsBoard }): ReactNode {
   );
 }
 
-export function ProgramsCard({ restaurantId, programs }: ProgramsCardProps): ReactNode {
+/** Full tiers editor: drag to reorder, add, edit, deactivate, reactivate, reward images. */
+export function ProgramsEditor({
+  restaurantId,
+  programs,
+}: ProgramsEditorProps): ReactNode {
   const board = useProgramsBoard(restaurantId, programs);
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-base">Programmes de fidélité</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <p className="text-muted-foreground text-xs">
-          Les seuils s&apos;additionnent d&apos;un palier à l&apos;autre (10, puis 20,
-          puis 30). Glissez un palier pour changer l&apos;ordre : les seuils restent sur
-          leur place.
-        </p>
-        {board.active.length === 0 ? (
-          <p className="text-sm">Aucun palier actif. Créez votre première récompense.</p>
-        ) : (
-          <SortableProgramList board={board} />
-        )}
-        <AddProgram board={board} />
-        <InactivePrograms board={board} />
-      </CardContent>
-    </Card>
+    <div className="space-y-4">
+      <p className="text-muted-foreground text-xs">
+        Les seuils s&apos;additionnent d&apos;un palier à l&apos;autre (10, puis 20, puis
+        30). Glissez un palier pour changer l&apos;ordre : les seuils restent sur leur
+        place.
+      </p>
+      {board.active.length === 0 ? (
+        <p className="text-sm">Aucun palier actif. Créez votre première récompense.</p>
+      ) : (
+        <SortableProgramList board={board} />
+      )}
+      <AddProgram board={board} />
+      <InactivePrograms board={board} />
+    </div>
   );
 }
