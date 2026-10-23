@@ -1,8 +1,9 @@
 import type { Enums } from "@/types/database.types";
-import type { DAY_KEYS } from "@/features/restaurants/constants";
+import type { DAY_KEYS, RESTAURANT_IMAGE_KINDS } from "@/features/restaurants/constants";
 
 export type RestaurantCategory = Enums<"restaurant_category">;
 export type DayKey = (typeof DAY_KEYS)[number];
+export type RestaurantImageKind = (typeof RESTAURANT_IMAGE_KINDS)[number];
 
 /** `HH:MM`, 24 h. A `close` earlier than `open` means closing after midnight. */
 export interface TimeSlot {
@@ -27,12 +28,4 @@ export interface AddressSuggestion {
   readonly label: string;
   readonly lng: number;
   readonly lat: number;
-}
-
-/** Region of the source image, in its own pixels (`react-easy-crop` `croppedAreaPixels`). */
-export interface CropArea {
-  readonly x: number;
-  readonly y: number;
-  readonly width: number;
-  readonly height: number;
 }

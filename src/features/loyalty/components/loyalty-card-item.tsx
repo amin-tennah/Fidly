@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { RestaurantAvatar } from "@/components/shared/restaurant-avatar";
+import { RewardImage } from "@/components/shared/reward-image";
 import type { CardProgress, LoyaltyCardView } from "@/features/loyalty/types";
 import { cn } from "@/lib/utils";
 
@@ -14,8 +15,11 @@ function ProgressSection({ progress }: { readonly progress: CardProgress }): Rea
 
   return (
     <div className="space-y-1.5">
-      <div className="flex justify-between gap-2 text-xs font-medium">
-        <span className="text-muted-foreground">{progress.program.rewardLabel}</span>
+      <div className="flex items-center gap-2 text-xs font-medium">
+        <RewardImage url={progress.program.rewardImageUrl} />
+        <span className="text-muted-foreground flex-1">
+          {progress.program.rewardLabel}
+        </span>
         <span className="text-accent shrink-0 font-semibold">{label}</span>
       </div>
       <Progress

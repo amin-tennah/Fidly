@@ -17,7 +17,7 @@ function program(
   threshold: number,
   isActive = true,
 ): ProgramView {
-  return { id, position, threshold, rewardLabel: id, isActive };
+  return { id, position, threshold, rewardLabel: id, isActive, rewardImageUrl: null };
 }
 
 describe("findRuleViolation", () => {

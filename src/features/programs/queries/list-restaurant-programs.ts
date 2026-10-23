@@ -1,6 +1,7 @@
 import "server-only";
 import { cache } from "react";
 import type { ProgramView } from "@/features/programs/types";
+import { getRestaurantMediaUrl } from "@/lib/supabase/media-url";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 /**
@@ -12,7 +13,7 @@ export const listRestaurantPrograms = cache(
     const supabase = await createSupabaseServerClient();
     const { data, error } = await supabase
       .from("loyalty_programs")
-      .select("id, position, threshold, reward_label, is_active")
+      .select("id, position, threshold, reward_label, reward_image_path, is_active")
       .eq("restaurant_id", restaurantId)
       .order("position", { ascending: true });
 
@@ -25,6 +26,7 @@ export const listRestaurantPrograms = cache(
       threshold: row.threshold,
       rewardLabel: row.reward_label,
       isActive: row.is_active,
+      rewardImageUrl: getRestaurantMediaUrl(row.reward_image_path),
     }));
   },
 );

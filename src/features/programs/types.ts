@@ -5,6 +5,7 @@ export interface ProgramView {
   readonly threshold: number;
   readonly rewardLabel: string;
   readonly isActive: boolean;
+  readonly rewardImageUrl: string | null;
 }
 
 export type ProgramRuleViolation = "too_many" | "not_increasing";

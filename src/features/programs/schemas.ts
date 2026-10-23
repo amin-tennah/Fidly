@@ -45,3 +45,10 @@ export const reorderProgramsSchema = z.object({
   programIds: z.array(idSchema).min(1).max(20),
 });
 export type ReorderProgramsInput = z.infer<typeof reorderProgramsSchema>;
+
+/** Fields of the multipart form that carries a reward image (the file itself is validated apart). */
+export const programImageFieldsSchema = z.object({
+  restaurantId: idSchema,
+  programId: idSchema,
+});
+export type ProgramImageFields = z.infer<typeof programImageFieldsSchema>;

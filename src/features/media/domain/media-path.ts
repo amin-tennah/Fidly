@@ -1,4 +1,4 @@
-import type { IMAGE_KINDS } from "@/features/restaurants/constants";
+import type { IMAGE_KINDS } from "@/features/media/constants";
 
 export type ImageKind = (typeof IMAGE_KINDS)[number];
 

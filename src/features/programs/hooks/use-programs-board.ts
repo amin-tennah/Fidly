@@ -17,6 +17,7 @@ import type { ProgramFieldsInput } from "@/features/programs/schemas";
 import type { ProgramView } from "@/features/programs/types";
 
 export interface ProgramsBoard {
+  readonly restaurantId: string;
   readonly active: readonly ProgramView[];
   readonly inactive: readonly ProgramView[];
   readonly editingId: string | null;
@@ -85,6 +86,7 @@ export function useProgramsBoard(
 
   return {
     ...forms,
+    restaurantId,
     active,
     inactive: arranged.filter((p) => !p.isActive),
     isPending: actions.isPending,

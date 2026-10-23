@@ -1,4 +1,4 @@
-import type { CropArea } from "@/features/restaurants/types";
+import type { CropArea } from "@/features/media/types";
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);

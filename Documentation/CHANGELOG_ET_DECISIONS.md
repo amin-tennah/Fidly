@@ -35,9 +35,9 @@
 
 ## 🧭 État courant (à mettre à jour à chaque session)
 
-- **Phase en cours :** Phase 5 (Espace restaurateur) — 5.1 ✅ · 5.2 ✅ · 5.3 ✅ · 5.4 🟡 (base et écran commités ; validation manuelle puis image de récompense) · 5.5 (admin) sur une branche séparée
-- **Dernière session :** Session 19 (2026-10-23) — Phase 5.4 (en cours) : programmes de fidélité
-- **Prochaine action :** valider l'écran des programmes à la main ; ensuite image de récompense (envoi + cadrage, RPC `set_loyalty_program_image` déjà en place)
+- **Phase en cours :** Phase 5 (Espace restaurateur) — 5.1 ✅ · 5.2 ✅ · 5.3 ✅ · 5.4 ✅ (image de récompense à valider à la main) · 5.5 (admin) à faire sur la branche `feat/phase-5-admin`
+- **Dernière session :** Session 20 (2026-10-23) — Phase 5.4 (fin) : image de récompense et feature `media`
+- **Prochaine action :** valider l'image de récompense, fusionner `feat/phase-5-pro-settings` dans `main`, puis 5.5 (créer un restaurant, inviter l'owner, QR du chevalet en PNG) sur `feat/phase-5-admin`
 - **Bloquants :** Aucun
 
 ---
@@ -73,8 +73,36 @@
 **Prochaine étape** : ...
 ==================================================================================== -->
 
+### Session 20 — [2026-10-23] — Phase 5.4 (fin) : image de récompense et feature partagée `media`
+**Roadmap :** Phase 5 — Étape 5.4 · **Statut :** ✅ Terminé (validation manuelle de l'image de récompense à faire) · **Branche :** `feat/phase-5-pro-settings`
+
+**Réalisé**
+- refactor: feature `media` (ADR-017) — cadrage, compression, détection du format, chemins, envoi et suppression Storage ; `restaurants` l'utilise sans changement de comportement
+- feat(5.4): image de récompense par palier — ajout ou changement avec cadrage 4:3, retrait, miniature dans la liste ; Server Actions `uploadProgramImage` / `removeProgramImage` (owner, champs Zod, taille et format réel, palier vérifié comme appartenant au restaurant, RPC `set_loyalty_program_image`, ancien fichier supprimé, fichier annulé si la RPC échoue)
+- feat: l'image de récompense s'affiche sur la carte de fidélité du client
+- feat: composant partagé `components/shared/reward-image.tsx`
+
+**Fichiers clés**
+- `src/features/media/` — `constants`, `domain/` (+ tests), `utils/compress-image.ts`, `hooks/use-image-upload-flow.ts`, `components/` (cadrage, sélecteur), `actions/` (validation, stockage), `server.ts`, `index.ts`
+- `src/features/programs/actions/program-image*.ts`, `hooks/use-program-image.ts`, `components/program-image-field.tsx`
+
+**Base de données** : aucune migration (la RPC existe depuis la migration 11).
+
+**Bugs rencontrés** : Aucun
+**Décisions** : ADR-017
+**Dette introduite / remboursée** : Aucune
+
+**Tests de validation**
+- [x] `pnpm lint`, `pnpm typecheck`, `pnpm test` (90), `pnpm build` — verts
+- [ ] Image de récompense à la main : ajout avec cadrage, remplacement (ancien fichier supprimé du bucket), retrait, image visible sur la carte client, refus d'un faux `.jpg` — à faire
+- [ ] Roadmap 5.4 : « Réordonner ⇒ ordre persistant, aucune position en double » vérifié (écran validé par le porteur de projet) ; « Staff non owner ne peut pas modifier » vérifié en SQL (pgTAP) et par l'UI
+
+**Prochaine étape** : 5.5 — back-office `/admin` sur la branche `feat/phase-5-admin`.
+
+---
+
 ### Session 19 — [2026-10-23] — Phase 5.4 (en cours) : programmes de fidélité, base de données et règles
-**Roadmap :** Phase 5 — Étape 5.4 · **Statut :** 🟡 Partiel (migrations 10 et 11 appliquées et testées, interface commitée ; validation manuelle de l'écran et image de récompense à faire) · **Branche :** `feat/phase-5-pro-settings`
+**Roadmap :** Phase 5 — Étape 5.4 · **Statut :** ✅ Terminé (écran validé par le porteur de projet ; image de récompense : voir Session 20) · **Branche :** `feat/phase-5-pro-settings`
 
 **Réalisé**
 - db: migration 10 — plus d'écriture directe sur `loyalty_programs` ; RPC `create_loyalty_program`, `update_loyalty_program`, `set_loyalty_program_active` (basculement des cartes sur le palier actif suivant en conservant `stamps`, boucle sur le premier), `reorder_loyalty_programs` (décalage puis réécriture, seuils conservés sur les places) ; contrôle central `private.assert_program_rules` (5 actifs max, seuils croissants) ; images de récompense limitées au dossier du restaurant
@@ -753,6 +781,7 @@
 | ADR-014 | `profiles` : droits `UPDATE` par colonne (`display_name` seul) | ✅ Accepté | 2026-10-22 |
 | ADR-015 | Recadrage d'image : `react-easy-crop` | ✅ Accepté | 2026-10-23 |
 | ADR-016 | Programmes de fidélité : écriture par RPC, règles de paliers, `@dnd-kit` | ✅ Accepté | 2026-10-23 |
+| ADR-017 | Feature partagée `media` (cadrage, compression, stockage des images) | ✅ Accepté | 2026-10-23 |
 
 <!-- ============ TEMPLATE ADR ============
 ### ADR-NNN — Titre
@@ -926,6 +955,18 @@
 - **Décision :** Option 2 (migration 10). Pas de suppression physique : désactivation (`is_active = false`).
 - **Dépendance :** `@dnd-kit/core` 6.3.1, `sortable` 10.0.0, `utilities` 3.2.2 (MIT, peer React ≥ 16.8). Point de vigilance : dernières publications en décembre 2024 (la nouvelle génération `@dnd-kit/react` est encore en 0.x). Retenue car stable, très utilisée et prévue par la roadmap.
 - **Réversibilité :** repli possible par des boutons monter/descendre (même RPC `reorder_loyalty_programs`), sans toucher à la base.
+
+
+### ADR-017 — Feature partagée `media` (cadrage, compression, stockage des images)
+- **Date :** 2026-10-23 · **Statut :** ✅ Accepté · **Phase :** 5 (étape 5.4)
+- **Contexte :** logo et couverture (5.3) utilisaient du code d'image rangé dans `restaurants` ; l'image de récompense des paliers (5.4) en a besoin aussi. Un import profond d'une feature dans l'autre est interdit (`.cursorrules` §2), et `programs` dépend déjà de `restaurants`.
+- **Options envisagées :**
+  1. `programs` importe le code d'image de `restaurants` — ✅ rapide ❌ `restaurants` devient le propriétaire d'un code générique ; risque de dépendance circulaire.
+  2. Dupliquer — ❌ interdit (> 5 lignes identiques).
+  3. Feature `media` : cadrage (`react-easy-crop`), compression, détection du vrai format, chemins `<restaurant_id>/<kind>-<uuid>.<ext>`, envoi/suppression Storage — ✅ une seule implémentation, dépendances à sens unique (`restaurants` et `programs` → `media`).
+- **Décision :** Option 3 (`features/media/`, entrées `index.ts` côté client et `server.ts` côté serveur). Les actions restent dans chaque feature (rôle owner, champs Zod, colonne ou RPC à mettre à jour).
+- **Conséquences :** `kind` ∈ `logo` · `cover` · `reward` ; seules `logo` et `cover` sont acceptées par l'action des restaurants (une image de récompense ne peut donc jamais écraser la couverture).
+- **Réversibilité :** facile (déplacement de fichiers).
 
 ---
 

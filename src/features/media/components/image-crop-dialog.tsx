@@ -4,8 +4,8 @@ import type { ReactNode } from "react";
 import { useState } from "react";
 import Cropper, { type Point } from "react-easy-crop";
 import { Button } from "@/components/ui/button";
-import { CROP_MAX_ZOOM, CROP_MIN_ZOOM } from "@/features/restaurants/constants";
-import type { CropArea } from "@/features/restaurants/types";
+import { CROP_MAX_ZOOM, CROP_MIN_ZOOM } from "@/features/media/constants";
+import type { CropArea } from "@/features/media/types";
 import { ZoomSlider } from "./zoom-slider";
 
 export interface ImageCropDialogProps {

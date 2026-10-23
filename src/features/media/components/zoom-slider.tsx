@@ -1,9 +1,5 @@
 import type { ReactNode } from "react";
-import {
-  CROP_MAX_ZOOM,
-  CROP_MIN_ZOOM,
-  CROP_ZOOM_STEP,
-} from "@/features/restaurants/constants";
+import { CROP_MAX_ZOOM, CROP_MIN_ZOOM, CROP_ZOOM_STEP } from "@/features/media/constants";
 
 export function ZoomSlider({
   zoom,

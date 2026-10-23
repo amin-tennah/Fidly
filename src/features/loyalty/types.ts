@@ -5,6 +5,7 @@ export interface LoyaltyProgramSummary {
   readonly threshold: number;
   readonly rewardLabel: string;
   readonly isActive: boolean;
+  readonly rewardImageUrl: string | null;
 }
 
 /** Minimal card state needed to compute its progression. */

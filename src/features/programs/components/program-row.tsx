@@ -7,11 +7,13 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { EyeOff, GripVertical, Pencil } from "lucide-react";
 import type { HTMLAttributes, ReactNode } from "react";
+import { RewardImage } from "@/components/shared/reward-image";
 import { Button } from "@/components/ui/button";
 import type { ProgramsBoard } from "@/features/programs/hooks/use-programs-board";
 import type { ProgramView } from "@/features/programs/types";
 import { cn } from "@/lib/utils";
 import { ProgramForm } from "./program-form";
+import { ProgramImageField } from "./program-image-field";
 
 export interface ProgramRowProps {
   readonly program: ProgramView;
@@ -61,6 +63,7 @@ function ProgramSummary({ program, board, dragProps }: SummaryProps): ReactNode 
       >
         <GripVertical className="size-5" aria-hidden="true" />
       </Button>
+      <RewardImage url={program.rewardImageUrl} />
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-semibold">{program.rewardLabel}</p>
         <p className="text-muted-foreground text-xs">
@@ -68,6 +71,21 @@ function ProgramSummary({ program, board, dragProps }: SummaryProps): ReactNode 
         </p>
       </div>
       <RowActions program={program} board={board} />
+    </div>
+  );
+}
+
+function ProgramEditor({ program, board }: ProgramRowProps): ReactNode {
+  return (
+    <div className="space-y-4">
+      <ProgramImageField restaurantId={board.restaurantId} program={program} />
+      <ProgramForm
+        initialValues={{ threshold: program.threshold, rewardLabel: program.rewardLabel }}
+        submitLabel="Enregistrer"
+        isPending={board.isPending}
+        onSubmit={(values) => board.submitUpdate(program.id, values)}
+        onCancel={board.cancel}
+      />
     </div>
   );
 }
@@ -86,16 +104,7 @@ export function ProgramRow({ program, board }: ProgramRowProps): ReactNode {
       className={cn("bg-card py-3", sortable.isDragging && "relative z-10 shadow-lg")}
     >
       {board.editingId === program.id ? (
-        <ProgramForm
-          initialValues={{
-            threshold: program.threshold,
-            rewardLabel: program.rewardLabel,
-          }}
-          submitLabel="Enregistrer"
-          isPending={board.isPending}
-          onSubmit={(values) => board.submitUpdate(program.id, values)}
-          onCancel={board.cancel}
-        />
+        <ProgramEditor program={program} board={board} />
       ) : (
         <ProgramSummary
           program={program}

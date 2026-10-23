@@ -5,12 +5,9 @@ import {
   IMAGE_QUALITY_STEP,
   MAX_SOURCE_IMAGE_BYTES,
   MAX_UPLOAD_BYTES,
-} from "@/features/restaurants/constants";
-import {
-  clampCropArea,
-  computeOutputSize,
-} from "@/features/restaurants/domain/crop-geometry";
-import type { CropArea } from "@/features/restaurants/types";
+} from "@/features/media/constants";
+import { clampCropArea, computeOutputSize } from "@/features/media/domain/crop-geometry";
+import type { CropArea } from "@/features/media/types";
 
 /** Browser-only. Refuses non-images and files above the source limit with a French message. */
 export function assertAcceptableSource(file: File): void {

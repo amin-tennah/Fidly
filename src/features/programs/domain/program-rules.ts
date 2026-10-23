@@ -69,7 +69,13 @@ export function previewCreate(
   const lastPosition = Math.max(0, ...programs.map((p) => p.position));
   return [
     ...programs,
-    { id: "new", position: lastPosition + 1, isActive: true, ...values },
+    {
+      id: "new",
+      position: lastPosition + 1,
+      isActive: true,
+      rewardImageUrl: null,
+      ...values,
+    },
   ];
 }
 

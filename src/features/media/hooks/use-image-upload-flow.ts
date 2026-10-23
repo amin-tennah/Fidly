@@ -2,13 +2,15 @@
 
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
-import { uploadRestaurantImage } from "@/features/restaurants/actions/upload-restaurant-image";
-import type { ImageKind } from "@/features/restaurants/domain/media-path";
-import type { CropArea } from "@/features/restaurants/types";
+import type { CropArea } from "@/features/media/types";
 import {
   assertAcceptableSource,
   compressImage,
-} from "@/features/restaurants/utils/compress-image";
+} from "@/features/media/utils/compress-image";
+import type { ActionResult } from "@/lib/errors";
+
+/** Sends the processed image to a Server Action (each feature supplies its own). */
+export type SendImage = (image: Blob) => Promise<ActionResult<null>>;
 
 export interface CropSource {
   readonly file: File;
@@ -25,18 +27,9 @@ export interface ImageUploadFlow {
 }
 
 /** Crops and compresses in the browser, then sends the result; every outcome is toasted. */
-async function sendImage(
-  restaurantId: string,
-  kind: ImageKind,
-  file: File,
-  crop: CropArea,
-): Promise<void> {
+async function cropAndSend(send: SendImage, file: File, crop: CropArea): Promise<void> {
   try {
-    const formData = new FormData();
-    formData.set("restaurantId", restaurantId);
-    formData.set("kind", kind);
-    formData.set("file", await compressImage(file, crop), "image");
-    const res = await uploadRestaurantImage(formData);
+    const res = await send(await compressImage(file, crop));
     if (res.ok) {
       toast.success("Image enregistrée.");
     } else {
@@ -49,12 +42,9 @@ async function sendImage(
 
 /**
  * Pick → frame → upload. The chosen file is checked first, shown in the crop dialog, then
- * cropped and compressed in the browser and sent through the Server Action.
+ * cropped and compressed in the browser and handed to `send`.
  */
-export function useImageUploadFlow(
-  restaurantId: string,
-  kind: ImageKind,
-): ImageUploadFlow {
+export function useImageUploadFlow(send: SendImage): ImageUploadFlow {
   const [source, setSource] = useState<CropSource | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -80,7 +70,7 @@ export function useImageUploadFlow(
     }
     const { file } = source;
     close();
-    startTransition(() => sendImage(restaurantId, kind, file, crop));
+    startTransition(() => cropAndSend(send, file, crop));
   };
 
   return { isPending, source, choose, cancel: close, confirm };

@@ -13,7 +13,9 @@ async function listProgramsByRestaurant(
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from("loyalty_programs")
-    .select("id, restaurant_id, position, threshold, reward_label, is_active")
+    .select(
+      "id, restaurant_id, position, threshold, reward_label, reward_image_path, is_active",
+    )
     .in("restaurant_id", [...restaurantIds]);
 
   if (error) {
@@ -28,6 +30,7 @@ async function listProgramsByRestaurant(
       threshold: row.threshold,
       rewardLabel: row.reward_label,
       isActive: row.is_active,
+      rewardImageUrl: getRestaurantMediaUrl(row.reward_image_path),
     };
     byRestaurant.set(row.restaurant_id, [
       ...(byRestaurant.get(row.restaurant_id) ?? []),
