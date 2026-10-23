@@ -305,11 +305,11 @@ erDiagram
 - [ ] **5.5** Back-office `/admin` minimal : créer un restaurant, inviter l'owner, générer le **QR du chevalet** (`/?ref=<slug>`) en PDF/PNG imprimable.
 
 ### ✅ Tests de validation
-- [ ] Chronomètre : un testeur non technique configure une fiche + 2 programmes en < 5 min.
-- [ ] Réordonner les programmes ⇒ ordre persistant, aucune position en double (contrainte `UNIQUE` respectée).
-- [ ] Upload d'un fichier non-image ou > 5 Mo ⇒ refus explicite.
-- [ ] Un staff (non owner) ne peut pas modifier la fiche ni les programmes (UI **et** RLS).
-- [ ] Les changements apparaissent côté client (P4) après rechargement.
+- [ ] Chronomètre : un testeur non technique configure une fiche + 2 programmes en < 5 min. *(à faire avec un vrai testeur — reporté au pilote, DT-006)*
+- [x] Réordonner les programmes ⇒ ordre persistant, aucune position en double (contrainte `UNIQUE` respectée). *(RPC atomique ; pgTAP 19/19 ; validé à la main)*
+- [x] Upload d'un fichier non-image ou > 5 Mo ⇒ refus explicite. *(> 5 Mo testé à la main ; faux `.jpg` refusé par lecture des octets : tests unitaires)*
+- [x] Un staff (non owner) ne peut pas modifier la fiche ni les programmes (UI **et** RLS). *(UI en lecture seule validée ; RLS, droits de colonne, RPC et Storage : pgTAP)*
+- [x] Les changements apparaissent côté client (P4) après rechargement. *(logo et image de récompense sur la carte client validés)*
 
 ### ⚠️ Points de vigilance
 - **Modifier un programme alors que des clients ont des cartes en cours (Q-013)** : application immédiate du nouveau seuil aux cartes en cours ; la désactivation d'un programme bascule les cartes concernées sur le palier actif suivant en conservant `stamps`.
