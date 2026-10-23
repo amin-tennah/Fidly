@@ -2,6 +2,7 @@ import { z } from "zod";
 import {
   ADDRESS_MAX_LENGTH,
   DAY_KEYS,
+  IMAGE_KINDS,
   MAX_SLOTS_PER_DAY,
   RESTAURANT_CATEGORY_VALUES,
   RESTAURANT_NAME_MAX_LENGTH,
@@ -81,3 +82,8 @@ export const searchAddressesSchema = z.object({
 });
 
 export type SearchAddressesInput = z.infer<typeof searchAddressesSchema>;
+
+export const uploadImageFieldsSchema = z.object({
+  restaurantId: restaurantIdSchema,
+  kind: z.enum(IMAGE_KINDS),
+});

@@ -3,11 +3,9 @@ import { notFound, redirect } from "next/navigation";
 import type { ReactNode } from "react";
 import { buildLoginPath } from "@/features/auth";
 import { getAuthenticatedUser } from "@/features/auth/queries/get-session-context";
-import { PRO_SETTINGS_PATH } from "@/features/restaurants/constants";
-import { AddressCard } from "@/features/restaurants/components/address-card";
-import { OpeningHoursCard } from "@/features/restaurants/components/opening-hours-card";
-import { RestaurantIdentityCard } from "@/features/restaurants/components/restaurant-identity-card";
+import { OwnerSettings } from "@/features/restaurants/components/owner-settings";
 import { RestaurantSummaryCard } from "@/features/restaurants/components/restaurant-summary-card";
+import { PRO_SETTINGS_PATH } from "@/features/restaurants/constants";
 import { getActiveMembership } from "@/features/restaurants/queries/get-active-membership";
 import { getRestaurantProfile } from "@/features/restaurants/queries/get-restaurant-profile";
 
@@ -29,24 +27,5 @@ export default async function ProSettingsPage(): Promise<ReactNode> {
   if (active.role !== "owner") {
     return <RestaurantSummaryCard profile={profile} />;
   }
-
-  return (
-    <div className="space-y-4">
-      <RestaurantIdentityCard
-        key={profile.id}
-        restaurantId={profile.id}
-        initialValues={{ name: profile.name, category: profile.category }}
-      />
-      <AddressCard
-        key={`${profile.id}-a`}
-        restaurantId={profile.id}
-        currentAddress={profile.address}
-      />
-      <OpeningHoursCard
-        key={`${profile.id}-h`}
-        restaurantId={profile.id}
-        initialHours={profile.openingHours}
-      />
-    </div>
-  );
+  return <OwnerSettings key={profile.id} profile={profile} />;
 }

@@ -35,9 +35,9 @@
 
 ## 🧭 État courant (à mettre à jour à chaque session)
 
-- **Phase en cours :** Phase 5 (Espace restaurateur) — 5.1 ✅ · 5.2 ✅ · 5.3 → 5.4 à faire sur `feat/phase-5-pro-settings` · 5.5 (admin) sur une branche séparée
-- **Dernière session :** Session 16 (2026-10-23) — Phase 5.2 : fiche de l'établissement
-- **Prochaine action :** valider 5.2 à la main, puis 5.3 (upload logo/couverture : migration Storage owner uniquement, compression client, `next/image`)
+- **Phase en cours :** Phase 5 (Espace restaurateur) — 5.1 ✅ · 5.2 ✅ · 5.3 🟡 (code prêt ; migration 9 à appliquer et validation manuelle) · 5.4 à faire sur `feat/phase-5-pro-settings` · 5.5 (admin) sur une branche séparée
+- **Dernière session :** Session 17 (2026-10-23) — Phase 5.3 : logo et couverture
+- **Prochaine action :** appliquer la migration 9 (`pnpm db:push`, `db:test`, `db:advisors`), valider l'upload à la main, puis 5.4 (programmes : CRUD, soft delete, glisser-déposer `@dnd-kit`)
 - **Bloquants :** Aucun
 
 ---
@@ -72,6 +72,38 @@
 
 **Prochaine étape** : ...
 ==================================================================================== -->
+
+### Session 17 — [2026-10-23] — Phase 5.3 : logo et photo de couverture
+**Roadmap :** Phase 5 — Étape 5.3 · **Statut :** 🟡 Partiel (code, lint, typecheck, tests unitaires et build verts ; migration 9 non appliquée, validation manuelle à faire) · **Branche :** `feat/phase-5-pro-settings`
+
+**Réalisé**
+- db: migration 9 — écriture dans le bucket `restaurant-media` réservée à l'**owner** du dossier `<restaurant_id>/` (admin inclus) ; les policies de la migration 5 ouvraient aussi l'écriture au `staff`. Lecture publique inchangée.
+- feat(5.3): cartes « Logo » et « Photo de couverture » dans `/pro/settings` (owner) ; compression dans le navigateur (≈ 800 px, WebP, repli JPEG, qualité abaissée jusqu'à passer sous 800 Ko) ; refus explicite d'un fichier non image ou de plus de 5 Mo avant tout traitement
+- feat: Server Action `uploadRestaurantImage` — owner, puis champs Zod, taille, et **format réel lu dans les octets** (JPEG, PNG, WebP ; le type MIME déclaré n'est jamais cru) ; nouveau chemin à chaque envoi (pas de cache périmé), ancien fichier supprimé, annulation du fichier si la mise à jour de la colonne échoue
+- feat: `next/image` configuré pour le seul chemin public `restaurant-media` du projet (`next.config.ts`) ; le logo s'affiche sur les cartes de fidélité du client (**DT-004 remboursée**)
+
+**Fichiers clés**
+- `supabase/migrations/20261023110001_storage_owner_only_writes.sql`, `supabase/tests/storage_media.test.sql` (6 assertions, ajouté à `db:test`)
+- `src/features/restaurants/` — `actions/` (`upload-restaurant-image`, `parse-image-upload`, `store-restaurant-image`), `domain/` (`detect-image-type`, `media-path` + tests), `utils/compress-image.ts`, `hooks/use-image-upload.ts`, `components/image-upload-card.tsx`
+- `src/lib/supabase/media-url.ts` — URL publique d'un média ; `next.config.ts`
+
+**Base de données**
+- Migration : `20261023110001_storage_owner_only_writes.sql` — **écrite, NON appliquée** (à pousser par le porteur du projet)
+- Types régénérés : non concerné (aucune table modifiée)
+
+**Bugs rencontrés** : Aucun
+
+**Décisions** : Aucun nouvel ADR. Choix notés : upload via Server Action plutôt que depuis le navigateur vers Storage (validation du format réel côté serveur) ; plafond de l'image traitée à 800 Ko pour rester sous la limite de 1 Mo des Server Actions (pas de changement de configuration).
+**Dette introduite / remboursée** : DT-004 remboursée. Note : la suppression directe dans `storage.objects` est bloquée par Supabase, donc la policy DELETE owner n'est pas testable en pgTAP (elle passe par l'API Storage, exercée par l'action).
+
+**Tests de validation**
+- [x] `pnpm lint`, `pnpm typecheck`, `pnpm test` (72 tests dont 5 nouveaux), `pnpm build` — verts
+- [ ] `pnpm db:push` → `pnpm db:test` (6 assertions Storage) → `pnpm db:advisors` — à exécuter
+- [ ] Upload d'un logo et d'une couverture, remplacement (ancien fichier supprimé), refus d'un PDF/texte renommé en `.jpg`, refus > 5 Mo, vue staff sans cartes, logo visible sur la carte client — à vérifier manuellement
+
+**Prochaine étape** : 5.4 — programmes de fidélité.
+
+---
 
 ### Session 16 — [2026-10-23] — Phase 5.2 : fiche de l'établissement
 **Roadmap :** Phase 5 — Étape 5.2 · **Statut :** ✅ Terminé · **Branche :** `feat/phase-5-pro-settings`
@@ -819,7 +851,7 @@
 | DT-001 | Suppression du dernier `owner` d'un restaurant : le restaurant reste sans propriétaire (aucun garde-fou) | Cas hors périmètre MVP | 🟠 Restaurant non administrable sans intervention admin | Phase 11 (suppression de compte) | ⏳ Ouverte |
 | DT-002 | La suppression de compte n'est pas encore exposée (pas de Server Action ni d'UI) ; seul le comportement base est en place et testé | Livraison prévue en P11 | 🟠 Obligation RGPD à honorer avant le pilote | Phase 11 | ⏳ Ouverte |
 | DT-003 | Tests de validation Phase 3 non exécutés : parcours par rôle (client/staff/admin) avec une vraie invitation, session persistante, cookie modifié, Google sur iPhone/Android et PWA, E2E de connexion OTP (Inbucket indisponible avec le projet Cloud) | Aucun contenu `/pro` ni PWA à valider avant les Phases 5 et 8 | 🟠 Régression d'accès non détectée | Phases 5 (rôles `/pro`), 8 (PWA) | ⏳ Ouverte |
-| DT-004 | Le logo du restaurant n'est pas affiché sur les cartes (initiale seulement) : aucun upload n'existe avant l'étape 5.3, et `next/image` exige la configuration du domaine Storage | Logos inexistants avant la Phase 5 | 🟢 Cosmétique | Phase 5 (5.3) | ⏳ Ouverte |
+| DT-004 | Le logo du restaurant n'est pas affiché sur les cartes (initiale seulement) : aucun upload n'existe avant l'étape 5.3, et `next/image` exige la configuration du domaine Storage | Logos inexistants avant la Phase 5 | 🟢 Cosmétique | Phase 5 (5.3) | ✔️ Remboursée (Session 17) |
 | DT-005 | Lighthouse Performance de `/` à 86 sur build de production local (seuil de la roadmap : 90) ; mesure locale, sans CDN ni région Vercel | Écart jugé suffisant à ce stade par le porteur de projet | 🟢 Marge faible vis-à-vis de la contrainte produit n°1 | Phase 11 (11.4) : re-mesure sur Vercel ; analyser le bundle si < 90 | ⏳ Ouverte |
 
 ---

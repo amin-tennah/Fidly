@@ -19,6 +19,8 @@ export interface RestaurantProfile {
   readonly category: RestaurantCategory;
   readonly address: string | null;
   readonly openingHours: OpeningHours;
+  readonly logoUrl: string | null;
+  readonly coverUrl: string | null;
 }
 
 export interface AddressSuggestion {

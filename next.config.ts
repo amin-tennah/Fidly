@@ -1,8 +1,27 @@
 import type { NextConfig } from "next";
 
+/** Only the project's public Storage path may be optimised by `next/image` (restaurant media). */
+function supabaseImagePatterns(): NonNullable<NextConfig["images"]>["remotePatterns"] {
+  const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (!rawUrl) {
+    return [];
+  }
+  const { protocol, hostname } = new URL(rawUrl);
+  return [
+    {
+      protocol: protocol === "http:" ? "http" : "https",
+      hostname,
+      pathname: "/storage/v1/object/public/restaurant-media/**",
+    },
+  ];
+}
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  images: {
+    remotePatterns: supabaseImagePatterns(),
+  },
   headers() {
     return Promise.resolve([
       {

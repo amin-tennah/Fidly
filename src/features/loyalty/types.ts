@@ -28,5 +28,6 @@ export interface LoyaltyCardView {
   readonly cardId: string;
   readonly restaurantName: string;
   readonly restaurantSlug: string;
+  readonly restaurantLogoUrl: string | null;
   readonly progress: CardProgress | null;
 }

@@ -2,6 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { computeCardProgress } from "@/features/loyalty/domain/compute-card-progress";
 import type { LoyaltyCardView, LoyaltyProgramSummary } from "@/features/loyalty/types";
+import { getRestaurantMediaUrl } from "@/lib/supabase/media-url";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type ProgramsByRestaurant = ReadonlyMap<string, readonly LoyaltyProgramSummary[]>;
@@ -46,7 +47,9 @@ export const listMyLoyaltyCards = cache(
     const supabase = await createSupabaseServerClient();
     const { data, error } = await supabase
       .from("loyalty_cards")
-      .select("id, restaurant_id, current_program_id, stamps, restaurants ( name, slug )")
+      .select(
+        "id, restaurant_id, current_program_id, stamps, restaurants ( name, slug, logo_path )",
+      )
       .eq("user_id", userId)
       .order("last_visit_at", { ascending: false, nullsFirst: false });
 
@@ -72,6 +75,7 @@ export const listMyLoyaltyCards = cache(
           cardId: row.id,
           restaurantName: row.restaurants.name,
           restaurantSlug: row.restaurants.slug,
+          restaurantLogoUrl: getRestaurantMediaUrl(row.restaurants.logo_path),
           progress,
         },
       ];

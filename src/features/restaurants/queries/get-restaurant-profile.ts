@@ -2,6 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { openingHoursSchema } from "@/features/restaurants/schemas";
 import type { RestaurantProfile } from "@/features/restaurants/types";
+import { getRestaurantMediaUrl } from "@/lib/supabase/media-url";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 /**
@@ -13,7 +14,7 @@ export const getRestaurantProfile = cache(
     const supabase = await createSupabaseServerClient();
     const { data, error } = await supabase
       .from("restaurants")
-      .select("id, name, category, address, opening_hours")
+      .select("id, name, category, address, opening_hours, logo_path, cover_path")
       .eq("id", restaurantId)
       .maybeSingle();
 
@@ -31,6 +32,8 @@ export const getRestaurantProfile = cache(
       category: data.category,
       address: data.address,
       openingHours: hours.success ? hours.data : {},
+      logoUrl: getRestaurantMediaUrl(data.logo_path),
+      coverUrl: getRestaurantMediaUrl(data.cover_path),
     };
   },
 );
