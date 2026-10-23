@@ -265,6 +265,7 @@ export type Database = {
         Row: {
           address: string | null
           category: Database["public"]["Enums"]["restaurant_category"]
+          cover_path: string | null
           created_at: string
           id: string
           is_active: boolean
@@ -279,6 +280,7 @@ export type Database = {
         Insert: {
           address?: string | null
           category?: Database["public"]["Enums"]["restaurant_category"]
+          cover_path?: string | null
           created_at?: string
           id?: string
           is_active?: boolean
@@ -293,6 +295,7 @@ export type Database = {
         Update: {
           address?: string | null
           category?: Database["public"]["Enums"]["restaurant_category"]
+          cover_path?: string | null
           created_at?: string
           id?: string
           is_active?: boolean
@@ -404,6 +407,15 @@ export type Database = {
           restaurant_id: string
           restaurant_name: string
         }[]
+      }
+      set_restaurant_address: {
+        Args: {
+          p_address: string
+          p_lat: number
+          p_lng: number
+          p_restaurant_id: string
+        }
+        Returns: undefined
       }
     }
     Enums: {

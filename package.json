@@ -21,7 +21,7 @@
     "db:seed": "supabase db push --linked --include-seed",
     "db:reset": "supabase db reset --linked",
     "db:types": "supabase gen types typescript --project-id bduimaxjfsojzankmoje --schema public > src/types/database.types.ts",
-    "db:test": "supabase db query --linked -f supabase/tests/rls_access_matrix.test.sql && supabase db query --linked -f supabase/tests/invitation_acceptance.test.sql && supabase db query --linked -f supabase/tests/schema_hardening.test.sql",
+    "db:test": "supabase db query --linked -f supabase/tests/rls_access_matrix.test.sql && supabase db query --linked -f supabase/tests/invitation_acceptance.test.sql && supabase db query --linked -f supabase/tests/schema_hardening.test.sql && supabase db query --linked -f supabase/tests/restaurant_profile.test.sql",
     "db:advisors": "supabase db advisors --linked",
     "prepare": "husky"
   },
