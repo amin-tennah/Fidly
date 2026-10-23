@@ -9,6 +9,7 @@ import {
 import {
   getAuthenticatedUser,
   getMyProfile,
+  isUserPlatformAdmin,
   listMyPendingInvitations,
   listMyRestaurantMemberships,
 } from "@/features/auth/queries/get-session-context";
@@ -21,11 +22,12 @@ export default async function HomePage(): Promise<ReactNode> {
     redirect(buildLoginPath(CLIENT_HOME_PATH));
   }
 
-  const [profile, memberships, invitations, cards] = await Promise.all([
+  const [profile, memberships, invitations, cards, isPlatformAdmin] = await Promise.all([
     getMyProfile(user.id),
     listMyRestaurantMemberships(user.id),
     listMyPendingInvitations(),
     listMyLoyaltyCards(user.id),
+    isUserPlatformAdmin(user.id),
   ]);
 
   const displayName = profile?.displayName?.trim();
@@ -39,6 +41,7 @@ export default async function HomePage(): Promise<ReactNode> {
         displayName={displayName}
         invitations={invitations}
         memberships={memberships}
+        isPlatformAdmin={isPlatformAdmin}
       />
       <CustomerQrHero
         identity={{

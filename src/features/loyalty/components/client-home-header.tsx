@@ -10,12 +10,14 @@ export interface ClientHomeHeaderProps {
   readonly displayName: string;
   readonly invitations: readonly PendingRestaurantInvitation[];
   readonly memberships: readonly RestaurantMembershipSummary[];
+  readonly isPlatformAdmin: boolean;
 }
 
 export function ClientHomeHeader({
   displayName,
   invitations,
   memberships,
+  isPlatformAdmin,
 }: ClientHomeHeaderProps): ReactNode {
   return (
     <header className="space-y-2">
@@ -31,7 +33,11 @@ export function ClientHomeHeader({
       <p className="text-muted-foreground text-sm">
         Présentez ce QR code en caisse : vos passages se cumulent automatiquement.
       </p>
-      <ProAccessBanners invitations={invitations} memberships={memberships} />
+      <ProAccessBanners
+        invitations={invitations}
+        memberships={memberships}
+        isPlatformAdmin={isPlatformAdmin}
+      />
     </header>
   );
 }
