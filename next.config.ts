@@ -19,6 +19,9 @@ function supabaseImagePatterns(): NonNullable<NextConfig["images"]>["remotePatte
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // Dev only: lets a phone on the local network load `/_next/*` (hydration, HMR).
+  // Update when the machine's LAN address changes.
+  allowedDevOrigins: ["192.168.1.154"],
   images: {
     remotePatterns: supabaseImagePatterns(),
   },

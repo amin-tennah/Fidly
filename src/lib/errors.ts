@@ -16,6 +16,11 @@ export const APP_ERROR_MESSAGES = {
   REVERSAL_EXPIRED:
     "Le délai de 10 minutes pour annuler ce scan est dépassé. Demandez au gérant.",
   REVERSAL_ALREADY_DONE: "Cette opération a déjà été annulée.",
+  REVERSAL_NOT_ALLOWED:
+    "Cette opération ne peut plus être annulée (seule la dernière opération d'une carte l'est).",
+  NO_ACTIVE_PROGRAM:
+    "Aucun palier de fidélité actif. Ajoutez un palier dans les réglages.",
+  NETWORK_ERROR: "Connexion impossible. Vérifiez votre réseau puis réessayez.",
   PROGRAM_THRESHOLDS_INVALID:
     "Les seuils doivent augmenter d'un palier à l'autre (ex. 10, puis 20, puis 30).",
   PROGRAM_LIMIT_REACHED: "Vous ne pouvez pas avoir plus de 5 paliers actifs.",
