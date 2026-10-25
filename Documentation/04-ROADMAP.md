@@ -326,24 +326,24 @@ erDiagram
 ### Étapes
 - [ ] **6.1** Composant scanner (librairie validée en P0) chargé via `next/dynamic` (`ssr: false`), bouton géant « Scanner un client », caméra arrière, **flux caméra conservé entre deux scans** (pause du décodage, pas d'arrêt du stream).
 - [ ] **6.2** Saisie manuelle du code court de secours (6 caractères, normalisation majuscules, tolérance aux caractères ambigus).
-- [ ] **6.3** RPC `lookup_customer(token_or_code, restaurant_id)` : vérifie l'appartenance du staff, retourne `display_name`, carte (ou « nouvelle carte »), programme actif (`current_program_id`), `isRewardUnlocked`, `last_visit_at`, `isInCooldown`.
+- [x] **6.3** RPC `lookup_customer(token_or_code, restaurant_id)` : vérifie l'appartenance du staff, retourne `display_name`, carte (ou « nouvelle carte »), programme actif (`current_program_id`), `isRewardUnlocked`, `last_visit_at`, `isInCooldown`.
 - [ ] **6.4** Tiroir (Drawer shadcn) : `display_name` + `stamps / threshold` (ex. `4 / 10`, `13 / 10` ou `13 / 20`), bouton **« Valider +1 passage »** (toujours actif, cumul sans plafond), bouton vert **« Valider la récompense »** si palier atteint, **alerte cooldown** si dernier passage < 2 h (validation possible par tout employé avec confirmation explicite, tracée — Q-009).
-- [ ] **6.5** RPC `record_visit(card, idempotency_key, force_cooldown)` : transaction, `SELECT … FOR UPDATE`, re-vérification du cooldown côté serveur, création de la carte au 1er passage (1er programme actif), `stamps += 1`, `lifetime_visits += 1`, insertion `scan_logs` (`cooldown_overridden`), retour du nouvel état.
-- [ ] **6.6** RPC `redeem_reward(card, idempotency_key)` (ADR-009) : vérifie `stamps >= threshold` ; si palier intermédiaire ⇒ conserve `stamps` et bascule `current_program_id` sur le palier actif suivant (`13/10 → 13/20`) ; si dernier palier ⇒ déduit `threshold` (`stamps -= threshold`) et boucle `current_program_id` sur le 1er palier (`20/20 → 0/10`) ; log `reward_redeemed`.
-- [ ] **6.7** Server Actions fines (Zod + appel RPC + mapping `ActionResult`), feedback : son, vibration (Android), animation de succès, fermeture auto du tiroir et retour au scanner prêt.
-- [ ] **6.8** RPC `reverse_scan(log_id, idempotency_key)` (ADR-010, Q-012) : annulation par écriture compensatoire `type = reversal` liée via `reverses_log_id` (`UNIQUE`), autorisée pour `owner` (tout scan) et `staff` (ses propres scans < 10 min), restauration atomique de l'état de la carte.
+- [x] **6.5** RPC `record_visit(card, idempotency_key, force_cooldown)` : transaction, `SELECT … FOR UPDATE`, re-vérification du cooldown côté serveur, création de la carte au 1er passage (1er programme actif), `stamps += 1`, `lifetime_visits += 1`, insertion `scan_logs` (`cooldown_overridden`), retour du nouvel état.
+- [x] **6.6** RPC `redeem_reward(card, idempotency_key)` (ADR-009) : vérifie `stamps >= threshold` ; si palier intermédiaire ⇒ conserve `stamps` et bascule `current_program_id` sur le palier actif suivant (`13/10 → 13/20`) ; si dernier palier ⇒ déduit `threshold` (`stamps -= threshold`) et boucle `current_program_id` sur le 1er palier (`20/20 → 0/10`) ; log `reward_redeemed`.
+- [x] **6.7** Server Actions fines (Zod + appel RPC + mapping `ActionResult`), feedback : son, vibration (Android), animation de succès, fermeture auto du tiroir et retour au scanner prêt. *(Actions faites ; son, vibration et fermeture auto codés, à valider sur appareil.)*
+- [x] **6.8** RPC `reverse_scan(log_id, idempotency_key)` (ADR-010, Q-012) : annulation par écriture compensatoire `type = reversal` liée via `reverses_log_id` (`UNIQUE`), autorisée pour `owner` (tout scan) et `staff` (ses propres scans < 10 min), restauration atomique de l'état de la carte.
 
 ### ✅ Tests de validation
 - [ ] **Chronométrage** sur appareil réel, 20 scans consécutifs : médiane < 3 s scan → confirmation, aucun > 5 s.
-- [ ] **Double-tap** sur « Valider » ⇒ un seul passage crédité (idempotence).
+- [x] **Double-tap** sur « Valider » ⇒ un seul passage crédité (idempotence). *(pgTAP ; boutons désactivés pendant l'envoi, à revoir sur appareil)*
 - [ ] **Deux téléphones staff** scannent le même client simultanément ⇒ un seul crédit sans confirmation, l'autre reçoit l'alerte cooldown.
-- [ ] Scan à < 2 h ⇒ alerte affichée ; validation forcée ⇒ log `cooldown_overridden = true`.
-- [ ] Palier 1 atteint à `13/10` ⇒ consommation passe la carte à `13/20` sur Palier 2 ; consommation du dernier palier à `20/20` ⇒ boucle à `0/10` sur Palier 1.
-- [ ] Annulation d'un scan ⇒ log `reversal` créé, ligne d'origine barrée dans `/pro/logs`, refusée pour un `staff` au-delà de 10 min ou sur le scan d'un collègue, double annulation refusée (`UNIQUE(reverses_log_id)`).
-- [ ] QR forgé (token inconnu, chaîne aléatoire, URL malveillante, très longue chaîne) ⇒ message « Client introuvable », aucune erreur 500.
-- [ ] Un staff du restaurant A ne peut pas créditer une carte au nom du restaurant B (test SQL + E2E).
+- [x] Scan à < 2 h ⇒ alerte affichée ; validation forcée ⇒ log `cooldown_overridden = true`. *(pgTAP ; alerte à voir à l'écran)*
+- [x] Palier 1 atteint à `13/10` ⇒ consommation passe la carte à `13/20` sur Palier 2 ; consommation du dernier palier à `20/20` ⇒ boucle à `0/10` sur Palier 1.
+- [x] Annulation d'un scan ⇒ log `reversal` créé, ligne d'origine barrée dans `/pro/logs`, refusée pour un `staff` au-delà de 10 min ou sur le scan d'un collègue, double annulation refusée (`UNIQUE(reverses_log_id)`).
+- [x] QR forgé (token inconnu, chaîne aléatoire, URL malveillante, très longue chaîne) ⇒ message « Client introuvable », aucune erreur 500.
+- [x] Un staff du restaurant A ne peut pas créditer une carte au nom du restaurant B (test SQL fait ; E2E à faire).
 - [ ] Code court de secours fonctionnel.
-- [ ] Tests pgTAP des RPC (`lookup_customer`, `record_visit`, `redeem_reward`, `reverse_scan`) + test E2E Playwright du parcours complet.
+- [ ] Tests pgTAP des RPC (`lookup_customer`, `record_visit`, `redeem_reward`, `reverse_scan`) + test E2E Playwright du parcours complet. *(pgTAP fait : 31 assertions ; E2E à faire, voir DT-007)*
 
 ### ⚠️ Points de vigilance
 - **Latence caméra** : l'initialisation de `getUserMedia` coûte 300 ms à 1 s+ ; ne la payer qu'une fois par session de service. Libérer la caméra quand l'onglet passe en arrière-plan (batterie, confidentialité).

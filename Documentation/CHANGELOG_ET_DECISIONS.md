@@ -35,9 +35,9 @@
 
 ## 🧭 État courant (à mettre à jour à chaque session)
 
-- **Phase en cours :** Phase 5 terminée (5.1 → 5.5 ✅, fusionnée dans `main`) · Prêt pour la Phase 6 (scanner et validation de passage)
-- **Dernière session :** Session 22 (2026-10-23) — Phase 5.5 : back-office `/admin`
-- **Prochaine action :** Phase 6 — étape 6.1 sur une branche `feat/phase-6-scanner` (plan à valider avant de coder : RPC `lookup_customer`, `record_visit`, `redeem_reward`, `reverse_scan` touchent au schéma et à la sécurité)
+- **Phase en cours :** Phase 7 (temps réel et journal d'audit) · Phase 6 fusionnée dans `main` (reste : chronométrage de 20 scans, test E2E — DT-007)
+- **Dernière session :** Session 23 (2026-10-25) — Phase 6 : RPC de scan, Server Actions et écran du scanner
+- **Prochaine action :** Phase 7 — étape 7.1 sur `feat/phase-7-realtime` (publication Realtime de `loyalty_cards` et `scan_logs`, hook client filtré)
 - **Bloquants :** Aucun
 
 ---
@@ -72,6 +72,46 @@
 
 **Prochaine étape** : ...
 ==================================================================================== -->
+
+### Session 23 — [2026-10-25] — Phase 6 : RPC de scan, Server Actions et écran du scanner
+**Roadmap :** Phase 6 — Étapes 6.1 → 6.8 · **Statut :** ✅ Terminé sauf chronométrage de 20 scans et test E2E (validé sur téléphone par le porteur de projet) · **Branche :** `feat/phase-6-scanner` → `main`
+
+**Réalisé**
+- db: migration 12 — RPC `lookup_customer`, `record_visit`, `redeem_reward`, `reverse_scan` (ADR-019) ; type composite `scan_result` ; table `private.lookup_failures` (10 recherches ratées par minute et par employé)
+- feat: Server Actions `lookupCustomer`, `recordVisit`, `redeemReward`, `reverseScan` (garde « membre du restaurant », Zod, mapping des erreurs des RPC, résultats de RPC validés par Zod)
+- feat: écran `/pro` — bouton « Scanner un client » (caméra démarrée au toucher puis conservée entre deux scans, libérée si l'onglet passe en arrière-plan), saisie du code court, tiroir (prénom, `stamps / seuil`, « Valider +1 passage », « Valider la récompense », alerte cooldown avec bouton « Créditer malgré le délai »), état de succès avec « Annuler ce scan », fermeture automatique après 2,5 s
+- feat: le restaurant ciblé est toujours le restaurant actif de `/pro` (un owner de A et B qui scanne sur B ne crédite que B ; `key` sur l'écran pour réinitialiser le flux au changement de restaurant)
+- feat: machine à états du scan en fonction pure (`scan-flow-reducer`) ; une clé d'idempotence par action et par client, réutilisée à l'identique en cas de nouvel essai
+- chore: 3 codes d'erreur ajoutés (`REVERSAL_NOT_ALLOWED`, `NO_ACTIVE_PROGRAM`, `NETWORK_ERROR`)
+
+**Fichiers clés**
+- `supabase/migrations/20261025100001_scan_rpcs.sql`, `supabase/tests/scan_rpcs.test.sql`
+- `src/features/scanner/` — `actions/`, `domain/` (normalisation, mapping d'erreurs, cooldown, machine à états + tests), `hooks/`, `components/`, `schemas.ts`
+- `src/app/pro/page.tsx`
+
+**Base de données**
+- Migration : `20261025100001_scan_rpcs.sql` — appliquée sur le projet Dev
+- Types régénérés : oui
+- Advisors : 4 avertissements `authenticated_security_definer_function_executable` de plus, acceptés comme les précédents (appartenance vérifiée dans la fonction)
+
+**Bugs rencontrés**
+| Symptôme | Cause racine | Correctif | Prévention (test / règle) |
+|---|---|---|---|
+| Ordre des opérations d'une carte ambigu dans une même transaction | `now()` est constant dans une transaction : deux logs auraient le même horodatage | `clock_timestamp()` pour `created_at` des logs et `last_visit_at` | pgTAP « un scan suivi d'un autre n'est pas annulable » |
+
+**Décisions** : ADR-019 · Q-014 (un employé peut scanner son propre compte : oui, tracé dans les logs)
+**Dette introduite / remboursée** : DT-007
+
+**Tests de validation**
+- [x] `pnpm lint`, `pnpm typecheck`, `pnpm test` (138 dont 29 pour le scanner), `pnpm build` — verts
+- [x] `pnpm db:test` : nouvelle suite `scan_rpcs` 31 assertions `ok` (cooldown, idempotence, `13/10 → 13/20`, `22/20 → 2/10`, annulations, isolation A/B, limitation de débit, QR forgé, anonyme)
+- [x] À la main sur téléphone (pro) avec un compte client sur PC : caméra, scan, tiroir, code court, alerte cooldown, récompense, annulation — validé par le porteur de projet (« tout fonctionne bien »)
+- [ ] Chronométrage de 20 scans — reporté par le porteur de projet ; deux téléphones simultanés — non testé
+- [ ] Test E2E Playwright du parcours complet — non fait (DT-007)
+
+**Prochaine étape** : Phase 7 (temps réel et `/pro/logs` avec lignes annulées barrées).
+
+---
 
 ### Session 22 — [2026-10-23] — Phase 5.5 : back-office `/admin`
 **Roadmap :** Phase 5 — Étape 5.5 · **Statut :** ✅ Terminé (validé par le porteur de projet) · **Branche :** `feat/phase-5-admin` → `main`
@@ -846,6 +886,7 @@
 | ADR-016 | Programmes de fidélité : écriture par RPC, règles de paliers, `@dnd-kit` | ✅ Accepté | 2026-10-23 |
 | ADR-017 | Feature partagée `media` (cadrage, compression, stockage des images) | ✅ Accepté | 2026-10-23 |
 | ADR-018 | Back-office : session admin + RLS plutôt que client service role | ✅ Accepté | 2026-10-23 |
+| ADR-019 | Scan : RPC par restaurant actif, idempotence rejouable, horodatage `clock_timestamp()` | ✅ Accepté | 2026-10-25 |
 
 <!-- ============ TEMPLATE ADR ============
 ### ADR-NNN — Titre
@@ -1043,6 +1084,16 @@
 - **Conséquences :** création du restaurant puis de l'invitation en deux écritures ; si la seconde échoue, le restaurant est supprimé (annulation compensatoire, policy DELETE admin). Le slug vient du nom (`slugify`), suffixé `-2`, `-3`… sur conflit d'unicité (code 23505).
 - **Réversibilité :** immédiate.
 
+### ADR-019 — Scan : RPC par restaurant actif, idempotence rejouable, horodatage `clock_timestamp()`
+- **Date :** 2026-10-25 · **Statut :** ✅ Accepté · **Phase :** 6
+- **Contexte :** un scan doit être atomique, sans doublon et sans fuite entre restaurants ; un owner peut gérer plusieurs restaurants et ne scanne que pour celui affiché.
+- **Options envisagées :**
+  1. Écritures directes depuis les Server Actions — ❌ non atomique, contourne les règles critiques en base.
+  2. RPC `SECURITY DEFINER` recevant le restaurant actif, avec verrou de ligne sur la carte — ✅ règles appliquées en base (cooldown 2 h, seuils, droits d'annulation).
+- **Décision :** Option 2. Détails : (a) chaque RPC reçoit `p_restaurant_id` et exige l'appartenance à CE restaurant ; (b) une clé d'idempotence déjà vue renvoie l'état courant avec `replayed = true` au lieu d'une erreur, et une clé réutilisée pour une autre carte ou un autre employé est refusée ; (c) la carte est créée par `record_visit` au premier passage, jamais par la simple recherche ; (d) `lookup_customer` ne renvoie aucune ligne pour un client inconnu et compte l'échec (10 par minute et par employé, sinon `rate_limited`) ; (e) les horodatages des logs et de `last_visit_at` utilisent `clock_timestamp()` pour que l'ordre des opérations d'une carte soit strict, même dans une transaction ; (f) `redeem_reward` et `reverse_scan` restaurent exactement l'état via `delta` et `program_id` du log ; seule la dernière opération non annulée d'une carte est annulable.
+- **Conséquences :** un employé peut scanner son propre compte (Q-014) : la trace est dans les logs. Le rejeu renvoie l'état actuel de la carte, pas celui du moment du premier appel.
+- **Réversibilité :** moyenne (les RPC sont l'API de la caisse).
+
 ---
 
 ## 🧾 Dette technique
@@ -1055,6 +1106,7 @@
 | DT-004 | Le logo du restaurant n'est pas affiché sur les cartes (initiale seulement) : aucun upload n'existe avant l'étape 5.3, et `next/image` exige la configuration du domaine Storage | Logos inexistants avant la Phase 5 | 🟢 Cosmétique | Phase 5 (5.3) | ✔️ Remboursée (Session 17) |
 | DT-005 | Lighthouse Performance de `/` à 86 sur build de production local (seuil de la roadmap : 90) ; mesure locale, sans CDN ni région Vercel | Écart jugé suffisant à ce stade par le porteur de projet | 🟢 Marge faible vis-à-vis de la contrainte produit n°1 | Phase 11 (11.4) : re-mesure sur Vercel ; analyser le bundle si < 90 | ⏳ Ouverte |
 | DT-006 | Test chronomètre de la Phase 5 (un testeur non technique configure fiche + 2 paliers en < 5 min) non réalisé : il demande un vrai testeur | Pas de testeur disponible à ce stade | 🟢 L'ergonomie a été revue après retour du porteur de projet (Session 21) | Pilote (Phase 11.6) | ⏳ Ouverte |
+| DT-007 | Aucun test E2E Playwright du scanner : le projet n'a pas de stratégie de comptes de test (connexion par OTP email ou Google) | Décision à prendre (comptes de test, session injectée) avant d'écrire le parcours | 🟠 Parcours critique du scan couvert seulement par pgTAP et tests unitaires | Phase 6 (avant le jalon M1) | ⏳ Ouverte |
 
 ---
 
@@ -1075,4 +1127,5 @@
 | Q-011 | Qui invite les employés (`staff`) d'un restaurant ? | L'owner, depuis `/pro/settings` | **Reporté en Post-MVP (Phase 12)** quand le produit sera abouti (la table `restaurant_members` supporte déjà `owner`/`staff`) | Phase 12 | ✅ Session 1 |
 | Q-012 | Annulation d'un scan : qui, quoi, jusqu'à quand ? | Owner : tout ; staff : ses propres scans < 15 min | **Owner = tout ; staff = ses propres scans < 10 min** ⇒ ADR-010 | Phase 6 | ✅ Session 1 |
 | Q-013 | Modification d'un seuil en cours : que devient la carte ? | Appliquée immédiatement aux cartes en cours | **Oui, application immédiate** aux cartes en cours ⇒ ADR-009 | Phase 5 | ✅ Session 1 |
+| Q-014 | Un employé peut-il créditer son propre compte ? | À trancher | **Oui**, autorisé ; la trace est dans les logs (`staff_id`) | Phase 6 | ✅ Session 23 |
 
