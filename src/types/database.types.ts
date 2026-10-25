@@ -417,9 +417,68 @@ export type Database = {
           restaurant_name: string
         }[]
       }
+      lookup_customer: {
+        Args: { p_restaurant_id: string; p_token_or_code: string }
+        Returns: {
+          card_id: string
+          cooldown_remaining_seconds: number
+          customer_id: string
+          display_name: string
+          is_in_cooldown: boolean
+          is_reward_unlocked: boolean
+          last_visit_at: string
+          program_id: string
+          reward_label: string
+          stamps: number
+          threshold: number
+        }[]
+      }
+      record_visit: {
+        Args: {
+          p_customer_id: string
+          p_force_cooldown?: boolean
+          p_idempotency_key: string
+          p_restaurant_id: string
+        }
+        Returns: Database["public"]["CompositeTypes"]["scan_result"]
+        SetofOptions: {
+          from: "*"
+          to: "scan_result"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      redeem_reward: {
+        Args: {
+          p_card_id: string
+          p_idempotency_key: string
+          p_restaurant_id: string
+        }
+        Returns: Database["public"]["CompositeTypes"]["scan_result"]
+        SetofOptions: {
+          from: "*"
+          to: "scan_result"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       reorder_loyalty_programs: {
         Args: { p_program_ids: string[]; p_restaurant_id: string }
         Returns: undefined
+      }
+      reverse_scan: {
+        Args: {
+          p_idempotency_key: string
+          p_log_id: string
+          p_restaurant_id: string
+        }
+        Returns: Database["public"]["CompositeTypes"]["scan_result"]
+        SetofOptions: {
+          from: "*"
+          to: "scan_result"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       set_loyalty_program_active: {
         Args: { p_is_active: boolean; p_program_id: string }
@@ -462,7 +521,17 @@ export type Database = {
       subscription_status: "trialing" | "active" | "past_due" | "canceled"
     }
     CompositeTypes: {
-      [_ in never]: never
+      scan_result: {
+        log_id: string | null
+        card_id: string | null
+        program_id: string | null
+        reward_label: string | null
+        stamps: number | null
+        threshold: number | null
+        is_reward_unlocked: boolean | null
+        last_visit_at: string | null
+        replayed: boolean | null
+      }
     }
   }
 }
