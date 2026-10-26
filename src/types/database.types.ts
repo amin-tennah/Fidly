@@ -417,6 +417,27 @@ export type Database = {
           restaurant_name: string
         }[]
       }
+      list_scan_logs: {
+        Args: {
+          p_before_at?: string
+          p_before_id?: string
+          p_limit?: number
+          p_restaurant_id: string
+        }
+        Returns: {
+          cooldown_overridden: boolean
+          created_at: string
+          customer_name: string
+          delta: number
+          is_reversed: boolean
+          log_id: string
+          reversed_at: string
+          reverses_log_id: string
+          reward_label: string
+          staff_name: string
+          type: Database["public"]["Enums"]["scan_log_type"]
+        }[]
+      }
       lookup_customer: {
         Args: { p_restaurant_id: string; p_token_or_code: string }
         Returns: {
