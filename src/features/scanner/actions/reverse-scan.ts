@@ -1,6 +1,6 @@
 "use server";
 
-import { authorizeRestaurantStaff } from "@/features/scanner/actions/staff-guard";
+import { authorizeRestaurantStaff } from "@/features/restaurants/server";
 import { toScanResult } from "@/features/scanner/actions/to-scan-result";
 import { reverseScanSchema, type ReverseScanInput } from "@/features/scanner/schemas";
 import type { ScanOutcome } from "@/features/scanner/types";

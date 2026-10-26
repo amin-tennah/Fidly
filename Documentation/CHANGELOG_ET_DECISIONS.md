@@ -35,9 +35,9 @@
 
 ## 🧭 État courant (à mettre à jour à chaque session)
 
-- **Phase en cours :** Phase 7 (temps réel et journal d'audit) · Phase 6 fusionnée dans `main` (reste : chronométrage de 20 scans, test E2E — DT-007)
-- **Dernière session :** Session 23 (2026-10-25) — Phase 6 : RPC de scan, Server Actions et écran du scanner
-- **Prochaine action :** Phase 7 — étape 7.1 sur `feat/phase-7-realtime` (publication Realtime de `loyalty_cards` et `scan_logs`, hook client filtré)
+- **Phase en cours :** Phase 7 (temps réel et journal d'audit) · code et migration 13 faits sur `feat/phase-7-realtime`, **validation sur deux appareils restante** · Phase 6 fusionnée dans `main` (reste : chronométrage de 20 scans, test E2E — DT-007)
+- **Dernière session :** Session 24 (2026-10-26) — Phase 7 : temps réel et journal `/pro/logs`
+- **Prochaine action :** valider la Phase 7 sur deux appareils (jauge client en direct, journal en direct, retour au premier plan), puis fusionner `feat/phase-7-realtime` dans `main` et passer au jalon M1 (démo interne)
 - **Bloquants :** Aucun
 
 ---
@@ -72,6 +72,42 @@
 
 **Prochaine étape** : ...
 ==================================================================================== -->
+
+### Session 24 — [2026-10-26] — Phase 7 : temps réel et journal `/pro/logs`
+**Roadmap :** Phase 7 — Étapes 7.1 → 7.4 · **Statut :** 🟡 Partiel (code, migration, tests unitaires et SQL verts ; validation sur deux appareils à faire) · **Branche :** `feat/phase-7-realtime`
+
+**Réalisé**
+- db: migration 13 — `loyalty_cards` et `scan_logs` ajoutées à la publication `supabase_realtime` ; RPC `list_scan_logs` (page de journal avec prénoms du client et de l'employé, état « annulé », curseur `(created_at, id)`) — ADR-020
+- feat(7.1/7.4): hooks partagés `useTableChanges` (abonnement filtré, `removeChannel` au démontage, relecture à chaque reconnexion du canal) et `useResyncOnReturn` (retour de l'onglet au premier plan, retour du réseau) dans `src/lib/realtime/`
+- feat(7.1/7.2): accueil client — `LoyaltyRealtimeSync` rafraîchit la page (un seul rafraîchissement, anti-rebond 200 ms) quand une carte du client change ; la barre existante s'anime (`13/10 → 13/20` inclus) ; bannière « Récompense disponible » animée lorsqu'elle apparaît après coup, sans animation avec `prefers-reduced-motion`
+- feat(7.3): `/pro/logs` — liste des logs de tout le restaurant (date et heure en Europe/Paris, prénom du client, type, employé, badge « Délai de 2 h dépassé », ligne annulée barrée avec l'heure de l'annulation), 25 par page avec « Charger plus », nouvelles lignes en tête en direct
+- refactor: garde `authorizeRestaurantStaff` déplacé dans la feature `restaurants` (partagé scanner et logs) ; `runAction` déplacé dans `src/lib/run-action.ts`
+
+**Fichiers clés**
+- `supabase/migrations/20261025110001_realtime_and_scan_logs_listing.sql`, `supabase/tests/scan_logs_listing.test.sql`
+- `src/lib/realtime/`, `src/features/loyalty/hooks/`, `src/features/logs/`, `src/app/pro/logs/page.tsx`
+
+**Base de données**
+- Migration : `20261025110001_realtime_and_scan_logs_listing.sql` — appliquée sur le projet Dev
+- Types régénérés : oui
+- Advisors : 1 avertissement `authenticated_security_definer_function_executable` de plus (`list_scan_logs`), accepté comme les précédents
+
+**Bugs rencontrés** : Aucun
+**Décisions** : ADR-020
+**Dette introduite / remboursée** : Aucune
+
+**Tests de validation**
+- [x] `pnpm lint`, `pnpm typecheck`, `pnpm test` (146 dont 8 pour les logs), `pnpm build` — verts
+- [x] `supabase/tests/scan_logs_listing.test.sql` : 12 assertions `ok` (publication, tous les logs visibles, prénoms, annulé signalé, curseur, limite, refus employé d'un autre restaurant / client / anonyme)
+- [ ] Deux appareils : un scan sur le téléphone pro met la jauge du client à jour en moins d'une seconde sans rechargement — à faire
+- [ ] Le client A ne reçoit jamais d'événement concernant le client B (onglet réseau, WebSocket) — à faire
+- [ ] App client en arrière-plan pendant le scan : état correct au retour — à faire
+- [ ] Journal en direct : un scan sur un second appareil apparaît sur le premier ; une annulation barre la ligne — à faire
+- [ ] Pas de fuite de canaux après navigation répétée — à faire
+
+**Prochaine étape** : validation sur appareils, fusion dans `main`, puis jalon M1.
+
+---
 
 ### Session 23 — [2026-10-25] — Phase 6 : RPC de scan, Server Actions et écran du scanner
 **Roadmap :** Phase 6 — Étapes 6.1 → 6.8 · **Statut :** ✅ Terminé sauf chronométrage de 20 scans et test E2E (validé sur téléphone par le porteur de projet) · **Branche :** `feat/phase-6-scanner` → `main`
@@ -887,6 +923,7 @@
 | ADR-017 | Feature partagée `media` (cadrage, compression, stockage des images) | ✅ Accepté | 2026-10-23 |
 | ADR-018 | Back-office : session admin + RLS plutôt que client service role | ✅ Accepté | 2026-10-23 |
 | ADR-019 | Scan : RPC par restaurant actif, idempotence rejouable, horodatage `clock_timestamp()` | ✅ Accepté | 2026-10-25 |
+| ADR-020 | Temps réel : événement = signal de relecture, journal lu par RPC paginée par curseur | ✅ Accepté | 2026-10-26 |
 
 <!-- ============ TEMPLATE ADR ============
 ### ADR-NNN — Titre
@@ -1093,6 +1130,16 @@
 - **Décision :** Option 2. Détails : (a) chaque RPC reçoit `p_restaurant_id` et exige l'appartenance à CE restaurant ; (b) une clé d'idempotence déjà vue renvoie l'état courant avec `replayed = true` au lieu d'une erreur, et une clé réutilisée pour une autre carte ou un autre employé est refusée ; (c) la carte est créée par `record_visit` au premier passage, jamais par la simple recherche ; (d) `lookup_customer` ne renvoie aucune ligne pour un client inconnu et compte l'échec (10 par minute et par employé, sinon `rate_limited`) ; (e) les horodatages des logs et de `last_visit_at` utilisent `clock_timestamp()` pour que l'ordre des opérations d'une carte soit strict, même dans une transaction ; (f) `redeem_reward` et `reverse_scan` restaurent exactement l'état via `delta` et `program_id` du log ; seule la dernière opération non annulée d'une carte est annulable.
 - **Conséquences :** un employé peut scanner son propre compte (Q-014) : la trace est dans les logs. Le rejeu renvoie l'état actuel de la carte, pas celui du moment du premier appel.
 - **Réversibilité :** moyenne (les RPC sont l'API de la caisse).
+
+### ADR-020 — Temps réel : événement = signal de relecture, journal lu par RPC paginée par curseur
+- **Date :** 2026-10-26 · **Statut :** ✅ Accepté · **Phase :** 7
+- **Contexte :** la jauge du client et le journal du restaurant doivent bouger en direct. Un événement `postgres_changes` ne porte que les colonnes brutes de la ligne (ni palier résolu, ni prénoms), et l'employé ne peut pas lire `profiles` (RLS).
+- **Options envisagées :**
+  1. Appliquer le contenu de l'événement à l'état local — ❌ duplique la résolution du palier et les noms côté navigateur, risque de divergence.
+  2. Traiter l'événement comme un simple signal et relire l'état côté serveur (`router.refresh()` pour la jauge, Server Action pour la tête du journal) — ✅ une seule source de vérité, aucune règle dupliquée, resynchronisation au retour au premier plan et à la reconnexion réutilisant le même chemin.
+- **Décision :** Option 2. Le journal est lu par la RPC `list_scan_logs` (membres du restaurant uniquement, prénoms résolus dans la fonction, curseur `(created_at, id)` avec la précision microseconde conservée en chaîne). La tête rafraîchie est fusionnée avec les pages déjà chargées (`mergeHeadEntries`). Abonnements toujours filtrés (`user_id=eq.` / `restaurant_id=eq.`) en plus de la RLS.
+- **Conséquences :** un rafraîchissement par rafale d'événements (anti-rebond 200 ms) ; l'animation de la barre repose sur la transition CSS existante. Les événements perdus hors ligne sont rattrapés par la relecture à chaque reconnexion.
+- **Réversibilité :** facile.
 
 ---
 

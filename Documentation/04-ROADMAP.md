@@ -361,10 +361,10 @@ erDiagram
 **🎯 Objectif :** le client voit sa jauge progresser en direct au moment du scan ; le commerçant suit chaque scan en direct dans l'onglet Logs.
 
 ### Étapes
-- [ ] **7.1** Publication Realtime sur `loyalty_cards` (et `scan_logs`) ; hook `use-loyalty-cards-realtime` filtré par `user_id`, cleanup du channel.
-- [ ] **7.2** Animation côté client : +1 sur la barre, transition fluide vers le nouvel objectif lors de la consommation d'une récompense (`13/10 → 13/20` puis `20/20 → 0/10`), effet de célébration quand la récompense est débloquée (respect de `prefers-reduced-motion`).
-- [ ] **7.3** `/pro/logs` : liste paginée côté serveur (date, `display_name`, type, staff, dépassement cooldown signalé, **ligne barrée mais lisible si annulée** via `reverses_log_id`) + nouvelles entrées insérées en direct en tête.
-- [ ] **7.4** Resynchronisation au retour au premier plan (`visibilitychange`) et à la reconnexion réseau.
+- [x] **7.1** Publication Realtime sur `loyalty_cards` (et `scan_logs`) ; hook `use-loyalty-cards-realtime` filtré par `user_id`, cleanup du channel.
+- [x] **7.2** Animation côté client : +1 sur la barre, transition fluide vers le nouvel objectif lors de la consommation d'une récompense (`13/10 → 13/20` puis `20/20 → 0/10`), effet de célébration quand la récompense est débloquée (respect de `prefers-reduced-motion`).
+- [x] **7.3** `/pro/logs` : liste paginée côté serveur (date, `display_name`, type, staff, dépassement cooldown signalé, **ligne barrée mais lisible si annulée** via `reverses_log_id`) + nouvelles entrées insérées en direct en tête.
+- [x] **7.4** Resynchronisation au retour au premier plan (`visibilitychange`) et à la reconnexion réseau.
 
 ### ✅ Tests de validation
 - [ ] Deux téléphones : scan sur le téléphone pro ⇒ jauge du client mise à jour en < 1 s **sans rechargement**.
