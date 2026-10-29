@@ -35,9 +35,9 @@
 
 ## 🧭 État courant (à mettre à jour à chaque session)
 
-- **Phase en cours :** Phase 7 (temps réel et journal d'audit) · code et migration 13 faits sur `feat/phase-7-realtime`, **validation sur deux appareils restante** · Phase 6 fusionnée dans `main` (reste : chronométrage de 20 scans, test E2E — DT-007)
-- **Dernière session :** Session 25 (2026-10-29) — Phase 7 : retours d'essai (jauge, blocages, journal) et test sur téléphone via tunnel
-- **Prochaine action :** appliquer la migration 14 (`pnpm db:push`, `pnpm db:types`), refaire les tests de la Phase 7 sur deux appareils (idéalement avec `pnpm build && pnpm start`), puis fusionner `feat/phase-7-realtime` dans `main`
+- **Phase en cours :** Phase 7 (temps réel et journal d'audit) · code et migrations 13-14 faits sur `feat/phase-7-realtime`, jauge en direct validée sur appareils, **reste à revalider : journal en direct, isolation entre clients, arrière-plan, fuite de canaux** · Phase 6 fusionnée dans `main` (reste : chronométrage de 20 scans, test E2E — DT-007)
+- **Dernière session :** Session 25 (2026-10-29) — Phase 7 : retours d'essai, Realtime anonyme corrigé, test sur téléphone via tunnel
+- **Prochaine action :** revalider sur deux appareils le journal en direct, l'isolation entre clients (onglet réseau), l'arrière-plan et l'absence de fuite de canaux ; fusionner `feat/phase-7-realtime` dans `main` ; puis jalon M1 (démo interne) et Phase 8 (PWA et hors-ligne)
 - **Bloquants :** Aucun
 
 ---
@@ -74,21 +74,23 @@
 ==================================================================================== -->
 
 ### Session 25 — [2026-10-29] — Phase 7 : retours d'essai et test sur téléphone via tunnel
-**Roadmap :** Phase 7 — validation · **Statut :** 🟡 Partiel (correctifs faits, migration 14 à appliquer, nouvel essai à faire) · **Branche :** `feat/phase-7-realtime`
+**Roadmap :** Phase 7 — validation · **Statut :** ✅ Correctifs terminés (jauge en direct validée par le porteur de projet) ; revalidation du journal en direct et des autres tests de la Phase 7 à faire · **Branche :** `feat/phase-7-realtime`
 
 **Retours du porteur de projet** : la jauge du client ne bouge pas sans rechargement ; la recherche ou le scan reste parfois bloqué sur « Recherche du client » ; le site n'est pas fluide ; une annulation produit deux rectangles dans le journal ; le délai pour annuler un scan est trop court. Le journal en direct fonctionne.
 
 **Réalisé**
 - fix(auth): connexion Google sur téléphone via un tunnel — le callback construisait l'adresse de retour à partir de l'origine vue par le serveur (`localhost:3000` derrière un tunnel) ; il utilise maintenant une redirection relative (`src/lib/relative-redirect.ts`) ; `allowedDevOrigins` autorise `*.trycloudflare.com` ; script `pnpm tunnel`
-- fix(7.1): jauge en direct — `supabase.channel(nom)` renvoie le canal existant s'il porte déjà ce nom ; React Strict Mode (dev) monte deux fois chaque effet, le second montage récupérait donc un canal en cours de fermeture. Chaque abonnement a maintenant un nom unique
+- fix(7.1): **cause réelle de la jauge figée** — l'abonnement Realtime était enregistré avec le rôle `anon` (constaté dans `realtime.subscription` : rôle `anon`, `sub` nul) : le navigateur rejoignait le canal sans présenter la session de l'utilisateur, la RLS cachait toutes les lignes et le canal disait `SUBSCRIBED` sans jamais recevoir d'événement (la jauge n'évoluait qu'à la resynchronisation au retour de l'onglet). `authorizeRealtime` lit la session et la transmet à Realtime (`setAuth`) avant toute jonction (ADR-021) ; le même correctif vaut pour le journal, qui partage `useTableChanges`
+- fix(7.1): canaux — `supabase.channel(nom)` renvoie le canal existant s'il porte déjà ce nom et React Strict Mode (dev) monte deux fois chaque effet : chaque abonnement a un nom unique et le premier montage est annulé avant de rejoindre (`openTableChannel`, `useTableChanges`)
 - fix: blocage sur « Recherche du client » — `runAction` abandonne après 10 s (`NETWORK_ERROR`, message et nouvel essai possible) ; une écriture relancée réutilise la même clé d'idempotence
 - fix(7.3): une annulation = une seule ligne — `list_scan_logs` ne renvoie plus les écritures compensatoires ; la ligne d'origine est barrée avec « Annulé par <prénom> · <date et heure> » (migration 14). L'écriture compensatoire reste en base (ADR-010)
 - feat: l'écran de succès du scanner (avec « Annuler ce scan ») reste 6 s au lieu de 2,5 s
-- test: `runAction` (3 tests), schémas et libellés du journal adaptés, `scan_logs_listing.test.sql` à 13 assertions
+- refactor: `src/lib/realtime/` découpé (`authorize-realtime`, `open-table-channel`, `use-table-changes`, `use-resync-on-return`) ; `useLatest` partagé ; un encadré de diagnostic temporaire (état du canal, événements reçus) a servi à localiser le défaut puis a été retiré
+- test: `runAction` (3 tests), `authorizeRealtime` (3 tests), schémas et libellés du journal adaptés, `scan_logs_listing.test.sql` à 13 assertions
 
 **Base de données**
-- Migration : `20261029100001_scan_logs_single_reversal_line.sql` — **à appliquer** (la fonction est recréée avec de nouvelles colonnes : sans elle `/pro/logs` ne s'affiche pas)
-- Types régénérés : à faire après l'application
+- Migration : `20261029100001_scan_logs_single_reversal_line.sql` — appliquée sur le projet Dev (la fonction est recréée avec de nouvelles colonnes, `reversed_by_name` ajoutée)
+- Types régénérés : oui
 
 **Points d'attention**
 - La lenteur ressentie vient en grande partie du serveur de dev (compilation à la demande, rendu en double) et du tunnel gratuit. À mesurer avec `pnpm build && pnpm start`, puis le tunnel, avant d'optimiser (une action serveur enchaîne aujourd'hui 3 à 4 appels à Supabase : session, appartenance, RPC).
@@ -98,18 +100,20 @@
 | Symptôme | Cause racine | Correctif | Prévention (test / règle) |
 |---|---|---|---|
 | Retour vers `localhost` après Google, sur téléphone via tunnel | Redirection absolue construite depuis l'origine vue par le serveur | Redirection relative | Vérifié en local (`Location: /login?...`) |
-| Jauge client figée (dev) | Canal Realtime réutilisé pendant sa fermeture (Strict Mode) | Nom de canal unique par abonnement | À revalider sur appareils |
+| Jauge client figée : `SUBSCRIBED` mais aucun événement | Abonnement enregistré en rôle `anon` : la session n'était pas transmise à Realtime | `authorizeRealtime` avant la jonction | `authorize-realtime.test.ts` ; diagnostic : `select claims_role, claims->>'sub' from realtime.subscription` doit montrer `authenticated` et un `sub` |
+| `CLOSED` parasite au chargement (dev) | Canal de même nom réutilisé pendant sa fermeture (Strict Mode) | Nom unique par abonnement, premier montage annulé | Vu dans l'encadré de diagnostic |
 | Écran bloqué sur « Recherche du client… » | Appel serveur sans délai maximum | Délai de 10 s dans `runAction` | `run-action.test.ts` |
 
-**Décisions** : Aucune nouvelle (ADR-020 inchangé)
+**Décisions** : ADR-021
 **Dette introduite / remboursée** : Aucune
 
 **Tests de validation**
-- [x] `pnpm lint`, `pnpm typecheck`, `pnpm test` (149) — verts
-- [ ] `pnpm db:push` (migration 14), `pnpm db:types`, test `scan_logs_listing` (13 assertions) — à faire par le porteur de projet
-- [ ] Jauge, journal, annulation à une ligne, délai de 6 s — à refaire sur deux appareils
+- [x] `pnpm lint`, `pnpm typecheck`, `pnpm test` (152), `pnpm build` — verts
+- [x] Migration 14 appliquée, types régénérés
+- [x] Jauge du client en direct, sur deux appareils (PC client, téléphone pro via tunnel) : la jauge avance seule et la bannière « Récompense disponible » s'anime à 10/10 — validé par le porteur de projet
+- [ ] Journal en direct, annulation à une ligne, délai de 6 s de l'écran de succès — à refaire sur deux appareils
 
-**Prochaine étape** : application de la migration 14, nouvel essai, fusion dans `main`, puis jalon M1.
+**Prochaine étape** : revalider le journal et les tests restants de la Phase 7, fusion dans `main`, puis jalon M1.
 
 ---
 
@@ -964,6 +968,7 @@
 | ADR-018 | Back-office : session admin + RLS plutôt que client service role | ✅ Accepté | 2026-10-23 |
 | ADR-019 | Scan : RPC par restaurant actif, idempotence rejouable, horodatage `clock_timestamp()` | ✅ Accepté | 2026-10-25 |
 | ADR-020 | Temps réel : événement = signal de relecture, journal lu par RPC paginée par curseur | ✅ Accepté | 2026-10-26 |
+| ADR-021 | Temps réel : session transmise explicitement à Realtime avant l'abonnement | ✅ Accepté | 2026-10-29 |
 
 <!-- ============ TEMPLATE ADR ============
 ### ADR-NNN — Titre
@@ -1179,6 +1184,17 @@
   2. Traiter l'événement comme un simple signal et relire l'état côté serveur (`router.refresh()` pour la jauge, Server Action pour la tête du journal) — ✅ une seule source de vérité, aucune règle dupliquée, resynchronisation au retour au premier plan et à la reconnexion réutilisant le même chemin.
 - **Décision :** Option 2. Le journal est lu par la RPC `list_scan_logs` (membres du restaurant uniquement, prénoms résolus dans la fonction, curseur `(created_at, id)` avec la précision microseconde conservée en chaîne). La tête rafraîchie est fusionnée avec les pages déjà chargées (`mergeHeadEntries`). Abonnements toujours filtrés (`user_id=eq.` / `restaurant_id=eq.`) en plus de la RLS.
 - **Conséquences :** un rafraîchissement par rafale d'événements (anti-rebond 200 ms) ; l'animation de la barre repose sur la transition CSS existante. Les événements perdus hors ligne sont rattrapés par la relecture à chaque reconnexion.
+- **Réversibilité :** facile.
+
+### ADR-021 — Temps réel : session transmise explicitement à Realtime avant l'abonnement
+- **Date :** 2026-10-29 · **Statut :** ✅ Accepté · **Phase :** 7
+- **Contexte :** en essai, la jauge du client ne bougeait pas : le canal indiquait `SUBSCRIBED` mais aucun événement n'arrivait. La table `realtime.subscription` montrait l'abonnement en rôle `anon` sans `sub` : le client navigateur rejoignait Realtime sans la session de l'utilisateur, donc la RLS (policies réservées à `authenticated`) masquait toutes les lignes, sans erreur.
+- **Options envisagées :**
+  1. Se fier au jeton que la bibliothèque transmet toute seule — ❌ constaté en `anon` avec la session stockée dans des cookies.
+  2. Lire la session puis appeler `realtime.setAuth(jeton)` avant de rejoindre le canal — ✅ abonnement en rôle `authenticated`, RLS appliquée comme prévu.
+  3. Relecture périodique en secours — ❌ masque la panne et alourdit le serveur ; la resynchronisation au retour de l'onglet reste le filet de sécurité (ADR-020).
+- **Décision :** Option 2, dans `authorizeRealtime`, appelé par `useTableChanges` avant `openTableChannel`. `getSession` n'est utilisé ici que pour lire le jeton destiné à Realtime ; aucune décision d'autorisation n'en dépend (les policies de la base décident).
+- **Conséquences :** sans session lisible, l'abonnement reste anonyme et aucun événement n'arrive (la page reste correcte grâce à la resynchronisation). Diagnostic à retenir : `select claims_role, claims->>'sub' from realtime.subscription;`.
 - **Réversibilité :** facile.
 
 ---

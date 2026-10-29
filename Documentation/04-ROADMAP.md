@@ -367,7 +367,7 @@ erDiagram
 - [x] **7.4** Resynchronisation au retour au premier plan (`visibilitychange`) et à la reconnexion réseau.
 
 ### ✅ Tests de validation
-- [ ] Deux téléphones : scan sur le téléphone pro ⇒ jauge du client mise à jour en < 1 s **sans rechargement**.
+- [x] Deux appareils : scan sur le téléphone pro ⇒ jauge du client mise à jour **sans rechargement** *(validé par le porteur de projet ; durée exacte non chronométrée)*.
 - [ ] Le client A ne reçoit **jamais** d'événement concernant le client B (vérifier dans l'onglet réseau/WebSocket).
 - [ ] App client en arrière-plan pendant le scan ⇒ état correct au retour.
 - [ ] Logs live : un scan sur un 2e appareil staff apparaît sur le 1er.

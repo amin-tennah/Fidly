@@ -1,58 +1,45 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
+import { authorizeRealtime } from "@/lib/realtime/authorize-realtime";
+import {
+  openTableChannel,
+  type TableChangesOptions,
+} from "@/lib/realtime/open-table-channel";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import { useLatest } from "@/lib/use-latest";
 
-/**
- * `supabase.channel(name)` returns the existing channel when the name is taken, even one
- * that is being removed: React Strict Mode (dev) mounts every effect twice, so a fixed
- * name would hand the second mount a dying channel. Each subscription gets its own name.
- */
-let channelSequence = 0;
-
-export interface TableChangesOptions {
-  readonly channel: string;
-  readonly table: "loyalty_cards" | "scan_logs";
-  /** PostgREST filter, e.g. `user_id=eq.<id>`: always set, the RLS applies as well. */
-  readonly filter: string;
-}
+export type { TableChangesOptions };
 
 /**
  * Calls `onChange` for every change of the filtered rows, and once more each time the
- * channel reconnects (events sent while offline are lost: the caller re-reads its data).
- * The channel is always removed on cleanup.
+ * channel reconnects. The channel is joined with the user's token and always removed
+ * on cleanup (the first Strict Mode mount is cancelled before it ever joins).
  */
 export function useTableChanges(
   options: TableChangesOptions,
   onChange: () => void,
 ): void {
-  const onChangeRef = useRef(onChange);
-  useEffect(() => {
-    onChangeRef.current = onChange;
-  });
+  const onChangeRef = useLatest(onChange);
+  const { channel, table, filter } = options;
 
-  const { channel: name, table, filter } = options;
   useEffect(() => {
     const supabase = getSupabaseBrowserClient();
-    let hasSubscribed = false;
-    channelSequence += 1;
-    const channel = supabase
-      .channel(`${name}:${channelSequence}`)
-      .on("postgres_changes", { event: "*", schema: "public", table, filter }, () => {
-        onChangeRef.current();
-      })
-      .subscribe((status) => {
-        if (status !== "SUBSCRIBED") {
-          return;
-        }
-        if (hasSubscribed) {
-          onChangeRef.current();
-        }
-        hasSubscribed = true;
-      });
+    let isCancelled = false;
+    let close: (() => void) | undefined;
+
+    void authorizeRealtime(supabase).then(() => {
+      if (isCancelled) {
+        return;
+      }
+      close = openTableChannel(supabase, { channel, table, filter }, () =>
+        onChangeRef.current(),
+      );
+    });
 
     return () => {
-      void supabase.removeChannel(channel);
+      isCancelled = true;
+      close?.();
     };
-  }, [name, table, filter]);
+  }, [channel, table, filter, onChangeRef]);
 }

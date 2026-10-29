@@ -432,7 +432,7 @@ export type Database = {
           is_reversed: boolean
           log_id: string
           reversed_at: string
-          reverses_log_id: string
+          reversed_by_name: string
           reward_label: string
           staff_name: string
           type: Database["public"]["Enums"]["scan_log_type"]
