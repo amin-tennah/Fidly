@@ -1,10 +1,11 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { type NextRequest, type NextResponse } from "next/server";
 import {
   LOGIN_ERROR_PARAM,
   LOGIN_PATH,
   NEXT_PARAM,
   sanitizeNextPath,
 } from "@/features/auth";
+import { relativeRedirect } from "@/lib/relative-redirect";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 /**
@@ -12,7 +13,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
  * Exchanges the temporary `code` for a Supabase session and redirects to `next`.
  */
 export async function GET(request: NextRequest): Promise<NextResponse> {
-  const { searchParams, origin } = request.nextUrl;
+  const { searchParams } = request.nextUrl;
   const code = searchParams.get("code");
   const nextPath = sanitizeNextPath(searchParams.get(NEXT_PARAM));
 
@@ -20,14 +21,15 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const supabase = await createSupabaseServerClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
-      return NextResponse.redirect(new URL(nextPath, origin));
+      return relativeRedirect(nextPath);
     }
   }
 
-  const loginUrl = new URL(LOGIN_PATH, origin);
-  loginUrl.searchParams.set(LOGIN_ERROR_PARAM, "oauth_callback_failed");
+  const loginParams = new URLSearchParams({
+    [LOGIN_ERROR_PARAM]: "oauth_callback_failed",
+  });
   if (nextPath !== "/") {
-    loginUrl.searchParams.set(NEXT_PARAM, nextPath);
+    loginParams.set(NEXT_PARAM, nextPath);
   }
-  return NextResponse.redirect(loginUrl);
+  return relativeRedirect(`${LOGIN_PATH}?${loginParams.toString()}`);
 }
