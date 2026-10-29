@@ -18,7 +18,7 @@ create temp table tap_log (
 grant insert, select on table tap_log to anon, authenticated;
 grant usage, select on sequence tap_log_seq_seq to anon, authenticated;
 
-insert into tap_log (tap) select plan(12);
+insert into tap_log (tap) select plan(13);
 
 -- Fixtures : restaurants A et B, un palier chacun, 1 employé et 1 client (A), 1 gérant (B)
 insert into public.restaurants (id, slug, name, category, is_active)
@@ -73,7 +73,7 @@ set local "request.jwt.claims" = '{"sub":"c7c7c7c7-cccc-4ccc-8ccc-ccccccccc001",
 
 insert into tap_log (tap) select is(
   (select count(*)::int from public.list_scan_logs('a7a7a7a7-aaaa-4aaa-8aaa-aaaaaaaaaaa1')),
-  4, 'list_scan_logs : tous les logs du restaurant, pas seulement ceux de l''employé'
+  3, 'list_scan_logs : tous les passages du restaurant (l''annulation n''a pas sa propre ligne)'
 );
 
 insert into tap_log (tap) select is(
@@ -83,7 +83,7 @@ insert into tap_log (tap) select is(
 
 insert into tap_log (tap) select is(
   (select log_id from public.list_scan_logs('a7a7a7a7-aaaa-4aaa-8aaa-aaaaaaaaaaa1') limit 1),
-  'e7e7e7e7-eeee-4eee-8eee-eeeeeeeeeee4'::uuid, 'list_scan_logs : du plus récent au plus ancien'
+  'e7e7e7e7-eeee-4eee-8eee-eeeeeeeeeee3'::uuid, 'list_scan_logs : du plus récent au plus ancien'
 );
 
 insert into tap_log (tap) select is(
@@ -94,6 +94,16 @@ insert into tap_log (tap) select is(
 insert into tap_log (tap) select is(
   (select is_reversed from public.list_scan_logs('a7a7a7a7-aaaa-4aaa-8aaa-aaaaaaaaaaa1') where log_id = 'e7e7e7e7-eeee-4eee-8eee-eeeeeeeeeee2'),
   false, 'list_scan_logs : un passage non annulé n''est pas signalé'
+);
+
+insert into tap_log (tap) select is(
+  (select reversed_by_name from public.list_scan_logs('a7a7a7a7-aaaa-4aaa-8aaa-aaaaaaaaaaa1') where log_id = 'e7e7e7e7-eeee-4eee-8eee-eeeeeeeeeee3'),
+  'Lea', 'list_scan_logs : le prénom de l''employé qui a annulé est renvoyé'
+);
+
+insert into tap_log (tap) select is(
+  (select count(*)::int from public.list_scan_logs('a7a7a7a7-aaaa-4aaa-8aaa-aaaaaaaaaaa1') where type = 'reversal'),
+  0, 'list_scan_logs : aucune écriture compensatoire dans la liste'
 );
 
 -- 7. Curseur : la page suivante repart après le 2e log (log 3 = 3e plus récent est exclu du curseur)

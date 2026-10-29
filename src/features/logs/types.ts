@@ -1,4 +1,5 @@
-export type ScanLogType = "visit" | "reward_redeemed" | "reversal";
+/** Compensating entries are not listed: the cancelled line carries the reversal state. */
+export type ScanLogType = "visit" | "reward_redeemed";
 
 /** One line of the journal, ready to display. Dates stay ISO strings (cursor precision). */
 export interface ScanLogEntry {
@@ -11,10 +12,10 @@ export interface ScanLogEntry {
   /** `null` once the employee deleted their account. */
   readonly staffName: string | null;
   readonly isCooldownOverridden: boolean;
-  /** A reversal entry points to the log it cancels. */
-  readonly reversesLogId: string | null;
   readonly isReversed: boolean;
   readonly reversedAt: string | null;
+  /** Who cancelled it; `null` once that employee deleted their account. */
+  readonly reversedByName: string | null;
 }
 
 export interface ScanLogCursor {

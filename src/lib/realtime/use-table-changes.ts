@@ -3,6 +3,13 @@
 import { useEffect, useRef } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
+/**
+ * `supabase.channel(name)` returns the existing channel when the name is taken, even one
+ * that is being removed: React Strict Mode (dev) mounts every effect twice, so a fixed
+ * name would hand the second mount a dying channel. Each subscription gets its own name.
+ */
+let channelSequence = 0;
+
 export interface TableChangesOptions {
   readonly channel: string;
   readonly table: "loyalty_cards" | "scan_logs";
@@ -28,8 +35,9 @@ export function useTableChanges(
   useEffect(() => {
     const supabase = getSupabaseBrowserClient();
     let hasSubscribed = false;
+    channelSequence += 1;
     const channel = supabase
-      .channel(name)
+      .channel(`${name}:${channelSequence}`)
       .on("postgres_changes", { event: "*", schema: "public", table, filter }, () => {
         onChangeRef.current();
       })

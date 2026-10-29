@@ -14,9 +14,9 @@ function entry(id: string, overrides: Partial<ScanLogEntry> = {}): ScanLogEntry 
     customerName: "Sam",
     staffName: "Lea",
     isCooldownOverridden: false,
-    reversesLogId: null,
     isReversed: false,
     reversedAt: null,
+    reversedByName: null,
     ...overrides,
   };
 }
@@ -35,7 +35,6 @@ describe("describeLogType", () => {
   it("labels each kind of line", () => {
     expect(describeLogType("visit")).toBe("Passage +1");
     expect(describeLogType("reward_redeemed")).toBe("Récompense");
-    expect(describeLogType("reversal")).toBe("Annulation");
   });
 });
 
@@ -60,9 +59,9 @@ describe("parseScanLogRows", () => {
     reward_label: "Dessert",
     customer_name: null,
     staff_name: "Lea",
-    reverses_log_id: null,
     is_reversed: false,
     reversed_at: null,
+    reversed_by_name: null,
   };
 
   it("keeps the microsecond precision of the cursor and anonymised names as null", () => {

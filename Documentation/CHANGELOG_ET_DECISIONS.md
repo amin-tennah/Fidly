@@ -36,8 +36,8 @@
 ## 🧭 État courant (à mettre à jour à chaque session)
 
 - **Phase en cours :** Phase 7 (temps réel et journal d'audit) · code et migration 13 faits sur `feat/phase-7-realtime`, **validation sur deux appareils restante** · Phase 6 fusionnée dans `main` (reste : chronométrage de 20 scans, test E2E — DT-007)
-- **Dernière session :** Session 24 (2026-10-26) — Phase 7 : temps réel et journal `/pro/logs`
-- **Prochaine action :** valider la Phase 7 sur deux appareils (jauge client en direct, journal en direct, retour au premier plan), puis fusionner `feat/phase-7-realtime` dans `main` et passer au jalon M1 (démo interne)
+- **Dernière session :** Session 25 (2026-10-29) — Phase 7 : retours d'essai (jauge, blocages, journal) et test sur téléphone via tunnel
+- **Prochaine action :** appliquer la migration 14 (`pnpm db:push`, `pnpm db:types`), refaire les tests de la Phase 7 sur deux appareils (idéalement avec `pnpm build && pnpm start`), puis fusionner `feat/phase-7-realtime` dans `main`
 - **Bloquants :** Aucun
 
 ---
@@ -72,6 +72,46 @@
 
 **Prochaine étape** : ...
 ==================================================================================== -->
+
+### Session 25 — [2026-10-29] — Phase 7 : retours d'essai et test sur téléphone via tunnel
+**Roadmap :** Phase 7 — validation · **Statut :** 🟡 Partiel (correctifs faits, migration 14 à appliquer, nouvel essai à faire) · **Branche :** `feat/phase-7-realtime`
+
+**Retours du porteur de projet** : la jauge du client ne bouge pas sans rechargement ; la recherche ou le scan reste parfois bloqué sur « Recherche du client » ; le site n'est pas fluide ; une annulation produit deux rectangles dans le journal ; le délai pour annuler un scan est trop court. Le journal en direct fonctionne.
+
+**Réalisé**
+- fix(auth): connexion Google sur téléphone via un tunnel — le callback construisait l'adresse de retour à partir de l'origine vue par le serveur (`localhost:3000` derrière un tunnel) ; il utilise maintenant une redirection relative (`src/lib/relative-redirect.ts`) ; `allowedDevOrigins` autorise `*.trycloudflare.com` ; script `pnpm tunnel`
+- fix(7.1): jauge en direct — `supabase.channel(nom)` renvoie le canal existant s'il porte déjà ce nom ; React Strict Mode (dev) monte deux fois chaque effet, le second montage récupérait donc un canal en cours de fermeture. Chaque abonnement a maintenant un nom unique
+- fix: blocage sur « Recherche du client » — `runAction` abandonne après 10 s (`NETWORK_ERROR`, message et nouvel essai possible) ; une écriture relancée réutilise la même clé d'idempotence
+- fix(7.3): une annulation = une seule ligne — `list_scan_logs` ne renvoie plus les écritures compensatoires ; la ligne d'origine est barrée avec « Annulé par <prénom> · <date et heure> » (migration 14). L'écriture compensatoire reste en base (ADR-010)
+- feat: l'écran de succès du scanner (avec « Annuler ce scan ») reste 6 s au lieu de 2,5 s
+- test: `runAction` (3 tests), schémas et libellés du journal adaptés, `scan_logs_listing.test.sql` à 13 assertions
+
+**Base de données**
+- Migration : `20261029100001_scan_logs_single_reversal_line.sql` — **à appliquer** (la fonction est recréée avec de nouvelles colonnes : sans elle `/pro/logs` ne s'affiche pas)
+- Types régénérés : à faire après l'application
+
+**Points d'attention**
+- La lenteur ressentie vient en grande partie du serveur de dev (compilation à la demande, rendu en double) et du tunnel gratuit. À mesurer avec `pnpm build && pnpm start`, puis le tunnel, avant d'optimiser (une action serveur enchaîne aujourd'hui 3 à 4 appels à Supabase : session, appartenance, RPC).
+- L'annulation par le staff reste limitée à 10 minutes (Q-012) ; aucun bouton d'annulation n'existe encore dans `/pro/logs`, seulement dans l'écran de succès du scanner.
+
+**Bugs rencontrés**
+| Symptôme | Cause racine | Correctif | Prévention (test / règle) |
+|---|---|---|---|
+| Retour vers `localhost` après Google, sur téléphone via tunnel | Redirection absolue construite depuis l'origine vue par le serveur | Redirection relative | Vérifié en local (`Location: /login?...`) |
+| Jauge client figée (dev) | Canal Realtime réutilisé pendant sa fermeture (Strict Mode) | Nom de canal unique par abonnement | À revalider sur appareils |
+| Écran bloqué sur « Recherche du client… » | Appel serveur sans délai maximum | Délai de 10 s dans `runAction` | `run-action.test.ts` |
+
+**Décisions** : Aucune nouvelle (ADR-020 inchangé)
+**Dette introduite / remboursée** : Aucune
+
+**Tests de validation**
+- [x] `pnpm lint`, `pnpm typecheck`, `pnpm test` (149) — verts
+- [ ] `pnpm db:push` (migration 14), `pnpm db:types`, test `scan_logs_listing` (13 assertions) — à faire par le porteur de projet
+- [ ] Jauge, journal, annulation à une ligne, délai de 6 s — à refaire sur deux appareils
+
+**Prochaine étape** : application de la migration 14, nouvel essai, fusion dans `main`, puis jalon M1.
+
+---
 
 ### Session 24 — [2026-10-26] — Phase 7 : temps réel et journal `/pro/logs`
 **Roadmap :** Phase 7 — Étapes 7.1 → 7.4 · **Statut :** 🟡 Partiel (code, migration, tests unitaires et SQL verts ; validation sur deux appareils à faire) · **Branche :** `feat/phase-7-realtime`

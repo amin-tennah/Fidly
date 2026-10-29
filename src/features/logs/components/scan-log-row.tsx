@@ -18,7 +18,8 @@ function Badges({ entry }: ScanLogRowProps): ReactNode {
       ) : null}
       {entry.isReversed && entry.reversedAt ? (
         <span className="bg-secondary rounded-full px-2 py-0.5 text-xs font-medium">
-          Annulé à {formatLogTime(entry.reversedAt)}
+          Annulé{entry.reversedByName ? ` par ${entry.reversedByName}` : ""} ·{" "}
+          {formatLogTime(entry.reversedAt)}
         </span>
       ) : null}
     </>

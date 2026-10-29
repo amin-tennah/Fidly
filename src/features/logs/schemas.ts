@@ -16,14 +16,14 @@ const logRowSchema = z
   .object({
     log_id: uuid,
     created_at: isoDate,
-    type: z.enum(["visit", "reward_redeemed", "reversal"]),
+    type: z.enum(["visit", "reward_redeemed"]),
     cooldown_overridden: z.boolean(),
     reward_label: z.string(),
     customer_name: z.string().nullable(),
     staff_name: z.string().nullable(),
-    reverses_log_id: uuid.nullable(),
     is_reversed: z.boolean(),
     reversed_at: isoDate.nullable(),
+    reversed_by_name: z.string().nullable(),
   })
   .transform((row): ScanLogEntry => ({
     id: row.log_id,
@@ -33,9 +33,9 @@ const logRowSchema = z
     customerName: row.customer_name,
     staffName: row.staff_name,
     isCooldownOverridden: row.cooldown_overridden,
-    reversesLogId: row.reverses_log_id,
     isReversed: row.is_reversed,
     reversedAt: row.reversed_at,
+    reversedByName: row.reversed_by_name,
   }));
 
 /** Validates the rows of `list_scan_logs` (one extra row = older logs exist). */
