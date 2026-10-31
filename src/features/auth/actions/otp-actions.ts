@@ -1,5 +1,6 @@
 "use server";
 
+import { logAuthError } from "@/features/auth/actions/log-auth-error";
 import { mapAuthErrorCode } from "@/features/auth/domain/map-auth-error";
 import {
   sendEmailOtpSchema,
@@ -32,6 +33,7 @@ export async function sendEmailOtp(
   });
 
   if (error) {
+    logAuthError("sendEmailOtp", error);
     return err(mapAuthErrorCode(error.code));
   }
 
@@ -58,6 +60,9 @@ export async function verifyEmailOtp(
   });
 
   if (error || !data.user) {
+    if (error) {
+      logAuthError("verifyEmailOtp", error);
+    }
     return err(mapAuthErrorCode(error?.code));
   }
 

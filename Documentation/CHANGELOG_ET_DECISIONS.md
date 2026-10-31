@@ -35,9 +35,9 @@
 
 ## 🧭 État courant (à mettre à jour à chaque session)
 
-- **Phase en cours :** Phase 7 terminée et fusionnée dans `main` · jalon M1 (démo interne) validé · correctifs de retour d'essai en cours (connexion par code email, scan bloqué sur « Recherche du client »)
-- **Dernière session :** Session 26 (2026-11-01) — Clôture de la Phase 7 et jalon M1
-- **Prochaine action :** corriger les deux défauts relevés au jalon M1 (connexion par code à 6 chiffres qui échoue ; recherche du client qui reste bloquée en enchaînant des scans rapides), puis Phase 8 (PWA et hors-ligne) ; dette à régler avant la suite : chronométrage de 20 scans et test E2E (DT-007)
+- **Phase en cours :** Phase 7 terminée et fusionnée dans `main` · jalon M1 validé · correctifs de retour d'essai sur `fix/otp-login-and-scan-lookup` (scan corrigé, **connexion par code email : cause à lire dans le journal du serveur**)
+- **Dernière session :** Session 27 (2026-11-01) — Retours du jalon M1 : scan bloqué (appels directs à la base) et journal des erreurs d'authentification
+- **Prochaine action :** réessayer la connexion par code email avec `pnpm dev` et lire la ligne `[auth] … failed` du terminal (code et statut) pour corriger ; revalider le scan en enchaînant des scans rapides ; fusionner la branche, puis Phase 8 (PWA et hors-ligne) ; dette : chronométrage de 20 scans et test E2E (DT-007)
 - **Bloquants :** Aucun
 
 ---
@@ -72,6 +72,37 @@
 
 **Prochaine étape** : ...
 ==================================================================================== -->
+
+### Session 27 — [2026-11-01] — Retours du jalon M1 : scan bloqué et connexion par code
+**Roadmap :** Phase 6 (scanner) et Phase 3 (auth) — correctifs · **Statut :** 🟡 Partiel (scan corrigé, tests et build verts, à revalider sur téléphone ; connexion par code : cause non encore établie) · **Branche :** `fix/otp-login-and-scan-lookup`
+
+**Retours du porteur de projet** : (1) en enchaînant des scans rapides, la recherche du client reste parfois bloquée sur « Recherche du client… » jusqu'à l'actualisation de la page ; (2) la connexion par code à 6 chiffres reçu par email échoue (« La connexion a échoué. Veuillez réessayer. »).
+
+**Réalisé**
+- fix(scanner): cause établie par la documentation de Next.js — le navigateur envoie les Server Actions **une par une** : une requête suspendue bloque toutes les suivantes, seule l'actualisation de la page vide la file (la doc déconseille les Server Actions pour lire des données). Les 4 RPC de scan (`lookup_customer`, `record_visit`, `redeem_reward`, `reverse_scan`) sont maintenant appelées **directement depuis le navigateur** (`features/scanner/rpc/`), avec un délai de 6 s qui annule vraiment la requête ; la recherche du client est relancée automatiquement une fois (elle ne modifie rien) ; une écriture relancée à la main réutilise la même clé d'idempotence (ADR-022)
+- refactor: Server Actions du scanner supprimées (`lookup-customer`, `record-visit`, `redeem-reward`, `reverse-scan`) ; `to-scan-result` déplacé dans `rpc/` ; `mapScanRpcError` reconnaît les coupures réseau et les annulations (`NETWORK_ERROR`)
+- feat(auth): journal serveur des erreurs de connexion par code (`[auth] sendEmailOtp|verifyEmailOtp failed` avec nom, code et statut HTTP, jamais l'email ni le code saisi) — l'action affichait un message générique sans rien consigner
+- vérifié : la configuration publique de l'authentification est correcte (email activé, inscriptions ouvertes) ; la cause de l'échec est donc à l'exécution (limite d'envoi, SMTP…) et sera lue dans le journal
+
+**Base de données** : aucune migration.
+
+**Bugs rencontrés**
+| Symptôme | Cause racine | Correctif | Prévention (test / règle) |
+|---|---|---|---|
+| Scan bloqué sur « Recherche du client… » jusqu'à l'actualisation | File d'attente des Server Actions côté navigateur : une requête suspendue bloque les suivantes ; le délai de 10 s ne vidait pas la file | Appels directs aux RPC, requête annulable (`AbortSignal`), relance automatique de la recherche | `scanner-domain.test.ts` (erreurs réseau) ; ne pas utiliser de Server Action pour une lecture interactive |
+| « La connexion a échoué » à la connexion par code | À établir (code d'erreur inconnu, jamais consigné) | Journal serveur ajouté | À compléter une fois la cause lue |
+
+**Décisions** : ADR-022
+**Dette introduite / remboursée** : Aucune
+
+**Tests de validation**
+- [x] `pnpm lint`, `pnpm typecheck`, `pnpm test` (154), `pnpm build` — verts
+- [ ] Enchaîner des scans rapides sur téléphone sans jamais rester bloqué — à faire
+- [ ] Connexion par code email — cause à lire dans le terminal de `pnpm dev`, puis correction
+
+**Prochaine étape** : lire l'erreur d'authentification, corriger, revalider le scan, fusionner, puis Phase 8.
+
+---
 
 ### Session 26 — [2026-11-01] — Clôture de la Phase 7 et jalon M1
 **Roadmap :** Phase 7 — validation · Jalon M1 · **Statut :** ✅ Terminé · **Branche :** `feat/phase-7-realtime` → `main`
@@ -994,6 +1025,7 @@
 | ADR-019 | Scan : RPC par restaurant actif, idempotence rejouable, horodatage `clock_timestamp()` | ✅ Accepté | 2026-10-25 |
 | ADR-020 | Temps réel : événement = signal de relecture, journal lu par RPC paginée par curseur | ✅ Accepté | 2026-10-26 |
 | ADR-021 | Temps réel : session transmise explicitement à Realtime avant l'abonnement | ✅ Accepté | 2026-10-29 |
+| ADR-022 | Scan : RPC appelées directement depuis le navigateur plutôt que par Server Actions | ✅ Accepté | 2026-11-01 |
 
 <!-- ============ TEMPLATE ADR ============
 ### ADR-NNN — Titre
@@ -1220,6 +1252,17 @@
   3. Relecture périodique en secours — ❌ masque la panne et alourdit le serveur ; la resynchronisation au retour de l'onglet reste le filet de sécurité (ADR-020).
 - **Décision :** Option 2, dans `authorizeRealtime`, appelé par `useTableChanges` avant `openTableChannel`. `getSession` n'est utilisé ici que pour lire le jeton destiné à Realtime ; aucune décision d'autorisation n'en dépend (les policies de la base décident).
 - **Conséquences :** sans session lisible, l'abonnement reste anonyme et aucun événement n'arrive (la page reste correcte grâce à la resynchronisation). Diagnostic à retenir : `select claims_role, claims->>'sub' from realtime.subscription;`.
+- **Réversibilité :** facile.
+
+### ADR-022 — Scan : RPC appelées directement depuis le navigateur plutôt que par Server Actions
+- **Date :** 2026-11-01 · **Statut :** ✅ Accepté · **Phase :** 6 (écart à `.cursorrules` §3, « mutations via Server Actions »)
+- **Contexte :** en enchaînant des scans, la recherche du client restait parfois bloquée jusqu'à l'actualisation. Next.js envoie les Server Actions une par une depuis le navigateur : une requête suspendue bloque toutes les suivantes, et un délai côté écran n'annule pas la requête. Chaque action enchaînait aussi 3 à 4 allers-retours vers Supabase (session, appartenance, RPC). La roadmap (Phase 6, vigilance « Région ») prévoyait l'appel direct depuis le navigateur si le budget de 3 s n'était pas tenu.
+- **Options envisagées :**
+  1. Garder les Server Actions avec un délai côté écran — ❌ la file reste bloquée derrière la requête suspendue.
+  2. Route Handler — ✅ pas de file, mais conserve les allers-retours supplémentaires et la règle « Route Handlers réservés aux webhooks ».
+  3. Appel direct des RPC `SECURITY DEFINER` depuis le client Supabase du navigateur — ✅ une seule requête, annulable (`AbortSignal`), sans file ; les contrôles sont dans la base (`auth.uid()`, appartenance au restaurant, limite de 10 recherches ratées par minute, idempotence, cooldown) et couverts par `scan_rpcs.test.sql`.
+- **Décision :** Option 3 pour `lookup_customer`, `record_visit`, `redeem_reward`, `reverse_scan`. Les entrées restent validées par Zod côté navigateur (confort) et par les contrôles de format de la base (autorité). Le journal `/pro/logs` garde sa Server Action (lecture hors chemin critique).
+- **Conséquences :** plus de garde « membre du restaurant » côté serveur pour le scan : la base fait foi (déjà le cas, la garde ne faisait que doubler la RPC). Les erreurs ne passent plus par le journal du serveur. Si un jour un contrôle devait sortir de la base, il faudrait revenir à un Route Handler.
 - **Réversibilité :** facile.
 
 ---
