@@ -35,9 +35,9 @@
 
 ## 🧭 État courant (à mettre à jour à chaque session)
 
-- **Phase en cours :** Phase 7 terminée et fusionnée dans `main` · jalon M1 (démo interne) validé · correctifs de retour d'essai en cours (connexion par code email, scan bloqué sur « Recherche du client »)
-- **Dernière session :** Session 26 (2026-11-01) — Clôture de la Phase 7 et jalon M1
-- **Prochaine action :** corriger les deux défauts relevés au jalon M1 (connexion par code à 6 chiffres qui échoue ; recherche du client qui reste bloquée en enchaînant des scans rapides), puis Phase 8 (PWA et hors-ligne) ; dette à régler avant la suite : chronométrage de 20 scans et test E2E (DT-007)
+- **Phase en cours :** Phases 0 à 7 terminées et fusionnées dans `main` · jalon M1 (démo interne) validé · prêt pour la Phase 8 (PWA et hors-ligne)
+- **Dernière session :** Session 27 (2026-11-01) — Retours du jalon M1 : scan bloqué (appels directs à la base) et envoi du code par email (limite du mode test de Resend)
+- **Prochaine action :** Phase 8 (PWA et hors-ligne) sur une branche `feat/phase-8-pwa`, plan à valider avant de coder (dépendance de service worker, ADR) ; dette à régler avant le pilote : chronométrage de 20 scans et test E2E (DT-007), domaine vérifié dans Resend (DT-008)
 - **Bloquants :** Aucun
 
 ---
@@ -73,6 +73,38 @@
 **Prochaine étape** : ...
 ==================================================================================== -->
 
+### Session 27 — [2026-11-01] — Retours du jalon M1 : scan bloqué et connexion par code
+**Roadmap :** Phase 6 (scanner) et Phase 3 (auth) — correctifs · **Statut :** ✅ Terminé (scan validé par le porteur de projet ; échec d'envoi du code expliqué par le mode test de Resend) · **Branche :** `fix/otp-login-and-scan-lookup` → `main`
+
+**Retours du porteur de projet** : (1) en enchaînant des scans rapides, la recherche du client reste parfois bloquée sur « Recherche du client… » jusqu'à l'actualisation de la page ; (2) la connexion par code à 6 chiffres reçu par email échoue (« La connexion a échoué. Veuillez réessayer. »).
+
+**Réalisé**
+- fix(scanner): cause établie par la documentation de Next.js — le navigateur envoie les Server Actions **une par une** : une requête suspendue bloque toutes les suivantes, seule l'actualisation de la page vide la file (la doc déconseille les Server Actions pour lire des données). Les 4 RPC de scan (`lookup_customer`, `record_visit`, `redeem_reward`, `reverse_scan`) sont maintenant appelées **directement depuis le navigateur** (`features/scanner/rpc/`), avec un délai de 6 s qui annule vraiment la requête ; la recherche du client est relancée automatiquement une fois (elle ne modifie rien) ; une écriture relancée à la main réutilise la même clé d'idempotence (ADR-022)
+- refactor: Server Actions du scanner supprimées (`lookup-customer`, `record-visit`, `redeem-reward`, `reverse-scan`) ; `to-scan-result` déplacé dans `rpc/` ; `mapScanRpcError` reconnaît les coupures réseau et les annulations (`NETWORK_ERROR`)
+- feat(auth): journal serveur des erreurs de connexion par code (`[auth] sendEmailOtp|verifyEmailOtp failed` avec nom, code et statut HTTP, jamais l'email ni le code saisi) — l'action affichait un message générique sans rien consigner
+- cause de la connexion par code : le journal serveur montre `AuthRetryableFetchError`, statut 500, sans code ; la requête rejouée directement sur l'API d'authentification répond `500 unexpected_failure — "Error sending magic link email"`. **Comportement attendu** : Resend est en mode test et n'envoie des emails qu'à l'adresse du compte propriétaire, `clientfidly@gmail.com` n'étant pas cette adresse (confirmé par le porteur de projet). Aucune erreur de notre code ; la configuration publique de l'authentification est correcte (email activé, inscriptions ouvertes)
+- fix(auth): un 5xx à l'envoi du code affiche désormais « L'envoi du code par email est momentanément indisponible… » (`EMAIL_SEND_FAILED`) au lieu du message générique ; le SDK supprime le code d'erreur sur un 5xx, c'est le statut HTTP qui l'identifie (`mapSendOtpErrorCode`, 2 tests)
+
+**Base de données** : aucune migration.
+
+**Bugs rencontrés**
+| Symptôme | Cause racine | Correctif | Prévention (test / règle) |
+|---|---|---|---|
+| Scan bloqué sur « Recherche du client… » jusqu'à l'actualisation | File d'attente des Server Actions côté navigateur : une requête suspendue bloque les suivantes ; le délai de 10 s ne vidait pas la file | Appels directs aux RPC, requête annulable (`AbortSignal`), relance automatique de la recherche | `scanner-domain.test.ts` (erreurs réseau) ; ne pas utiliser de Server Action pour une lecture interactive |
+| « La connexion a échoué » à la connexion par code | Resend en mode test : envoi limité à l'adresse du compte propriétaire ; Supabase répond `500 unexpected_failure` (« Error sending magic link email ») | Aucun défaut à corriger ; message dédié (`EMAIL_SEND_FAILED`) et journal serveur ajoutés ; domaine à vérifier avant le pilote (DT-008) | Test `mapSendOtpErrorCode` ; diagnostic : rejouer `POST /auth/v1/otp` et lire le corps de la réponse |
+
+**Décisions** : ADR-022
+**Dette introduite / remboursée** : DT-008 (domaine vérifié dans Resend avant le pilote)
+
+**Tests de validation**
+- [x] `pnpm lint`, `pnpm typecheck`, `pnpm test` (156), `pnpm build` — verts
+- [x] Enchaîner des scans rapides sur téléphone sans rester bloqué — validé par le porteur de projet (« tout est ok »)
+- [x] Connexion par code email — échec expliqué (Resend en mode test : envoi uniquement à l'adresse du compte propriétaire) ; à retester avec cette adresse ou après vérification d'un domaine
+
+**Prochaine étape** : Phase 8 (PWA et hors-ligne), dans une prochaine session.
+
+---
+
 ### Session 26 — [2026-11-01] — Clôture de la Phase 7 et jalon M1
 **Roadmap :** Phase 7 — validation · Jalon M1 · **Statut :** ✅ Terminé · **Branche :** `feat/phase-7-realtime` → `main`
 
@@ -81,7 +113,7 @@
 - Jalon M1 (démo interne) validé : parcours complet inscription client → configuration du restaurant → scan → +1 en direct → récompense → log
 - Fusion de `feat/phase-7-realtime` dans `main` (locale)
 
-**Retours du jalon M1 (à corriger, session suivante)**
+**Retours du jalon M1 (traités en Session 27)**
 - La connexion par code à 6 chiffres reçu par email échoue (« La connexion a échoué. Veuillez réessayer. ») alors qu'elle fonctionnait
 - En enchaînant des scans rapides, la recherche du client reste parfois bloquée sur « Recherche du client… » ; il faut actualiser la page, puis tout refonctionne
 
@@ -994,6 +1026,7 @@
 | ADR-019 | Scan : RPC par restaurant actif, idempotence rejouable, horodatage `clock_timestamp()` | ✅ Accepté | 2026-10-25 |
 | ADR-020 | Temps réel : événement = signal de relecture, journal lu par RPC paginée par curseur | ✅ Accepté | 2026-10-26 |
 | ADR-021 | Temps réel : session transmise explicitement à Realtime avant l'abonnement | ✅ Accepté | 2026-10-29 |
+| ADR-022 | Scan : RPC appelées directement depuis le navigateur plutôt que par Server Actions | ✅ Accepté | 2026-11-01 |
 
 <!-- ============ TEMPLATE ADR ============
 ### ADR-NNN — Titre
@@ -1222,6 +1255,17 @@
 - **Conséquences :** sans session lisible, l'abonnement reste anonyme et aucun événement n'arrive (la page reste correcte grâce à la resynchronisation). Diagnostic à retenir : `select claims_role, claims->>'sub' from realtime.subscription;`.
 - **Réversibilité :** facile.
 
+### ADR-022 — Scan : RPC appelées directement depuis le navigateur plutôt que par Server Actions
+- **Date :** 2026-11-01 · **Statut :** ✅ Accepté · **Phase :** 6 (écart à `.cursorrules` §3, « mutations via Server Actions »)
+- **Contexte :** en enchaînant des scans, la recherche du client restait parfois bloquée jusqu'à l'actualisation. Next.js envoie les Server Actions une par une depuis le navigateur : une requête suspendue bloque toutes les suivantes, et un délai côté écran n'annule pas la requête. Chaque action enchaînait aussi 3 à 4 allers-retours vers Supabase (session, appartenance, RPC). La roadmap (Phase 6, vigilance « Région ») prévoyait l'appel direct depuis le navigateur si le budget de 3 s n'était pas tenu.
+- **Options envisagées :**
+  1. Garder les Server Actions avec un délai côté écran — ❌ la file reste bloquée derrière la requête suspendue.
+  2. Route Handler — ✅ pas de file, mais conserve les allers-retours supplémentaires et la règle « Route Handlers réservés aux webhooks ».
+  3. Appel direct des RPC `SECURITY DEFINER` depuis le client Supabase du navigateur — ✅ une seule requête, annulable (`AbortSignal`), sans file ; les contrôles sont dans la base (`auth.uid()`, appartenance au restaurant, limite de 10 recherches ratées par minute, idempotence, cooldown) et couverts par `scan_rpcs.test.sql`.
+- **Décision :** Option 3 pour `lookup_customer`, `record_visit`, `redeem_reward`, `reverse_scan`. Les entrées restent validées par Zod côté navigateur (confort) et par les contrôles de format de la base (autorité). Le journal `/pro/logs` garde sa Server Action (lecture hors chemin critique).
+- **Conséquences :** plus de garde « membre du restaurant » côté serveur pour le scan : la base fait foi (déjà le cas, la garde ne faisait que doubler la RPC). Les erreurs ne passent plus par le journal du serveur. Si un jour un contrôle devait sortir de la base, il faudrait revenir à un Route Handler.
+- **Réversibilité :** facile.
+
 ---
 
 ## 🧾 Dette technique
@@ -1235,6 +1279,7 @@
 | DT-005 | Lighthouse Performance de `/` à 86 sur build de production local (seuil de la roadmap : 90) ; mesure locale, sans CDN ni région Vercel | Écart jugé suffisant à ce stade par le porteur de projet | 🟢 Marge faible vis-à-vis de la contrainte produit n°1 | Phase 11 (11.4) : re-mesure sur Vercel ; analyser le bundle si < 90 | ⏳ Ouverte |
 | DT-006 | Test chronomètre de la Phase 5 (un testeur non technique configure fiche + 2 paliers en < 5 min) non réalisé : il demande un vrai testeur | Pas de testeur disponible à ce stade | 🟢 L'ergonomie a été revue après retour du porteur de projet (Session 21) | Pilote (Phase 11.6) | ⏳ Ouverte |
 | DT-007 | Aucun test E2E Playwright du scanner : le projet n'a pas de stratégie de comptes de test (connexion par OTP email ou Google) | Décision à prendre (comptes de test, session injectée) avant d'écrire le parcours | 🟠 Parcours critique du scan couvert seulement par pgTAP et tests unitaires | Phase 6 (avant le jalon M1) | ⏳ Ouverte |
+| DT-008 | Resend est en mode test : les emails (codes de connexion à 6 chiffres) ne partent qu'à l'adresse du compte propriétaire, Supabase répond `500 unexpected_failure` pour toute autre adresse | Environnement de développement ; Google reste disponible pour se connecter | 🔴 Aucun client ni gérant d'une autre adresse ne peut se connecter par code | Phase 11 (avant le pilote) : acheter ou utiliser un nom de domaine, le vérifier dans Resend (SPF, DKIM), mettre l'expéditeur sur ce domaine | ⏳ Ouverte |
 
 ---
 

@@ -1,11 +1,13 @@
-import { lookupCustomer } from "@/features/scanner/actions/lookup-customer";
-import { recordVisit } from "@/features/scanner/actions/record-visit";
-import { redeemReward } from "@/features/scanner/actions/redeem-reward";
-import { reverseScan } from "@/features/scanner/actions/reverse-scan";
 import type { ScanFlowEvent } from "@/features/scanner/domain/scan-flow-reducer";
-import { runAction } from "@/lib/run-action";
+import {
+  lookupCustomerRpc,
+  recordVisitRpc,
+  redeemRewardRpc,
+  reverseScanRpc,
+} from "@/features/scanner/rpc/scan-rpc";
 import type { CustomerLookup, ScanKeys, ScanOutcome } from "@/features/scanner/types";
 import { triggerScanFeedback } from "@/features/scanner/utils/scan-feedback";
+import { runAction } from "@/lib/run-action";
 
 export type ScanDispatch = (event: ScanFlowEvent) => void;
 
@@ -17,6 +19,17 @@ export function newScanKeys(): ScanKeys {
   };
 }
 
+/**
+ * A search changes nothing, so a request cut by the timeout is simply sent again once:
+ * a stalled connection usually works on the second try.
+ */
+async function lookupWithRetry(restaurantId: string, raw: string) {
+  const search = () =>
+    runAction(() => lookupCustomerRpc({ restaurantId, tokenOrCode: raw }));
+  const first = await search();
+  return !first.ok && first.error.code === "NETWORK_ERROR" ? search() : first;
+}
+
 /** Resolves to true when a customer was found (the scanner stays locked until closed). */
 export async function runLookup(
   dispatch: ScanDispatch,
@@ -24,9 +37,7 @@ export async function runLookup(
   raw: string,
 ): Promise<boolean> {
   dispatch({ type: "lookupStarted" });
-  const result = await runAction(() =>
-    lookupCustomer({ restaurantId, tokenOrCode: raw }),
-  );
+  const result = await lookupWithRetry(restaurantId, raw);
   if (!result.ok) {
     dispatch({ type: "lookupFailed", message: result.error.message });
     return false;
@@ -38,7 +49,7 @@ export async function runLookup(
 async function runCredit(
   dispatch: ScanDispatch,
   kind: "visit" | "redeem",
-  call: () => ReturnType<typeof recordVisit>,
+  call: () => ReturnType<typeof recordVisitRpc>,
 ): Promise<void> {
   dispatch({ type: "submitStarted" });
   const result = await runAction(call);
@@ -61,7 +72,7 @@ export function runVisit(
   keys: ScanKeys,
 ): Promise<void> {
   return runCredit(dispatch, "visit", () =>
-    recordVisit({
+    recordVisitRpc({
       restaurantId,
       customerId: customer.customerId,
       idempotencyKey: keys.visit,
@@ -77,7 +88,7 @@ export function runReward(
   keys: ScanKeys,
 ): Promise<void> {
   return runCredit(dispatch, "redeem", () =>
-    redeemReward({ restaurantId, cardId, idempotencyKey: keys.redeem }),
+    redeemRewardRpc({ restaurantId, cardId, idempotencyKey: keys.redeem }),
   );
 }
 
@@ -90,7 +101,7 @@ export async function runReverse(
 ): Promise<boolean> {
   dispatch({ type: "reverseStarted" });
   const result = await runAction(() =>
-    reverseScan({ restaurantId, logId: outcome.logId, idempotencyKey: keys.reverse }),
+    reverseScanRpc({ restaurantId, logId: outcome.logId, idempotencyKey: keys.reverse }),
   );
   if (!result.ok) {
     dispatch({ type: "reverseFailed", message: result.error.message });

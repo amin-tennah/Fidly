@@ -9,3 +9,6 @@ export const SCAN_INPUT_MAX_LENGTH = 64;
 
 /** How long the success state stays on screen before the scanner is ready again. */
 export const SCAN_SUCCESS_DISPLAY_MS = 6000;
+
+/** A scan request is cancelled after this delay: the screen then offers a retry. */
+export const SCAN_RPC_TIMEOUT_MS = 6000;

@@ -330,7 +330,7 @@ erDiagram
 - [ ] **6.4** Tiroir (Drawer shadcn) : `display_name` + `stamps / threshold` (ex. `4 / 10`, `13 / 10` ou `13 / 20`), bouton **« Valider +1 passage »** (toujours actif, cumul sans plafond), bouton vert **« Valider la récompense »** si palier atteint, **alerte cooldown** si dernier passage < 2 h (validation possible par tout employé avec confirmation explicite, tracée — Q-009).
 - [x] **6.5** RPC `record_visit(card, idempotency_key, force_cooldown)` : transaction, `SELECT … FOR UPDATE`, re-vérification du cooldown côté serveur, création de la carte au 1er passage (1er programme actif), `stamps += 1`, `lifetime_visits += 1`, insertion `scan_logs` (`cooldown_overridden`), retour du nouvel état.
 - [x] **6.6** RPC `redeem_reward(card, idempotency_key)` (ADR-009) : vérifie `stamps >= threshold` ; si palier intermédiaire ⇒ conserve `stamps` et bascule `current_program_id` sur le palier actif suivant (`13/10 → 13/20`) ; si dernier palier ⇒ déduit `threshold` (`stamps -= threshold`) et boucle `current_program_id` sur le 1er palier (`20/20 → 0/10`) ; log `reward_redeemed`.
-- [x] **6.7** Server Actions fines (Zod + appel RPC + mapping `ActionResult`), feedback : son, vibration (Android), animation de succès, fermeture auto du tiroir et retour au scanner prêt. *(Actions faites ; son, vibration et fermeture auto codés, à valider sur appareil.)*
+- [x] **6.7** Server Actions fines *(remplacées par des appels directs aux RPC depuis le navigateur, ADR-022)* (Zod + appel RPC + mapping `ActionResult`), feedback : son, vibration (Android), animation de succès, fermeture auto du tiroir et retour au scanner prêt. *(Actions faites ; son, vibration et fermeture auto codés, à valider sur appareil.)*
 - [x] **6.8** RPC `reverse_scan(log_id, idempotency_key)` (ADR-010, Q-012) : annulation par écriture compensatoire `type = reversal` liée via `reverses_log_id` (`UNIQUE`), autorisée pour `owner` (tout scan) et `staff` (ses propres scans < 10 min), restauration atomique de l'état de la carte.
 
 ### ✅ Tests de validation
@@ -460,6 +460,7 @@ Parcours complet sur 2 téléphones : inscription client → configuration resta
 ### Étapes
 - [ ] **11.1 Sécurité** : revue complète des policies RLS et RPC, advisors Supabase, headers (CSP, Permissions-Policy), rate limiting (OTP, lookup par code court), `pnpm audit`, rotation des clés.
 - [ ] **11.2 RGPD & légal** : mentions légales, CGU, CGV restaurateurs, politique de confidentialité, bandeau si cookies non essentiels, **suppression de compte** et export des données, registre des traitements.
+- [ ] **11.2 bis Envoi des emails** : vérifier un nom de domaine dans Resend (SPF, DKIM) et passer l'expéditeur sur ce domaine : en mode test, Resend n'envoie qu'à l'adresse du compte propriétaire, donc personne d'autre ne peut se connecter par code (DT-008).
 - [ ] **11.3 Observabilité** : Sentry (erreurs front + serveur), Vercel Analytics/Speed Insights, alertes sur erreurs RPC, sauvegardes Supabase vérifiées.
 - [ ] **11.4 Performance** : analyse du bundle, Lighthouse ≥ 90 sur les routes clés, tests sur réseau 3G simulé.
 - [ ] **11.5 E2E** : suite Playwright complète sur la CI (parcours client, pro, admin).

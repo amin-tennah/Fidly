@@ -49,6 +49,8 @@ describe("mapScanRpcError", () => {
     ["already_reversed", "REVERSAL_ALREADY_DONE"],
     ["not_latest_operation", "REVERSAL_NOT_ALLOWED"],
     ["forbidden", "FORBIDDEN"],
+    ["TypeError: Failed to fetch", "NETWORK_ERROR"],
+    ["AbortError: signal is aborted without reason", "NETWORK_ERROR"],
     ["something unexpected", "INTERNAL_ERROR"],
   ])("maps %s to %s", (message, code) => {
     expect(mapScanRpcError(message)).toBe(code);
