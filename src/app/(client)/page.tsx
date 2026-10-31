@@ -13,7 +13,12 @@ import {
   listMyPendingInvitations,
   listMyRestaurantMemberships,
 } from "@/features/auth/queries/get-session-context";
-import { ClientHomeHeader, CustomerQrHero, LoyaltyCardsList } from "@/features/loyalty";
+import {
+  ClientHomeHeader,
+  CustomerQrHero,
+  LoyaltyCardsList,
+  LoyaltyRealtimeSync,
+} from "@/features/loyalty";
 import { listMyLoyaltyCards } from "@/features/loyalty/queries/list-my-loyalty-cards";
 
 export default async function HomePage(): Promise<ReactNode> {
@@ -52,6 +57,7 @@ export default async function HomePage(): Promise<ReactNode> {
         }}
       />
       <LoyaltyCardsList cards={cards} />
+      <LoyaltyRealtimeSync userId={user.id} />
     </main>
   );
 }

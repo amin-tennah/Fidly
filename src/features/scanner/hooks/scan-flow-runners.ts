@@ -3,7 +3,7 @@ import { recordVisit } from "@/features/scanner/actions/record-visit";
 import { redeemReward } from "@/features/scanner/actions/redeem-reward";
 import { reverseScan } from "@/features/scanner/actions/reverse-scan";
 import type { ScanFlowEvent } from "@/features/scanner/domain/scan-flow-reducer";
-import { runScanAction } from "@/features/scanner/hooks/run-scan-action";
+import { runAction } from "@/lib/run-action";
 import type { CustomerLookup, ScanKeys, ScanOutcome } from "@/features/scanner/types";
 import { triggerScanFeedback } from "@/features/scanner/utils/scan-feedback";
 
@@ -24,7 +24,7 @@ export async function runLookup(
   raw: string,
 ): Promise<boolean> {
   dispatch({ type: "lookupStarted" });
-  const result = await runScanAction(() =>
+  const result = await runAction(() =>
     lookupCustomer({ restaurantId, tokenOrCode: raw }),
   );
   if (!result.ok) {
@@ -41,7 +41,7 @@ async function runCredit(
   call: () => ReturnType<typeof recordVisit>,
 ): Promise<void> {
   dispatch({ type: "submitStarted" });
-  const result = await runScanAction(call);
+  const result = await runAction(call);
   if (!result.ok) {
     dispatch({
       type: "submitFailed",
@@ -89,7 +89,7 @@ export async function runReverse(
   keys: ScanKeys,
 ): Promise<boolean> {
   dispatch({ type: "reverseStarted" });
-  const result = await runScanAction(() =>
+  const result = await runAction(() =>
     reverseScan({ restaurantId, logId: outcome.logId, idempotencyKey: keys.reverse }),
   );
   if (!result.ok) {

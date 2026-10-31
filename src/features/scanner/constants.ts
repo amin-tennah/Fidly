@@ -8,4 +8,4 @@ export const SHORT_CODE_LENGTH = 6;
 export const SCAN_INPUT_MAX_LENGTH = 64;
 
 /** How long the success state stays on screen before the scanner is ready again. */
-export const SCAN_SUCCESS_DISPLAY_MS = 2500;
+export const SCAN_SUCCESS_DISPLAY_MS = 6000;

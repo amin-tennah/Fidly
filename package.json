@@ -6,6 +6,7 @@
   "packageManager": "pnpm@12.14.0",
   "scripts": {
     "dev": "next dev",
+    "tunnel": "npx cloudflared tunnel --url http://localhost:3000",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
@@ -21,7 +22,7 @@
     "db:seed": "supabase db push --linked --include-seed",
     "db:reset": "supabase db reset --linked",
     "db:types": "supabase gen types typescript --project-id bduimaxjfsojzankmoje --schema public > src/types/database.types.ts",
-    "db:test": "supabase db query --linked -f supabase/tests/rls_access_matrix.test.sql && supabase db query --linked -f supabase/tests/invitation_acceptance.test.sql && supabase db query --linked -f supabase/tests/schema_hardening.test.sql && supabase db query --linked -f supabase/tests/restaurant_profile.test.sql && supabase db query --linked -f supabase/tests/storage_media.test.sql && supabase db query --linked -f supabase/tests/loyalty_programs.test.sql && supabase db query --linked -f supabase/tests/admin_backoffice.test.sql && supabase db query --linked -f supabase/tests/scan_rpcs.test.sql",
+    "db:test": "supabase db query --linked -f supabase/tests/rls_access_matrix.test.sql && supabase db query --linked -f supabase/tests/invitation_acceptance.test.sql && supabase db query --linked -f supabase/tests/schema_hardening.test.sql && supabase db query --linked -f supabase/tests/restaurant_profile.test.sql && supabase db query --linked -f supabase/tests/storage_media.test.sql && supabase db query --linked -f supabase/tests/loyalty_programs.test.sql && supabase db query --linked -f supabase/tests/admin_backoffice.test.sql && supabase db query --linked -f supabase/tests/scan_rpcs.test.sql && supabase db query --linked -f supabase/tests/scan_logs_listing.test.sql",
     "db:advisors": "supabase db advisors --linked",
     "prepare": "husky"
   },

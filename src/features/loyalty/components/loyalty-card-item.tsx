@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { RewardUnlockedBanner } from "@/features/loyalty/components/reward-unlocked-banner";
 import { RestaurantAvatar } from "@/components/shared/restaurant-avatar";
 import { RewardImage } from "@/components/shared/reward-image";
 import type { CardProgress, LoyaltyCardView } from "@/features/loyalty/types";
@@ -27,11 +28,7 @@ function ProgressSection({ progress }: { readonly progress: CardProgress }): Rea
         aria-label={`Progression : ${label}`}
         className={cn(progress.isRewardUnlocked && "h-4")}
       />
-      {progress.isRewardUnlocked ? (
-        <p role="status" className="text-accent text-sm font-bold">
-          Récompense disponible en caisse !
-        </p>
-      ) : null}
+      {progress.isRewardUnlocked ? <RewardUnlockedBanner /> : null}
     </div>
   );
 }

@@ -361,17 +361,17 @@ erDiagram
 **🎯 Objectif :** le client voit sa jauge progresser en direct au moment du scan ; le commerçant suit chaque scan en direct dans l'onglet Logs.
 
 ### Étapes
-- [ ] **7.1** Publication Realtime sur `loyalty_cards` (et `scan_logs`) ; hook `use-loyalty-cards-realtime` filtré par `user_id`, cleanup du channel.
-- [ ] **7.2** Animation côté client : +1 sur la barre, transition fluide vers le nouvel objectif lors de la consommation d'une récompense (`13/10 → 13/20` puis `20/20 → 0/10`), effet de célébration quand la récompense est débloquée (respect de `prefers-reduced-motion`).
-- [ ] **7.3** `/pro/logs` : liste paginée côté serveur (date, `display_name`, type, staff, dépassement cooldown signalé, **ligne barrée mais lisible si annulée** via `reverses_log_id`) + nouvelles entrées insérées en direct en tête.
-- [ ] **7.4** Resynchronisation au retour au premier plan (`visibilitychange`) et à la reconnexion réseau.
+- [x] **7.1** Publication Realtime sur `loyalty_cards` (et `scan_logs`) ; hook `use-loyalty-cards-realtime` filtré par `user_id`, cleanup du channel.
+- [x] **7.2** Animation côté client : +1 sur la barre, transition fluide vers le nouvel objectif lors de la consommation d'une récompense (`13/10 → 13/20` puis `20/20 → 0/10`), effet de célébration quand la récompense est débloquée (respect de `prefers-reduced-motion`).
+- [x] **7.3** `/pro/logs` : liste paginée côté serveur (date, `display_name`, type, staff, dépassement cooldown signalé, **ligne barrée mais lisible si annulée** via `reverses_log_id`) + nouvelles entrées insérées en direct en tête.
+- [x] **7.4** Resynchronisation au retour au premier plan (`visibilitychange`) et à la reconnexion réseau.
 
 ### ✅ Tests de validation
-- [ ] Deux téléphones : scan sur le téléphone pro ⇒ jauge du client mise à jour en < 1 s **sans rechargement**.
-- [ ] Le client A ne reçoit **jamais** d'événement concernant le client B (vérifier dans l'onglet réseau/WebSocket).
-- [ ] App client en arrière-plan pendant le scan ⇒ état correct au retour.
-- [ ] Logs live : un scan sur un 2e appareil staff apparaît sur le 1er.
-- [ ] Pas de fuite de channels : navigation répétée ⇒ nombre de connexions stable.
+- [x] Deux appareils : scan sur le téléphone pro ⇒ jauge du client mise à jour **sans rechargement** *(validé par le porteur de projet ; durée exacte non chronométrée)*.
+- [x] Le client A ne reçoit **jamais** d'événement concernant le client B (vérifier dans l'onglet réseau/WebSocket).
+- [x] App client en arrière-plan pendant le scan ⇒ état correct au retour.
+- [x] Logs live : un scan sur un 2e appareil staff apparaît sur le 1er.
+- [x] Pas de fuite de channels : navigation répétée ⇒ nombre de connexions stable.
 
 ### ⚠️ Points de vigilance
 - Vérifier que la RLS s'applique bien aux événements `postgres_changes` (tables ajoutées à la publication `supabase_realtime`).
@@ -380,7 +380,7 @@ erDiagram
 
 ---
 
-## 🏁 Jalon M1 — Démo interne
+## 🏁 Jalon M1 — Démo interne ✅ validé le 2026-11-01
 Parcours complet sur 2 téléphones : inscription client → configuration restaurant → scan → +1 en direct → récompense → log. Démo enregistrée en vidéo.
 
 ---

@@ -1,6 +1,6 @@
 import "server-only";
 import { listMyRestaurantMemberships } from "@/features/auth/queries/get-session-context";
-import type { ServerSupabase } from "@/features/restaurants/server";
+import type { ServerSupabase } from "@/features/restaurants/actions/owner-guard";
 import { type ActionResult, err, ok } from "@/lib/errors";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 

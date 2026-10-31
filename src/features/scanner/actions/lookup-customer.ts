@@ -1,6 +1,6 @@
 "use server";
 
-import { authorizeRestaurantStaff } from "@/features/scanner/actions/staff-guard";
+import { authorizeRestaurantStaff } from "@/features/restaurants/server";
 import { mapScanRpcError } from "@/features/scanner/domain/map-scan-error";
 import {
   classifyScanInput,
