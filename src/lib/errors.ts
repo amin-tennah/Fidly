@@ -6,6 +6,8 @@ export const APP_ERROR_MESSAGES = {
     "Code invalide ou expiré. Vérifiez le code reçu ou demandez-en un nouveau.",
   RATE_LIMITED: "Trop de tentatives. Patientez une minute avant de réessayer.",
   AUTH_FAILED: "La connexion a échoué. Veuillez réessayer.",
+  EMAIL_SEND_FAILED:
+    "L'envoi du code par email est momentanément indisponible. Réessayez dans un instant ou connectez-vous avec Google.",
   INVITATION_INVALID:
     "Cette invitation est invalide, expirée ou déjà utilisée. Contactez l'équipe Fidly.",
   CUSTOMER_NOT_FOUND:

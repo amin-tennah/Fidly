@@ -35,9 +35,9 @@
 
 ## 🧭 État courant (à mettre à jour à chaque session)
 
-- **Phase en cours :** Phase 7 terminée et fusionnée dans `main` · jalon M1 validé · correctifs de retour d'essai sur `fix/otp-login-and-scan-lookup` (scan corrigé, **connexion par code email : cause à lire dans le journal du serveur**)
+- **Phase en cours :** Phase 7 terminée et fusionnée dans `main` · jalon M1 validé · correctifs de retour d'essai sur `fix/otp-login-and-scan-lookup` (scan corrigé ; connexion par code email : **l'envoi d'email par Supabase/Resend échoue**, réglage à vérifier dans les tableaux de bord)
 - **Dernière session :** Session 27 (2026-11-01) — Retours du jalon M1 : scan bloqué (appels directs à la base) et journal des erreurs d'authentification
-- **Prochaine action :** réessayer la connexion par code email avec `pnpm dev` et lire la ligne `[auth] … failed` du terminal (code et statut) pour corriger ; revalider le scan en enchaînant des scans rapides ; fusionner la branche, puis Phase 8 (PWA et hors-ligne) ; dette : chronométrage de 20 scans et test E2E (DT-007)
+- **Prochaine action :** vérifier l'envoi d'email (Supabase → Authentication → SMTP et journaux Auth ; Resend → Emails/Logs : clé d'API, domaine et adresse d'expéditeur vérifiés) ; revalider le scan en enchaînant des scans rapides ; fusionner la branche, puis Phase 8 (PWA et hors-ligne) ; dette : chronométrage de 20 scans et test E2E (DT-007)
 - **Bloquants :** Aucun
 
 ---
@@ -74,7 +74,7 @@
 ==================================================================================== -->
 
 ### Session 27 — [2026-11-01] — Retours du jalon M1 : scan bloqué et connexion par code
-**Roadmap :** Phase 6 (scanner) et Phase 3 (auth) — correctifs · **Statut :** 🟡 Partiel (scan corrigé, tests et build verts, à revalider sur téléphone ; connexion par code : cause non encore établie) · **Branche :** `fix/otp-login-and-scan-lookup`
+**Roadmap :** Phase 6 (scanner) et Phase 3 (auth) — correctifs · **Statut :** 🟡 Partiel (scan corrigé, tests et build verts, à revalider sur téléphone ; connexion par code : cause identifiée, réglage externe à corriger) · **Branche :** `fix/otp-login-and-scan-lookup`
 
 **Retours du porteur de projet** : (1) en enchaînant des scans rapides, la recherche du client reste parfois bloquée sur « Recherche du client… » jusqu'à l'actualisation de la page ; (2) la connexion par code à 6 chiffres reçu par email échoue (« La connexion a échoué. Veuillez réessayer. »).
 
@@ -82,7 +82,8 @@
 - fix(scanner): cause établie par la documentation de Next.js — le navigateur envoie les Server Actions **une par une** : une requête suspendue bloque toutes les suivantes, seule l'actualisation de la page vide la file (la doc déconseille les Server Actions pour lire des données). Les 4 RPC de scan (`lookup_customer`, `record_visit`, `redeem_reward`, `reverse_scan`) sont maintenant appelées **directement depuis le navigateur** (`features/scanner/rpc/`), avec un délai de 6 s qui annule vraiment la requête ; la recherche du client est relancée automatiquement une fois (elle ne modifie rien) ; une écriture relancée à la main réutilise la même clé d'idempotence (ADR-022)
 - refactor: Server Actions du scanner supprimées (`lookup-customer`, `record-visit`, `redeem-reward`, `reverse-scan`) ; `to-scan-result` déplacé dans `rpc/` ; `mapScanRpcError` reconnaît les coupures réseau et les annulations (`NETWORK_ERROR`)
 - feat(auth): journal serveur des erreurs de connexion par code (`[auth] sendEmailOtp|verifyEmailOtp failed` avec nom, code et statut HTTP, jamais l'email ni le code saisi) — l'action affichait un message générique sans rien consigner
-- vérifié : la configuration publique de l'authentification est correcte (email activé, inscriptions ouvertes) ; la cause de l'échec est donc à l'exécution (limite d'envoi, SMTP…) et sera lue dans le journal
+- cause de la connexion par code : le journal serveur montre `AuthRetryableFetchError`, statut 500, sans code ; la requête rejouée directement sur l'API d'authentification répond `500 unexpected_failure — "Error sending magic link email"` : Supabase n'arrive pas à envoyer l'email (SMTP personnalisé Resend). La configuration publique de l'authentification est correcte (email activé, inscriptions ouvertes). Aucune erreur de notre code
+- fix(auth): un 5xx à l'envoi du code affiche désormais « L'envoi du code par email est momentanément indisponible… » (`EMAIL_SEND_FAILED`) au lieu du message générique ; le SDK supprime le code d'erreur sur un 5xx, c'est le statut HTTP qui l'identifie (`mapSendOtpErrorCode`, 2 tests)
 
 **Base de données** : aucune migration.
 
@@ -90,17 +91,17 @@
 | Symptôme | Cause racine | Correctif | Prévention (test / règle) |
 |---|---|---|---|
 | Scan bloqué sur « Recherche du client… » jusqu'à l'actualisation | File d'attente des Server Actions côté navigateur : une requête suspendue bloque les suivantes ; le délai de 10 s ne vidait pas la file | Appels directs aux RPC, requête annulable (`AbortSignal`), relance automatique de la recherche | `scanner-domain.test.ts` (erreurs réseau) ; ne pas utiliser de Server Action pour une lecture interactive |
-| « La connexion a échoué » à la connexion par code | À établir (code d'erreur inconnu, jamais consigné) | Journal serveur ajouté | À compléter une fois la cause lue |
+| « La connexion a échoué » à la connexion par code | Supabase Auth ne parvient pas à envoyer l'email (`500 unexpected_failure`, « Error sending magic link email ») : SMTP Resend (clé, domaine ou expéditeur) | Message dédié ; journal serveur ; réglage SMTP à corriger dans Supabase/Resend | Test `mapSendOtpErrorCode` ; diagnostic : rejouer `POST /auth/v1/otp` et lire le corps de la réponse |
 
 **Décisions** : ADR-022
 **Dette introduite / remboursée** : Aucune
 
 **Tests de validation**
-- [x] `pnpm lint`, `pnpm typecheck`, `pnpm test` (154), `pnpm build` — verts
+- [x] `pnpm lint`, `pnpm typecheck`, `pnpm test` (156) — verts ; `pnpm build` vert avant l'ajout du message d'erreur
 - [ ] Enchaîner des scans rapides sur téléphone sans jamais rester bloqué — à faire
-- [ ] Connexion par code email — cause à lire dans le terminal de `pnpm dev`, puis correction
+- [ ] Connexion par code email — à revalider après correction du SMTP (Supabase/Resend)
 
-**Prochaine étape** : lire l'erreur d'authentification, corriger, revalider le scan, fusionner, puis Phase 8.
+**Prochaine étape** : corriger le SMTP, revalider la connexion par code et le scan, fusionner, puis Phase 8.
 
 ---
 

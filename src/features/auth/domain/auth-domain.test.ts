@@ -5,7 +5,7 @@ import {
   updateDisplayNameSchema,
   verifyEmailOtpSchema,
 } from "@/features/auth/schemas";
-import { mapAuthErrorCode } from "./map-auth-error";
+import { mapAuthErrorCode, mapSendOtpErrorCode } from "./map-auth-error";
 import {
   buildLoginPath,
   isPublicPath,
@@ -59,6 +59,18 @@ describe("isPublicPath", () => {
       expect(isPublicPath(path)).toBe(false);
     },
   );
+});
+
+describe("mapSendOtpErrorCode", () => {
+  it("reports an email provider failure on a 5xx, whatever the code", () => {
+    expect(mapSendOtpErrorCode(undefined, 500)).toBe("EMAIL_SEND_FAILED");
+    expect(mapSendOtpErrorCode("unexpected_failure", 502)).toBe("EMAIL_SEND_FAILED");
+  });
+
+  it("keeps the usual mapping below 500", () => {
+    expect(mapSendOtpErrorCode("over_email_send_rate_limit", 429)).toBe("RATE_LIMITED");
+    expect(mapSendOtpErrorCode(undefined, 400)).toBe("AUTH_FAILED");
+  });
 });
 
 describe("mapAuthErrorCode", () => {
