@@ -460,6 +460,7 @@ Parcours complet sur 2 téléphones : inscription client → configuration resta
 ### Étapes
 - [ ] **11.1 Sécurité** : revue complète des policies RLS et RPC, advisors Supabase, headers (CSP, Permissions-Policy), rate limiting (OTP, lookup par code court), `pnpm audit`, rotation des clés.
 - [ ] **11.2 RGPD & légal** : mentions légales, CGU, CGV restaurateurs, politique de confidentialité, bandeau si cookies non essentiels, **suppression de compte** et export des données, registre des traitements.
+- [ ] **11.2 bis Envoi des emails** : vérifier un nom de domaine dans Resend (SPF, DKIM) et passer l'expéditeur sur ce domaine : en mode test, Resend n'envoie qu'à l'adresse du compte propriétaire, donc personne d'autre ne peut se connecter par code (DT-008).
 - [ ] **11.3 Observabilité** : Sentry (erreurs front + serveur), Vercel Analytics/Speed Insights, alertes sur erreurs RPC, sauvegardes Supabase vérifiées.
 - [ ] **11.4 Performance** : analyse du bundle, Lighthouse ≥ 90 sur les routes clés, tests sur réseau 3G simulé.
 - [ ] **11.5 E2E** : suite Playwright complète sur la CI (parcours client, pro, admin).
