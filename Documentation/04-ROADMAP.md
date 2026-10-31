@@ -368,10 +368,10 @@ erDiagram
 
 ### ✅ Tests de validation
 - [x] Deux appareils : scan sur le téléphone pro ⇒ jauge du client mise à jour **sans rechargement** *(validé par le porteur de projet ; durée exacte non chronométrée)*.
-- [ ] Le client A ne reçoit **jamais** d'événement concernant le client B (vérifier dans l'onglet réseau/WebSocket).
-- [ ] App client en arrière-plan pendant le scan ⇒ état correct au retour.
-- [ ] Logs live : un scan sur un 2e appareil staff apparaît sur le 1er.
-- [ ] Pas de fuite de channels : navigation répétée ⇒ nombre de connexions stable.
+- [x] Le client A ne reçoit **jamais** d'événement concernant le client B (vérifier dans l'onglet réseau/WebSocket).
+- [x] App client en arrière-plan pendant le scan ⇒ état correct au retour.
+- [x] Logs live : un scan sur un 2e appareil staff apparaît sur le 1er.
+- [x] Pas de fuite de channels : navigation répétée ⇒ nombre de connexions stable.
 
 ### ⚠️ Points de vigilance
 - Vérifier que la RLS s'applique bien aux événements `postgres_changes` (tables ajoutées à la publication `supabase_realtime`).
@@ -380,7 +380,7 @@ erDiagram
 
 ---
 
-## 🏁 Jalon M1 — Démo interne
+## 🏁 Jalon M1 — Démo interne ✅ validé le 2026-11-01
 Parcours complet sur 2 téléphones : inscription client → configuration restaurant → scan → +1 en direct → récompense → log. Démo enregistrée en vidéo.
 
 ---

@@ -35,9 +35,9 @@
 
 ## 🧭 État courant (à mettre à jour à chaque session)
 
-- **Phase en cours :** Phase 7 (temps réel et journal d'audit) · code et migrations 13-14 faits sur `feat/phase-7-realtime`, jauge en direct validée sur appareils, **reste à revalider : journal en direct, isolation entre clients, arrière-plan, fuite de canaux** · Phase 6 fusionnée dans `main` (reste : chronométrage de 20 scans, test E2E — DT-007)
-- **Dernière session :** Session 25 (2026-10-29) — Phase 7 : retours d'essai, Realtime anonyme corrigé, test sur téléphone via tunnel
-- **Prochaine action :** revalider sur deux appareils le journal en direct, l'isolation entre clients (onglet réseau), l'arrière-plan et l'absence de fuite de canaux ; fusionner `feat/phase-7-realtime` dans `main` ; puis jalon M1 (démo interne) et Phase 8 (PWA et hors-ligne)
+- **Phase en cours :** Phase 7 terminée et fusionnée dans `main` · jalon M1 (démo interne) validé · correctifs de retour d'essai en cours (connexion par code email, scan bloqué sur « Recherche du client »)
+- **Dernière session :** Session 26 (2026-11-01) — Clôture de la Phase 7 et jalon M1
+- **Prochaine action :** corriger les deux défauts relevés au jalon M1 (connexion par code à 6 chiffres qui échoue ; recherche du client qui reste bloquée en enchaînant des scans rapides), puis Phase 8 (PWA et hors-ligne) ; dette à régler avant la suite : chronométrage de 20 scans et test E2E (DT-007)
 - **Bloquants :** Aucun
 
 ---
@@ -72,6 +72,31 @@
 
 **Prochaine étape** : ...
 ==================================================================================== -->
+
+### Session 26 — [2026-11-01] — Clôture de la Phase 7 et jalon M1
+**Roadmap :** Phase 7 — validation · Jalon M1 · **Statut :** ✅ Terminé · **Branche :** `feat/phase-7-realtime` → `main`
+
+**Réalisé**
+- Validation sur appareils des 5 tests restants de la Phase 7, par le porteur de projet : isolation entre clients (aucun événement d'un autre client), arrière-plan (état correct au retour), journal en direct (un scan d'un autre appareil apparaît seul), absence de fuite de canaux (connexions stables en naviguant), annulation à une ligne et écran de succès de 6 s
+- Jalon M1 (démo interne) validé : parcours complet inscription client → configuration du restaurant → scan → +1 en direct → récompense → log
+- Fusion de `feat/phase-7-realtime` dans `main` (locale)
+
+**Retours du jalon M1 (à corriger, session suivante)**
+- La connexion par code à 6 chiffres reçu par email échoue (« La connexion a échoué. Veuillez réessayer. ») alors qu'elle fonctionnait
+- En enchaînant des scans rapides, la recherche du client reste parfois bloquée sur « Recherche du client… » ; il faut actualiser la page, puis tout refonctionne
+
+**Base de données** : aucune migration.
+**Bugs rencontrés** : voir les retours ci-dessus (causes à établir)
+**Décisions** : Aucune
+**Dette introduite / remboursée** : Aucune
+
+**Tests de validation**
+- [x] Tests 1 à 5 de la Phase 7 sur deux appareils — validés par le porteur de projet
+- [x] Jalon M1 — validé par le porteur de projet
+
+**Prochaine étape** : correction des deux défauts, puis Phase 8.
+
+---
 
 ### Session 25 — [2026-10-29] — Phase 7 : retours d'essai et test sur téléphone via tunnel
 **Roadmap :** Phase 7 — validation · **Statut :** ✅ Correctifs terminés (jauge en direct validée par le porteur de projet) ; revalidation du journal en direct et des autres tests de la Phase 7 à faire · **Branche :** `feat/phase-7-realtime`
