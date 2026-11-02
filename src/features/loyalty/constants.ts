@@ -29,3 +29,6 @@ export const INTRO_EXIT_DURATION_MS = 500;
 export const JUST_ADDED_DURATION_MS = 1200;
 /** Vibration pulse (ms) when a stamp lands, where the device supports it. */
 export const STAMP_VIBRATION_MS = 30;
+
+/** Route of a restaurant card (detail screen): "/cartes/<restaurant slug>". */
+export const CARD_DETAIL_PATH = "/cartes";

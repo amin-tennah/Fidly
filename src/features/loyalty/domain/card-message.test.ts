@@ -25,13 +25,13 @@ function progressOf(stamps: number): CardProgress {
 describe("describeCardMessage", () => {
   it("counts the remaining stamps", () => {
     expect(describeCardMessage(progressOf(8))).toBe(
-      "Plus que 2 passages pour : Menu offert",
+      "Plus que 2 passages avant ta récompense",
     );
   });
 
   it("uses the singular for the last stamp", () => {
     expect(describeCardMessage(progressOf(9))).toBe(
-      "Plus que 1 passage pour : Menu offert",
+      "Plus que 1 passage avant ta récompense",
     );
   });
 

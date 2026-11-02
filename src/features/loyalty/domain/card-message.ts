@@ -7,5 +7,5 @@ export function describeCardMessage(progress: CardProgress): string {
   }
   const remaining = progress.threshold - progress.stamps;
   const noun = remaining === 1 ? "passage" : "passages";
-  return `Plus que ${remaining} ${noun} pour : ${progress.program.rewardLabel}`;
+  return `Plus que ${remaining} ${noun} avant ta récompense`;
 }

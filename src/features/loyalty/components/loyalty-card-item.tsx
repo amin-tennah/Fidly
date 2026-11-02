@@ -1,8 +1,10 @@
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { RestaurantAvatar } from "@/components/shared/restaurant-avatar";
 import { Card } from "@/components/ui/card";
 import { LoyaltyCardProgress } from "@/features/loyalty/components/loyalty-card-progress";
 import { RewardUnlockedBanner } from "@/features/loyalty/components/reward-unlocked-banner";
+import { CARD_DETAIL_PATH } from "@/features/loyalty/constants";
 import { getCardHue } from "@/features/loyalty/domain/card-hue";
 import type { CardProgress, LoyaltyCardView } from "@/features/loyalty/types";
 import { cn } from "@/lib/utils";
@@ -47,33 +49,46 @@ function CardHeaderRow({ card }: LoyaltyCardItemProps): ReactNode {
   );
 }
 
-export function LoyaltyCardItem({ card }: LoyaltyCardItemProps): ReactNode {
+function CardBody({ card }: LoyaltyCardItemProps): ReactNode {
   const { progress } = card;
-  const isUnlocked = progress?.isRewardUnlocked ?? false;
+  if (!progress) {
+    return (
+      <p className="text-muted-foreground text-sm">
+        Programme de fidélité momentanément indisponible.
+      </p>
+    );
+  }
+  return (
+    <>
+      <LoyaltyCardProgress
+        count={progress.stamps}
+        threshold={progress.threshold}
+        hue={getCardHue(card.restaurantId)}
+        tone="list"
+      />
+      {progress.isRewardUnlocked ? <RewardUnlockedBanner /> : null}
+    </>
+  );
+}
+
+export function LoyaltyCardItem({ card }: LoyaltyCardItemProps): ReactNode {
+  const isUnlocked = card.progress?.isRewardUnlocked ?? false;
 
   return (
-    <Card
-      className={cn(
-        "gap-2.5 rounded-[20px] p-3.5",
-        isUnlocked && "border-primary bg-gain/20",
-      )}
+    <Link
+      href={`${CARD_DETAIL_PATH}/${card.restaurantSlug}`}
+      aria-label={`Ouvrir la carte ${card.restaurantName}`}
+      className="focus-visible:ring-ring block rounded-[20px] outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
     >
-      <CardHeaderRow card={card} />
-      {progress ? (
-        <>
-          <LoyaltyCardProgress
-            count={progress.stamps}
-            threshold={progress.threshold}
-            hue={getCardHue(card.restaurantId)}
-            tone="list"
-          />
-          {isUnlocked ? <RewardUnlockedBanner /> : null}
-        </>
-      ) : (
-        <p className="text-muted-foreground text-sm">
-          Programme de fidélité momentanément indisponible.
-        </p>
-      )}
-    </Card>
+      <Card
+        className={cn(
+          "gap-2.5 rounded-[20px] p-3.5",
+          isUnlocked && "border-primary bg-gain/20",
+        )}
+      >
+        <CardHeaderRow card={card} />
+        <CardBody card={card} />
+      </Card>
+    </Link>
   );
 }

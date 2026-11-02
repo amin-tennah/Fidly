@@ -10,28 +10,31 @@ export interface CardBannerHeaderProps {
   readonly children: ReactNode;
 }
 
-function BackLink({
-  href,
-  onBanner,
-}: {
-  readonly href: string;
-  readonly onBanner: boolean;
-}): ReactNode {
-  const colors = onBanner
-    ? "bg-white/90 text-foreground absolute top-4 left-4 shadow-sm"
-    : "bg-secondary text-foreground";
+function BannerBackButton({ href }: { readonly href: string }): ReactNode {
   return (
     <Link
       href={href}
       aria-label="Retour à mes cartes"
-      className={`${colors} flex size-12 items-center justify-center rounded-full`}
+      className="bg-cream text-primary absolute top-4 left-5 flex size-12 items-center justify-center rounded-full shadow-sm"
     >
-      <ChevronLeft className="size-6" aria-hidden="true" />
+      <ChevronLeft className="size-6" strokeWidth={3} aria-hidden="true" />
     </Link>
   );
 }
 
-/** Header of a restaurant card screen: optional 150 px banner (hero overlaps it by 40 px) or a plain back row. */
+function TextBackLink({ href }: { readonly href: string }): ReactNode {
+  return (
+    <Link
+      href={href}
+      className="text-primary -ml-1 inline-flex min-h-12 items-center gap-1 text-[15px] font-extrabold"
+    >
+      <ChevronLeft className="size-5" strokeWidth={3} aria-hidden="true" />
+      Mes cartes
+    </Link>
+  );
+}
+
+/** Header of a restaurant card screen: optional 150 px banner (hero overlaps it by 40 px) or a text back link. */
 export function CardBannerHeader({
   bannerUrl,
   backHref,
@@ -39,9 +42,9 @@ export function CardBannerHeader({
 }: CardBannerHeaderProps): ReactNode {
   if (!bannerUrl) {
     return (
-      <div className="space-y-4">
-        <BackLink href={backHref} onBanner={false} />
-        {children}
+      <div className="px-5 pt-3.5">
+        <TextBackLink href={backHref} />
+        <div className="mt-1.5">{children}</div>
       </div>
     );
   }
@@ -55,9 +58,9 @@ export function CardBannerHeader({
           sizes="(max-width: 448px) 100vw, 448px"
           className="object-cover"
         />
-        <BackLink href={backHref} onBanner />
+        <BannerBackButton href={backHref} />
       </div>
-      <div className="relative -mt-10 px-4">{children}</div>
+      <div className="relative -mt-10 px-5">{children}</div>
     </div>
   );
 }
