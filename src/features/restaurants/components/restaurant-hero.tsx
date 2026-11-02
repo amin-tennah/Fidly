@@ -13,7 +13,7 @@ export interface RestaurantHeroProps {
 
 function Banner({ profile, canEdit }: RestaurantHeroProps): ReactNode {
   return (
-    <div className="relative aspect-video w-full bg-gradient-to-br from-emerald-100 to-emerald-50">
+    <div className="bg-secondary relative aspect-video w-full">
       {profile.coverUrl ? (
         <Image
           src={profile.coverUrl}

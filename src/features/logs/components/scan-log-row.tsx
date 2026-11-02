@@ -12,7 +12,7 @@ function Badges({ entry }: ScanLogRowProps): ReactNode {
   return (
     <>
       {entry.isCooldownOverridden ? (
-        <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-900">
+        <span className="border-foreground bg-background rounded-full border-2 px-2 py-0.5 text-xs font-bold">
           Délai de 2 h dépassé
         </span>
       ) : null}

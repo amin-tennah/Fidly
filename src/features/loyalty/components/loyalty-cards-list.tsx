@@ -10,8 +10,11 @@ export interface LoyaltyCardsListProps {
 export function LoyaltyCardsList({ cards }: LoyaltyCardsListProps): ReactNode {
   return (
     <section aria-labelledby="loyalty-cards-heading" className="space-y-3">
-      <h2 id="loyalty-cards-heading" className="text-lg font-semibold tracking-tight">
-        Mes cartes de fidélité
+      <h2
+        id="loyalty-cards-heading"
+        className="font-display text-xl font-extrabold tracking-tight"
+      >
+        Mes cartes
       </h2>
       {cards.length === 0 ? (
         <LoyaltyCardsEmptyState />

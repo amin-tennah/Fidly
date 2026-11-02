@@ -16,16 +16,14 @@ test.describe("Rézone mobile smoke & auth guard test (375px)", () => {
 
     await expect(
       page.getByRole("heading", {
-        name: "Accédez à vos cartes de fidélité",
+        name: "Connecte-toi pour retrouver ta carte",
       }),
     ).toBeVisible();
 
     await expect(
       page.getByRole("button", { name: "Continuer avec Google" }),
     ).toBeVisible();
-    await expect(
-      page.getByRole("button", { name: "Recevoir un code à 6 chiffres" }),
-    ).toBeVisible();
+    await expect(page.getByRole("button", { name: "Recevoir mon code" })).toBeVisible();
 
     expect(consoleErrors).toEqual([]);
   });

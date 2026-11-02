@@ -34,7 +34,7 @@ export function GoogleSignInButton({ nextPath }: GoogleSignInButtonProps): React
     });
     if (error) {
       setErrorMessage(
-        "Impossible de démarrer la connexion Google. Utilisez le code par email.",
+        "Impossible de démarrer la connexion Google. Utilise le code par email.",
       );
       setIsLoading(false);
     }
@@ -46,7 +46,7 @@ export function GoogleSignInButton({ nextPath }: GoogleSignInButtonProps): React
         type="button"
         variant="outline"
         size="lg"
-        className="w-full"
+        className="border-primary w-full"
         disabled={isLoading}
         onClick={() => void handleClick()}
       >

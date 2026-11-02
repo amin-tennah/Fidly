@@ -2,6 +2,7 @@
 
 import { Scanner, type IDetectedBarcode } from "@yudiel/react-qr-scanner";
 import type { ReactNode } from "react";
+import { ScannerCorners } from "@/features/scanner/components/scanner-corners";
 
 interface YudielQrReaderProps {
   readonly isPaused: boolean;
@@ -27,15 +28,16 @@ export function YudielQrReader({
   };
 
   return (
-    <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-zinc-900">
+    <div className="bg-foreground relative aspect-square w-full overflow-hidden rounded-2xl">
       <Scanner
         onScan={handleScan}
         onError={handleError}
         paused={isPaused}
         formats={["qr_code"]}
         constraints={{ facingMode: "environment" }}
-        components={{ finder: true }}
+        components={{ finder: false }}
       />
+      <ScannerCorners />
     </div>
   );
 }

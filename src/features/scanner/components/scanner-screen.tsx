@@ -35,14 +35,16 @@ export function ScannerScreen({ restaurantId }: ScannerScreenProps): ReactNode {
       ) : (
         <Button
           size="lg"
-          className="min-h-40 w-full text-xl"
+          className="min-h-40 w-full text-2xl"
           onClick={() => setIsCameraOn(true)}
         >
           Scanner un client
         </Button>
       )}
       <ScanNotices state={state} cameraError={cameraError} />
-      <ManualCodeForm isDisabled={state.step !== "idle"} onSubmit={flow.decode} />
+      <div className="bg-cream -mx-4 rounded-t-[28px] px-4 pt-4 pb-6">
+        <ManualCodeForm isDisabled={state.step !== "idle"} onSubmit={flow.decode} />
+      </div>
       <CustomerDrawer flow={flow} />
     </section>
   );

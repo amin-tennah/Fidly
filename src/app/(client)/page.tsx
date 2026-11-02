@@ -16,6 +16,7 @@ import {
 import {
   ClientHomeHeader,
   CustomerQrHero,
+  IntroSplash,
   LoyaltyCardsList,
   LoyaltyRealtimeSync,
 } from "@/features/loyalty";
@@ -41,22 +42,25 @@ export default async function HomePage(): Promise<ReactNode> {
   }
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-6 px-4 py-8">
+    <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-6 pb-8">
+      <IntroSplash />
       <ClientHomeHeader
         displayName={displayName}
         invitations={invitations}
         memberships={memberships}
         isPlatformAdmin={isPlatformAdmin}
       />
-      <CustomerQrHero
-        identity={{
-          userId: user.id,
-          displayName,
-          qrToken: profile.qrToken,
-          shortCode: profile.shortCode,
-        }}
-      />
-      <LoyaltyCardsList cards={cards} />
+      <div className="space-y-6 px-4">
+        <CustomerQrHero
+          identity={{
+            userId: user.id,
+            displayName,
+            qrToken: profile.qrToken,
+            shortCode: profile.shortCode,
+          }}
+        />
+        <LoyaltyCardsList cards={cards} />
+      </div>
       <LoyaltyRealtimeSync userId={user.id} />
     </main>
   );

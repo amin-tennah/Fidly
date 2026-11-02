@@ -71,23 +71,18 @@ function CodeStepFooter({
   onChangeEmail,
 }: CodeStepFooterProps): ReactNode {
   const resendLabel =
-    resendSecondsLeft > 0 ? `Renvoyer (${resendSecondsLeft} s)` : "Renvoyer le code";
+    resendSecondsLeft > 0
+      ? `Renvoyer le code (${resendSecondsLeft} s)`
+      : "Renvoyer le code";
 
   return (
-    <div className="flex items-center justify-between gap-2 text-xs">
-      <Button
-        type="button"
-        variant="ghost"
-        size="sm"
-        disabled={isPending}
-        onClick={onChangeEmail}
-      >
-        Changer d&apos;email
+    <div className="flex items-center justify-between gap-2">
+      <Button type="button" variant="ghost" disabled={isPending} onClick={onChangeEmail}>
+        Retour
       </Button>
       <Button
         type="button"
         variant="ghost"
-        size="sm"
         disabled={isPending || resendSecondsLeft > 0}
         onClick={onResend}
       >
@@ -119,9 +114,10 @@ export function OtpCodeStepForm({
           void form.handleSubmit((values) => onSubmitCode(values.token))(e)
         }
       >
+        <p className="font-display text-lg font-bold">Entre le code reçu par email</p>
         <CodeField form={form} isPending={isPending} />
         <Button type="submit" size="lg" className="w-full" disabled={isPending}>
-          {isPending ? "Vérification…" : "Valider le code"}
+          {isPending ? "Vérification…" : "Valider"}
         </Button>
         <CodeStepFooter
           isPending={isPending}

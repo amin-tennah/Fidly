@@ -24,7 +24,7 @@ export default async function ProLogsPage(): Promise<ReactNode> {
 
   return (
     <section aria-labelledby="logs-heading" className="space-y-3">
-      <h1 id="logs-heading" className="text-lg font-semibold tracking-tight">
+      <h1 id="logs-heading" className="font-display text-lg font-semibold tracking-tight">
         Journal des scans
       </h1>
       {/* `key` resets the list when the owner switches restaurant. */}

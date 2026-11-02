@@ -1,18 +1,13 @@
+import { QrCode } from "lucide-react";
 import type { ReactNode } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { EmptyState } from "@/components/shared/empty-state";
 
 export function LoyaltyCardsEmptyState(): ReactNode {
   return (
-    <Card className="border-dashed">
-      <CardContent className="space-y-1 text-center">
-        <p className="text-foreground text-sm font-semibold">
-          Aucune carte pour le moment
-        </p>
-        <p className="text-muted-foreground text-sm">
-          Faites-vous scanner lors de votre prochain repas : votre première carte
-          apparaîtra ici.
-        </p>
-      </CardContent>
-    </Card>
+    <EmptyState
+      icon={QrCode}
+      title="Aucune carte pour le moment"
+      description="Fais-toi scanner lors de ton prochain repas : ta première carte apparaîtra ici."
+    />
   );
 }

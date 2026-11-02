@@ -25,3 +25,6 @@ export const DISPLAY_NAME_MAX_LENGTH = 60;
 
 /** localStorage key of the device copy of the identity (versioned for future changes). */
 export const IDENTITY_STORAGE_KEY = "rezone.identity.v1";
+
+/** The three promises shown on the login screen (05-DIRECTION-ARTISTIQUE §6). */
+export const LOGIN_STEPS = ["Scanne", "Cumule", "Profite"] as const;

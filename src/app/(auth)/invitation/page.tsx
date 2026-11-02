@@ -71,10 +71,10 @@ export default async function InvitationPage(): Promise<ReactNode> {
     <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-between px-4 py-8">
       <div className="space-y-6">
         <header className="space-y-1">
-          <span className="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
+          <span className="bg-gain text-gain-foreground inline-flex items-center rounded-full px-3 py-1 text-sm font-bold">
             Espace Restaurateur Rézone
           </span>
-          <h1 className="text-foreground text-2xl font-bold tracking-tight">
+          <h1 className="font-display text-foreground text-2xl font-bold tracking-tight">
             Vos invitations en attente
           </h1>
           <p className="text-muted-foreground text-sm">

@@ -23,6 +23,7 @@ export function CustomerQrHero({ identity }: CustomerQrHeroProps): ReactNode {
   return (
     <Card aria-label="Votre QR code personnel" className="items-center">
       <CardContent className="flex w-full flex-col items-center gap-4">
+        <p className="font-display text-xl font-bold">Montre-le en caisse</p>
         <div
           role="img"
           aria-label="QR code personnel à présenter en caisse"
@@ -38,7 +39,7 @@ export function CustomerQrHero({ identity }: CustomerQrHeroProps): ReactNode {
           />
         </div>
         <div className="space-y-1 text-center">
-          <p className="text-muted-foreground text-xs">
+          <p className="text-muted-foreground text-sm">
             Code de secours si le QR est illisible
           </p>
           <p className="text-foreground font-mono text-xl font-bold tracking-widest">

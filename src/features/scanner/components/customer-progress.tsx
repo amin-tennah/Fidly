@@ -17,12 +17,12 @@ export function CustomerProgress({ card }: CustomerProgressProps): ReactNode {
     <div className="space-y-2">
       <div className="flex items-baseline justify-between gap-3">
         <span className="text-muted-foreground text-sm">{card.rewardLabel}</span>
-        <span className="text-3xl font-bold tabular-nums">{label}</span>
+        <span className="font-display text-4xl font-extrabold tabular-nums">{label}</span>
       </div>
       <Progress value={percent} aria-label={`Progression : ${label}`} className="h-4" />
       {card.isRewardUnlocked ? (
         <p role="status" className="text-primary text-sm font-bold">
-          Récompense disponible !
+          Récompense à remettre
         </p>
       ) : null}
     </div>

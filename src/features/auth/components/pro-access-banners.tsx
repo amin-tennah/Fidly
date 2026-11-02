@@ -30,7 +30,7 @@ export function ProAccessBanners({
       {firstInvitation ? (
         <Link
           href={INVITATION_PATH}
-          className="block rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-900"
+          className="border-primary bg-gain/30 text-foreground block min-h-12 rounded-lg border-2 px-3 py-3 text-sm font-semibold"
         >
           Invitation restaurateur en attente ({firstInvitation.restaurantName}) → Accepter
         </Link>
@@ -38,7 +38,7 @@ export function ProAccessBanners({
       {firstMembership ? (
         <Link
           href={PRO_HOME_PATH}
-          className="text-primary inline-block text-xs font-semibold underline-offset-4 hover:underline"
+          className="text-primary inline-flex min-h-12 items-center text-sm font-semibold underline underline-offset-4"
         >
           Accéder à l&apos;espace restaurateur ({firstMembership.restaurantName}) →
         </Link>

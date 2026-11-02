@@ -24,3 +24,8 @@ export const BURST_PARTICLE_COUNT = 8;
 /** Intro splash: minimum time on screen so the stamp can land, and the slide-out duration (--dur-slide). */
 export const INTRO_MIN_DURATION_MS = 1400;
 export const INTRO_EXIT_DURATION_MS = 500;
+
+/** How long the "+1" celebration stays on a card after its counter increased. */
+export const JUST_ADDED_DURATION_MS = 1200;
+/** Vibration pulse (ms) when a stamp lands, where the device supports it. */
+export const STAMP_VIBRATION_MS = 30;

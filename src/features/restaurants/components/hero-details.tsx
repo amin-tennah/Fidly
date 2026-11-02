@@ -44,7 +44,7 @@ function Identity({
   return (
     <div className="flex items-start justify-between gap-2">
       <div className="min-w-0 space-y-1">
-        <h2 className="text-xl leading-tight font-bold">{profile.name}</h2>
+        <h2 className="font-display text-xl leading-tight font-bold">{profile.name}</h2>
         <span className="bg-secondary text-secondary-foreground inline-block rounded-full px-2.5 py-0.5 text-xs font-medium">
           {RESTAURANT_CATEGORY_LABELS[profile.category]}
         </span>

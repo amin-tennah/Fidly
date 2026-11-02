@@ -5,17 +5,15 @@ export default function ClientLoading(): ReactNode {
   return (
     <main
       aria-busy="true"
-      className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-6 px-4 py-8"
+      className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-6 pb-8"
     >
-      <div className="space-y-2">
-        <Skeleton className="h-6 w-36" />
-        <Skeleton className="h-8 w-56" />
-        <Skeleton className="h-4 w-full" />
-      </div>
-      <Skeleton className="h-80 w-full rounded-xl" />
-      <div className="space-y-3">
-        <Skeleton className="h-6 w-44" />
-        <Skeleton className="h-28 w-full rounded-xl" />
+      <Skeleton className="h-36 w-full rounded-t-none rounded-b-[28px]" />
+      <div className="space-y-6 px-4">
+        <Skeleton className="h-80 w-full rounded-xl" />
+        <div className="space-y-3">
+          <Skeleton className="h-7 w-44" />
+          <Skeleton className="h-28 w-full rounded-xl" />
+        </div>
       </div>
     </main>
   );

@@ -1,6 +1,7 @@
 export { ClientHomeHeader } from "./components/client-home-header";
 export { CustomerQrHero } from "./components/customer-qr-hero";
 export { LoyaltyRealtimeSync } from "./components/loyalty-realtime-sync";
+export { IntroSplash } from "./components/intro-splash";
 export { LoyaltyCardsList } from "./components/loyalty-cards-list";
 
 export { computeCardProgress } from "./domain/compute-card-progress";
