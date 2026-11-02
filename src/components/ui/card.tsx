@@ -6,7 +6,7 @@ export function Card({ className, ...props }: ComponentProps<"div">): ReactNode 
     <div
       data-slot="card"
       className={cn(
-        "bg-card text-card-foreground border-border flex flex-col gap-4 rounded-xl border p-5 shadow-xs",
+        "bg-card text-card-foreground border-border flex flex-col gap-4 rounded-xl border-2 p-5 shadow-xs",
         className,
       )}
       {...props}
@@ -28,7 +28,7 @@ export function CardTitle({ className, ...props }: ComponentProps<"div">): React
   return (
     <div
       data-slot="card-title"
-      className={cn("leading-tight font-semibold tracking-tight", className)}
+      className={cn("font-display leading-tight font-bold tracking-tight", className)}
       {...props}
     />
   );

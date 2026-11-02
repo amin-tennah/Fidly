@@ -76,6 +76,7 @@ export const listMyLoyaltyCards = cache(
       return [
         {
           cardId: row.id,
+          restaurantId: row.restaurant_id,
           restaurantName: row.restaurants.name,
           restaurantSlug: row.restaurants.slug,
           restaurantLogoUrl: getRestaurantMediaUrl(row.restaurants.logo_path),

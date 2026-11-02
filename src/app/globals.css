@@ -24,6 +24,7 @@
   --radius: 1rem;
 
   --cream: #fff4e6;
+  --track: #e3ece7;
   --gain: #c8f25a;
   --gain-foreground: #0a5c3a;
 
@@ -67,6 +68,7 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-cream: var(--cream);
+  --color-track: var(--track);
   --color-gain: var(--gain);
   --color-gain-foreground: var(--gain-foreground);
   --color-hue-1-light: var(--hue-1-light);
@@ -91,6 +93,19 @@
 
 @theme inline {
   --animate-reward-pop: reward-pop 0.9s ease-out;
+  --animate-write: write 0.26s ease-out both;
+  --animate-thump: thump 0.4s ease-out both;
+  --animate-ripple: ripple 0.9s ease-out both;
+  --animate-seg-pop: segPop 0.65s var(--ease-pop) both;
+  --animate-seg-wave: segWave 0.5s ease-in-out both;
+  --animate-plus-up: plusUp 1s ease-out both;
+  --animate-burst: burst 0.85s ease-out both;
+  --animate-win-in: winIn 0.4s var(--ease-pop) both;
+  --animate-bump: bump 0.45s ease-out both;
+  --animate-fade-up: fadeup 0.4s ease-out both;
+  --animate-fade-in: fade-in 0.35s ease-out both;
+  --animate-slide-in: slide-in var(--dur-slide) var(--ease-slide) both;
+  --animate-slide-out: slide-out var(--dur-slide) var(--ease-slide) both;
 }
 
 @keyframes reward-pop {
@@ -108,6 +123,140 @@
   }
 }
 
+@keyframes write {
+  0% {
+    clip-path: inset(-10% 100% -10% -4%);
+    transform: translateY(0.08em);
+  }
+  100% {
+    clip-path: inset(-10% -12% -10% -4%);
+    transform: translateY(0);
+  }
+}
+@keyframes thump {
+  0% {
+    transform: scale(2.6) rotate(-35deg);
+    opacity: 0;
+  }
+  45% {
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(-12deg);
+    opacity: 1;
+  }
+}
+@keyframes ripple {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+@keyframes segPop {
+  0% {
+    transform: scaleY(0.15) translateY(16px);
+    filter: brightness(1.6);
+  }
+  55% {
+    transform: scaleY(1.4) translateY(-5px);
+    filter: brightness(1.5);
+  }
+  100% {
+    transform: scaleY(1) translateY(0);
+    filter: brightness(1);
+  }
+}
+@keyframes segWave {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-6px);
+  }
+}
+@keyframes plusUp {
+  0% {
+    transform: translateY(12px) scale(0.6) rotate(6deg);
+    opacity: 0;
+  }
+  25% {
+    transform: translateY(-6px) scale(1.2) rotate(6deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-50px) scale(1) rotate(6deg);
+    opacity: 0;
+  }
+}
+@keyframes burst {
+  0% {
+    transform: rotate(var(--r)) translateY(0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(var(--r)) translateY(-96px) scale(0.4);
+    opacity: 0;
+  }
+}
+@keyframes winIn {
+  0% {
+    transform: scale(0.7);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+@keyframes bump {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.22);
+  }
+}
+@keyframes fadeup {
+  0% {
+    transform: translateY(14px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes slide-in {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+@keyframes slide-out {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
 body {
   background-color: var(--background);
   color: var(--foreground);
@@ -119,6 +268,7 @@ body {
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;

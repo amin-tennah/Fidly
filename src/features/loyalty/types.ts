@@ -27,6 +27,7 @@ export interface CardProgress {
 /** Display-ready card: `progress` is null when the restaurant has no active program. */
 export interface LoyaltyCardView {
   readonly cardId: string;
+  readonly restaurantId: string;
   readonly restaurantName: string;
   readonly restaurantSlug: string;
   readonly restaurantLogoUrl: string | null;
