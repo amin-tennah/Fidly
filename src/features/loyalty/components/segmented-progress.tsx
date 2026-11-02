@@ -30,7 +30,7 @@ const GAP_CLASSES: Record<SegmentedProgressTone, string> = {
 
 const EMPTY_CLASSES: Record<SegmentedProgressTone, string> = {
   card: "bg-cream/16 border-cream/34 text-cream",
-  list: "bg-track border-track text-primary",
+  list: "bg-track border-track text-(--seg)",
 };
 
 const FILLED_CLASSES: Record<SegmentedProgressTone, string> = {
