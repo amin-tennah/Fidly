@@ -38,7 +38,7 @@ export function ProAccessBanners({
       {firstMembership ? (
         <Link
           href={PRO_HOME_PATH}
-          className="text-primary inline-flex min-h-12 items-center text-sm font-semibold underline underline-offset-4"
+          className="text-primary inline-flex min-h-12 items-center text-sm font-semibold"
         >
           Accéder à l&apos;espace restaurateur ({firstMembership.restaurantName}) →
         </Link>

@@ -21,9 +21,12 @@ export function CustomerQrHero({ identity }: CustomerQrHeroProps): ReactNode {
   usePersistIdentity(identity);
 
   return (
-    <Card aria-label="Votre QR code personnel" className="items-center">
+    <Card
+      aria-label="Ton QR code personnel"
+      className="items-center rounded-[22px] border-0 shadow-lg"
+    >
       <CardContent className="flex w-full flex-col items-center gap-4">
-        <p className="font-display text-xl font-bold">Montre-le en caisse</p>
+        <p className="font-display text-xl font-extrabold">Montre-le en caisse</p>
         <div
           role="img"
           aria-label="QR code personnel à présenter en caisse"

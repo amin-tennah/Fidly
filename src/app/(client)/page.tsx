@@ -4,6 +4,7 @@ import {
   buildLoginPath,
   CLIENT_HOME_PATH,
   ONBOARDING_PATH,
+  ProAccessBanners,
   withNextParam,
 } from "@/features/auth";
 import {
@@ -44,13 +45,8 @@ export default async function HomePage(): Promise<ReactNode> {
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-6 pb-8">
       <IntroSplash />
-      <ClientHomeHeader
-        displayName={displayName}
-        invitations={invitations}
-        memberships={memberships}
-        isPlatformAdmin={isPlatformAdmin}
-      />
-      <div className="space-y-6 px-4">
+      <ClientHomeHeader displayName={displayName} />
+      <div className="-mt-14 space-y-5 px-5">
         <CustomerQrHero
           identity={{
             userId: user.id,
@@ -58,6 +54,11 @@ export default async function HomePage(): Promise<ReactNode> {
             qrToken: profile.qrToken,
             shortCode: profile.shortCode,
           }}
+        />
+        <ProAccessBanners
+          invitations={invitations}
+          memberships={memberships}
+          isPlatformAdmin={isPlatformAdmin}
         />
         <LoyaltyCardsList cards={cards} />
       </div>
