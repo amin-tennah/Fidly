@@ -1,4 +1,4 @@
-# Fidly — Changelog & Registre des Décisions
+# Rézone — Changelog & Registre des Décisions
 
 > Mémoire du projet. Ce fichier répond à 3 questions : **Qu'est-ce qui a été fait ? Qu'est-ce qui a cassé ? Pourquoi a-t-on choisi ça ?**
 > Sa mise à jour est **obligatoire** à la fin de chaque session (cf. `.cursorrules` §14).
@@ -35,9 +35,9 @@
 
 ## 🧭 État courant (à mettre à jour à chaque session)
 
-- **Phase en cours :** Phases 0 à 7 terminées et fusionnées dans `main` · jalon M1 (démo interne) validé · prêt pour la Phase 8 (PWA et hors-ligne)
-- **Dernière session :** Session 27 (2026-11-01) — Retours du jalon M1 : scan bloqué (appels directs à la base) et envoi du code par email (limite du mode test de Resend)
-- **Prochaine action :** Phase 8 (PWA et hors-ligne) sur une branche `feat/phase-8-pwa`, plan à valider avant de coder (dépendance de service worker, ADR) ; dette à régler avant le pilote : chronométrage de 20 scans et test E2E (DT-007), domaine vérifié dans Resend (DT-008)
+- **Phase en cours :** Phases 0 à 7 terminées et fusionnées dans `main` · jalon M1 (démo interne) validé · **nouvelle Phase 7 bis (direction artistique et design system) à faire avant la Phase 8**
+- **Dernière session :** Session 29 (2026-11-02) — Direction artistique : identité retenue, assets de marque dans `public/brand/`, document de passage `05-DIRECTION-ARTISTIQUE.md`
+- **Prochaine action :** commiter d'abord les changements non commités de la Session 28 (renommage) sur `main`, puis Phase 7 bis étape DA.3 (tokens et polices) sur `feat/phase-7bis-da`, en suivant `Documentation/05-DIRECTION-ARTISTIQUE.md` ; ensuite DA.4, DA.6, DA.7, puis Phase 8 (PWA) ; dette à régler avant le pilote : test E2E du scanner (DT-007), domaine vérifié dans Resend (DT-008)
 - **Bloquants :** Aucun
 
 ---
@@ -72,6 +72,50 @@
 
 **Prochaine étape** : ...
 ==================================================================================== -->
+
+### Session 29 — [2026-11-02] — Direction artistique : identité retenue et document de passage
+**Roadmap :** Phase 7 bis (DA.1 et DA.2 terminées, DA.5 partielle) · **Statut :** ✅ Terminé · **Branche :** `main` (fichiers non commités)
+
+**Réalisé**
+- docs(da): `Documentation/05-DIRECTION-ARTISTIQUE.md` — source de vérité de l'apparence pour le code : identité, tokens CSS, polices, couleur par carte, composants à créer (`SegmentedProgress`, `IntroSplash`, transitions de glissement), animations, règles par écran, plan DA.3 à DA.7
+- chore(brand): `public/brand/` — logotypes SVG tracés (cream, forest, ink une couleur, white), icône d'app (« any » et maskable), `apple-touch-icon.png`, favicon, PNG 192/512/180/32 ; tracés générés à partir de Bricolage Grotesque (licence OFL-1.1)
+- docs(roadmap): DA.1 et DA.2 cochées, DA.5 annotée (écrans clés maquettés et validés ; logs, réglages et admin non maquettés)
+- Mesure de contraste : les bordures de champ des maquettes (`#8FA79A`, 2,6:1) ne passaient pas 3:1 ; valeur retenue pour le code `--input: #6B8577` (4,0:1)
+
+**Base de données** : aucune migration. **Code applicatif** : aucune modification.
+
+**Bugs rencontrés** : Aucun
+**Décisions** : ADR-024
+**Dette introduite / remboursée** : Aucune. Rappel : les changements de la Session 28 (renommage) sont toujours non commités sur `main`.
+
+**Tests de validation**
+- [x] Rendu des SVG et PNG contrôlé (logos sur 4 fonds, icône maskable dans la zone de sécurité, favicon à 16 et 32 px)
+- [ ] Non applicable : aucun code modifié, `pnpm lint/typecheck/test` non relancés
+
+**Prochaine étape** : DA.3 (tokens et polices) sur `feat/phase-7bis-da`.
+
+### Session 28 — [2026-11-01] — Renommage en Rézone et réorganisation de la roadmap
+**Roadmap :** Phase 6 (cases cochées) · nouvelle Phase 7 bis · **Statut :** ✅ Terminé · **Branche :** `main` (modifications non commitées)
+
+**Réalisé**
+- chore(rename): le projet s'appelle désormais **Rézone** (« Rézone » dans les textes, `RÉZONE` dans le titre de `.cursorrules`) : documentation, `.cursorrules`, `AGENTS.md`, textes de l'interface (titres, en-têtes, bannières, messages d'erreur), template et sujets de l'email de connexion, scripts `supabase/dev`, test E2E, nom du package (`rezone`), clés de stockage (`rezone.identity.v1`, cookie `rezone-active-restaurant`) et domaines fictifs des tests (`rezone.app`, `rezone.internal`)
+- **Volontairement conservés** : dossier du projet, dépôt GitHub (`amin-tennah/Fidly`), projets Supabase et Vercel ; `project_id = "Fidly"` dans `supabase/config.toml` (identifiant local du CLI) ; comptes du seed (`*@fidly-dev.local`, mot de passe de dev) car déjà créés dans la base Dev ; sessions antérieures de ce journal (historique) ; adresse `clientfidly@gmail.com` (compte réel)
+- docs(roadmap): cases de la Phase 6 cochées après validation du porteur de projet (6.1, 6.2, 6.4, chronométrage de 20 scans, deux téléphones staff, code court de secours) ; reste ouvert : test E2E du parcours complet (DT-007)
+- docs(roadmap): ajout de la **Phase 7 bis — direction artistique et design system** entre M1 et la Phase 8 (ADR-023) ; total MVP 39–51 jours
+
+**Base de données** : aucune migration (un commentaire d'en-tête de la migration 2 et du seed mentionne le nouveau nom).
+
+**Bugs rencontrés** : Aucun
+**Décisions** : ADR-023
+**Dette introduite / remboursée** : Aucune. Effet de bord : les appareils de test perdent la copie locale de l'identité et le choix du restaurant actif (nouvelles clés), rétablis à la prochaine connexion.
+
+**Tests de validation**
+- [x] `pnpm lint`, `pnpm typecheck`, `pnpm test` (156) — verts
+- [ ] `pnpm build` et test E2E non relancés (changement de textes et de clés uniquement)
+
+**Prochaine étape** : Phase 7 bis, DA.1 (brief de direction artistique).
+
+---
 
 ### Session 27 — [2026-11-01] — Retours du jalon M1 : scan bloqué et connexion par code
 **Roadmap :** Phase 6 (scanner) et Phase 3 (auth) — correctifs · **Statut :** ✅ Terminé (scan validé par le porteur de projet ; échec d'envoi du code expliqué par le mode test de Resend) · **Branche :** `fix/otp-login-and-scan-lookup` → `main`
@@ -1027,6 +1071,8 @@
 | ADR-020 | Temps réel : événement = signal de relecture, journal lu par RPC paginée par curseur | ✅ Accepté | 2026-10-26 |
 | ADR-021 | Temps réel : session transmise explicitement à Realtime avant l'abonnement | ✅ Accepté | 2026-10-29 |
 | ADR-022 | Scan : RPC appelées directement depuis le navigateur plutôt que par Server Actions | ✅ Accepté | 2026-11-01 |
+| ADR-023 | Direction artistique en Phase 7 bis, avant la PWA (P8) | ✅ Accepté | 2026-11-01 |
+| ADR-024 | Identité visuelle : vert forêt, logotype « tampon », couleur par carte | ✅ Accepté | 2026-11-02 |
 
 <!-- ============ TEMPLATE ADR ============
 ### ADR-NNN — Titre
@@ -1265,6 +1311,29 @@
 - **Décision :** Option 3 pour `lookup_customer`, `record_visit`, `redeem_reward`, `reverse_scan`. Les entrées restent validées par Zod côté navigateur (confort) et par les contrôles de format de la base (autorité). Le journal `/pro/logs` garde sa Server Action (lecture hors chemin critique).
 - **Conséquences :** plus de garde « membre du restaurant » côté serveur pour le scan : la base fait foi (déjà le cas, la garde ne faisait que doubler la RPC). Les erreurs ne passent plus par le journal du serveur. Si un jour un contrôle devait sortir de la base, il faudrait revenir à un Route Handler.
 - **Réversibilité :** facile.
+
+### ADR-023 — Direction artistique en Phase 7 bis, avant la PWA (P8)
+- **Date :** 2026-11-01 · **Statut :** ✅ Accepté · **Phase :** 7 bis (nouvelle)
+- **Contexte :** aucune DA n'existe (tokens provisoires de shadcn). Le produit doit plaire aux clients comme aux restaurateurs. La P8 a besoin d'assets de marque (icônes, splash, `theme_color`) et les P9 et P10 créent de nouveaux écrans.
+- **Options envisagées :**
+  1. DA en fin de projet (P11) — ❌ refonte de tous les écrans, assets PWA à refaire, risque de régression tardif.
+  2. DA en continu, écran par écran — ❌ incohérences, tokens changeants, retouches répétées.
+  3. Phase dédiée juste après M1 et avant la P8 — ✅ la logique est stabilisée et testée (M1), les assets de la P8 sont définitifs, les P9 et P10 partent des bons tokens.
+- **Décision :** Option 3. Phase 7 bis de 4 à 6 jours : brief, identité, tokens (`globals.css`), composants, maquettes validées avant code, application aux écrans existants, supports (email, chevalet, assets PWA). Habillage uniquement : aucun changement de règle métier ni de schéma.
+- **Conséquences :** +4 à 6 jours sur le total MVP (39–51 jours) ; la P8 démarre après la validation de la DA ; les tokens deviennent la source unique de l'apparence.
+- **Réversibilité :** facile (la phase peut être raccourcie à un simple re-thème si besoin).
+
+### ADR-024 — Identité visuelle : vert forêt, logotype « tampon », couleur par carte
+- **Date :** 2026-11-02 · **Statut :** ✅ Accepté · **Phase :** 7 bis
+- **Contexte :** l'ADR-023 prévoit une DA avant la PWA. Il faut une identité visible de loin sur un comptoir, simple, avec une gamification adulte, adaptable à tous les commerces et sans signal communautaire, pour un budget inférieur à 1 000 €.
+- **Options envisagées :**
+  1. Jaune et noir « panneau de rue » — ❌ risque d'effet promo, nom large sur un petit sticker.
+  2. Orange tomate avec tampon — ❌ proche d'enseignes de restauration et de Klook, se fond dans un commerce déjà rouge (le tampon est conservé).
+  3. Vert avec épingle de carte — ❌ l'épingle évoque le GPS (le vert est conservé).
+  4. Vert forêt `#0A5C3A`, logotype Bricolage Grotesque dont le « o » est un tampon, accent lime `#C8F25A` — ✅ lisible en 1 à 2 couleurs, contrastes AA, distinct des cartes de fidélité bleues ou rouges.
+- **Décision :** Option 4. En plus : couleur de carte déduite de l'identifiant du commerce (6 couleurs, 2 tons chacune, sans changement de schéma) ; traits unitaires à la place de la barre de progression ; intro animée pendant le chargement de l'accueil ; glissements latéraux entre les étapes d'un parcours ; lime porté par un token `gain` distinct de `accent` (shadcn) ; pas de mode sombre ; phrases d'accroche des supports reportées. Détail dans `Documentation/05-DIRECTION-ARTISTIQUE.md`.
+- **Conséquences :** `globals.css` à réécrire (source unique) ; deux familles de polices via `next/font` ; assets de marque dans `public/brand/` ; trois composants à créer ; aucune règle métier ni schéma modifié.
+- **Réversibilité :** facile pour les couleurs et composants (tokens centralisés) ; moyenne pour le logotype une fois les supports imprimés.
 
 ---
 

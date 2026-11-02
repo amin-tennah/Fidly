@@ -1,4 +1,4 @@
-# Fidly — Architecture Logicielle & Flux Techniques
+# Rézone — Architecture Logicielle & Flux Techniques
 
 ## 1. Stack Technique (cf. ADR-001 → ADR-007)
 - **Framework Full-Stack :** Next.js (App Router, TypeScript strict)

@@ -1,4 +1,4 @@
-# Fidly — Roadmap d'implémentation
+# Rézone — Roadmap d'implémentation
 
 > Plan chronologique, incrémental et testable. Chaque phase produit un livrable **démontrable** et se termine par une **porte de validation** : on ne passe pas à la phase suivante tant que les tests ne sont pas verts.
 > Les cases `[ ]` sont cochées au fil de l'eau (cf. Definition of Done dans `.cursorrules` §14).
@@ -18,9 +18,10 @@ flowchart LR
     P5 --> P6
     P6 --> P7["P7 Temps réel & logs"]
     P7 --> M1{{"Jalon M1 : démo interne"}}
-    M1 --> P8["P8 PWA & hors-ligne"]
-    M1 --> P9["P9 Découvrir le quartier"]
-    M1 --> P10["P10 Stats & attribution"]
+    M1 --> PDA["P7 bis Direction artistique & design system"]
+    PDA --> P8["P8 PWA & hors-ligne"]
+    PDA --> P9["P9 Découvrir le quartier"]
+    PDA --> P10["P10 Stats & attribution"]
     P8 --> P11["P11 Durcissement & pilote"]
     P9 --> P11
     P10 --> P11
@@ -38,15 +39,17 @@ flowchart LR
 | P5 | Le restaurateur configure sa fiche et ses programmes | 4–5 j | 🟠 |
 | P6 | **Scan → +1 passage → récompense, en < 3 s** | 5–6 j | 🔴 |
 | P7 | Jauge client animée en direct + onglet logs live | 2–3 j | 🟠 |
+| P7 bis | **Identité Rézone** (logo, palette, typo) appliquée à tous les écrans existants + design system | 4–6 j | 🟠 |
 | P8 | App installable, QR affichable hors-ligne | 2–3 j | 🟠 |
 | P9 | Carte/liste des partenaires dans un rayon 100 m–10 km | 3–4 j | 🟠 |
 | P10 | Tableau de bord ROI du restaurateur | 2–3 j | 🟢 |
 | P11 | Sécurité, RGPD, monitoring, test réel en service du midi | 4–5 j | 🔴 |
 
-\* Jours de développement effectif, 1 développeur assisté par IA. Total MVP ≈ **35–45 jours**.
+\* Jours de développement effectif, 1 développeur assisté par IA. Total MVP ≈ **39–51 jours**.
 
 ### Jalons
 - **M1 — Démo interne (fin P7)** : le parcours cœur fonctionne de bout en bout sur 2 téléphones.
+- **Identité visuelle (fin P7 bis)** : la DA est figée avant la PWA (icônes, splash, `theme_color`) et avant les nouveaux écrans des phases 9 et 10.
 - **M2 — Pilote terrain (fin P11)** : 1 restaurant réel, 1 service du midi, temps mesurés.
 - **M3 — Commercialisation (P12)** : abonnement actif **avant la fin des 3 mois gratuits** du premier pilote.
 
@@ -178,10 +181,10 @@ erDiagram
 **🎯 Objectif :** un projet vide mais **industrialisé** : conventions appliquées par l'outillage, déploiement continu fonctionnel.
 
 ### Étapes
-- [x] **1.1** ⚠️ Déplacer le projet **hors de OneDrive** (ex. `C:\Users\amint\Projet\Fidly`) ou exclure `node_modules`/`.next` de la synchronisation. Initialiser git + `.gitignore` + dépôt GitHub.
+- [x] **1.1** ⚠️ Déplacer le projet **hors de OneDrive** (ex. `C:\Users\amint\Projet\Rézone`) ou exclure `node_modules`/`.next` de la synchronisation. Initialiser git + `.gitignore` + dépôt GitHub.
 - [x] **1.2** `create-next-app` / initialisation Next.js (TypeScript, App Router, Tailwind v4, ESLint, `src/`, alias `@/`), pnpm. Durcir `tsconfig.json` (cf. `.cursorrules` §4).
 - [x] **1.3** Prettier + `prettier-plugin-tailwindcss`, règles ESLint (`no-explicit-any`, `max-lines: 150`, `max-lines-per-function: 40`), Husky + `lint-staged` (`.husky/pre-commit`).
-- [x] **1.4** shadcn/ui init (`components.json`) + composants de base (`button`, `card`, `drawer`, `input`, `label`, `form`, `sonner`, `skeleton`, `progress`). Design tokens Fidly (couleurs, police, rayon), layout mobile-first.
+- [x] **1.4** shadcn/ui init (`components.json`) + composants de base (`button`, `card`, `drawer`, `input`, `label`, `form`, `sonner`, `skeleton`, `progress`). Design tokens Rézone (couleurs, police, rayon), layout mobile-first.
 - [x] **1.5** Arborescence `src/features`, `src/lib`, `lib/env.ts` (validation Zod), `lib/errors.ts` (`ActionResult`, codes d'erreur).
 - [x] **1.6** Vitest (4 tests unitaires) + Playwright (`playwright.config.ts` mobile 375×667 + `e2e/smoke.spec.ts`). Scripts `lint`, `typecheck`, `test`, `test:e2e`.
 - [x] **1.7** GitHub Actions (`.github/workflows/ci.yml` pour lint + typecheck + test à chaque PR). *(Connexion Vercel : preview par PR, production sur `main`, région UE alignée sur Supabase).*
@@ -247,7 +250,7 @@ erDiagram
 ### Étapes
 - [x] **3.1** `lib/supabase/server.ts`, `client.ts`, middleware/proxy de rafraîchissement de session.
 - [x] **3.2** Page `/login` : bouton Google OAuth + formulaire email → saisie du code OTP à 6 chiffres. Route `/auth/callback`.
-- [x] **3.3** SMTP personnalisé (Resend) + template d'email OTP en français aux couleurs Fidly.
+- [x] **3.3** SMTP personnalisé (Resend) + template d'email OTP en français aux couleurs Rézone.
 - [x] **3.4** Onboarding post-inscription : saisie du prénom ou pseudonyme (`display_name`, cf. Q-010) si absent (pré-rempli depuis Google).
 - [x] **3.5** Garde de routes : `/` et `/pro` exigent une session ; `/pro` exige une appartenance à `restaurant_members` ; `/admin` exige `platform_admins`. Redirection vers `/login?next=...`.
 - [x] **3.6** Flux d'invitation restaurateur (ADR-006) : l'admin crée le restaurant et émet une invitation liée à un email (`restaurant_invitations`) → le restaurateur crée lui-même son compte avec cet email → il est rattaché comme `owner` (l'UI d'invitation des employés `staff` est reportée en Post-MVP — Q-011).
@@ -324,25 +327,25 @@ erDiagram
 **🎯 Objectif :** le commerçant scanne le QR client, voit son état et valide +1 passage ou la récompense, **en moins de 3 secondes**, sans doublon possible.
 
 ### Étapes
-- [ ] **6.1** Composant scanner (librairie validée en P0) chargé via `next/dynamic` (`ssr: false`), bouton géant « Scanner un client », caméra arrière, **flux caméra conservé entre deux scans** (pause du décodage, pas d'arrêt du stream).
-- [ ] **6.2** Saisie manuelle du code court de secours (6 caractères, normalisation majuscules, tolérance aux caractères ambigus).
+- [x] **6.1** Composant scanner (librairie validée en P0) chargé via `next/dynamic` (`ssr: false`), bouton géant « Scanner un client », caméra arrière, **flux caméra conservé entre deux scans** (pause du décodage, pas d'arrêt du stream).
+- [x] **6.2** Saisie manuelle du code court de secours (6 caractères, normalisation majuscules, tolérance aux caractères ambigus).
 - [x] **6.3** RPC `lookup_customer(token_or_code, restaurant_id)` : vérifie l'appartenance du staff, retourne `display_name`, carte (ou « nouvelle carte »), programme actif (`current_program_id`), `isRewardUnlocked`, `last_visit_at`, `isInCooldown`.
-- [ ] **6.4** Tiroir (Drawer shadcn) : `display_name` + `stamps / threshold` (ex. `4 / 10`, `13 / 10` ou `13 / 20`), bouton **« Valider +1 passage »** (toujours actif, cumul sans plafond), bouton vert **« Valider la récompense »** si palier atteint, **alerte cooldown** si dernier passage < 2 h (validation possible par tout employé avec confirmation explicite, tracée — Q-009).
+- [x] **6.4** Tiroir (Drawer shadcn) : `display_name` + `stamps / threshold` (ex. `4 / 10`, `13 / 10` ou `13 / 20`), bouton **« Valider +1 passage »** (toujours actif, cumul sans plafond), bouton vert **« Valider la récompense »** si palier atteint, **alerte cooldown** si dernier passage < 2 h (validation possible par tout employé avec confirmation explicite, tracée — Q-009).
 - [x] **6.5** RPC `record_visit(card, idempotency_key, force_cooldown)` : transaction, `SELECT … FOR UPDATE`, re-vérification du cooldown côté serveur, création de la carte au 1er passage (1er programme actif), `stamps += 1`, `lifetime_visits += 1`, insertion `scan_logs` (`cooldown_overridden`), retour du nouvel état.
 - [x] **6.6** RPC `redeem_reward(card, idempotency_key)` (ADR-009) : vérifie `stamps >= threshold` ; si palier intermédiaire ⇒ conserve `stamps` et bascule `current_program_id` sur le palier actif suivant (`13/10 → 13/20`) ; si dernier palier ⇒ déduit `threshold` (`stamps -= threshold`) et boucle `current_program_id` sur le 1er palier (`20/20 → 0/10`) ; log `reward_redeemed`.
 - [x] **6.7** Server Actions fines *(remplacées par des appels directs aux RPC depuis le navigateur, ADR-022)* (Zod + appel RPC + mapping `ActionResult`), feedback : son, vibration (Android), animation de succès, fermeture auto du tiroir et retour au scanner prêt. *(Actions faites ; son, vibration et fermeture auto codés, à valider sur appareil.)*
 - [x] **6.8** RPC `reverse_scan(log_id, idempotency_key)` (ADR-010, Q-012) : annulation par écriture compensatoire `type = reversal` liée via `reverses_log_id` (`UNIQUE`), autorisée pour `owner` (tout scan) et `staff` (ses propres scans < 10 min), restauration atomique de l'état de la carte.
 
 ### ✅ Tests de validation
-- [ ] **Chronométrage** sur appareil réel, 20 scans consécutifs : médiane < 3 s scan → confirmation, aucun > 5 s.
+- [x] **Chronométrage** sur appareil réel, 20 scans consécutifs : médiane < 3 s scan → confirmation, aucun > 5 s. *(validé sur appareil réel par le porteur de projet)*
 - [x] **Double-tap** sur « Valider » ⇒ un seul passage crédité (idempotence). *(pgTAP ; boutons désactivés pendant l'envoi, à revoir sur appareil)*
-- [ ] **Deux téléphones staff** scannent le même client simultanément ⇒ un seul crédit sans confirmation, l'autre reçoit l'alerte cooldown.
+- [x] **Deux téléphones staff** scannent le même client simultanément ⇒ un seul crédit sans confirmation, l'autre reçoit l'alerte cooldown.
 - [x] Scan à < 2 h ⇒ alerte affichée ; validation forcée ⇒ log `cooldown_overridden = true`. *(pgTAP ; alerte à voir à l'écran)*
 - [x] Palier 1 atteint à `13/10` ⇒ consommation passe la carte à `13/20` sur Palier 2 ; consommation du dernier palier à `20/20` ⇒ boucle à `0/10` sur Palier 1.
 - [x] Annulation d'un scan ⇒ log `reversal` créé, ligne d'origine barrée dans `/pro/logs`, refusée pour un `staff` au-delà de 10 min ou sur le scan d'un collègue, double annulation refusée (`UNIQUE(reverses_log_id)`).
 - [x] QR forgé (token inconnu, chaîne aléatoire, URL malveillante, très longue chaîne) ⇒ message « Client introuvable », aucune erreur 500.
 - [x] Un staff du restaurant A ne peut pas créditer une carte au nom du restaurant B (test SQL fait ; E2E à faire).
-- [ ] Code court de secours fonctionnel.
+- [x] Code court de secours fonctionnel.
 - [ ] Tests pgTAP des RPC (`lookup_customer`, `record_visit`, `redeem_reward`, `reverse_scan`) + test E2E Playwright du parcours complet. *(pgTAP fait : 31 assertions ; E2E à faire, voir DT-007)*
 
 ### ⚠️ Points de vigilance
@@ -385,12 +388,48 @@ Parcours complet sur 2 téléphones : inscription client → configuration resta
 
 ---
 
-## Phase 8 — PWA & hors-ligne
+## 🎨 Phase 7 bis — Direction artistique & design system
 
-**🎯 Objectif :** Fidly s'installe sur l'écran d'accueil en 1 clic et le QR client s'affiche **même sans réseau**.
+**🎯 Objectif :** donner à Rézone son identité visuelle (logo, couleurs, typographie, ton) et l'appliquer une bonne fois à tous les écrans existants, côté client **et** côté restaurateur, avant d'y empiler de nouvelles fonctions.
+
+**Pourquoi ici (après M1, avant P8) :**
+- Le parcours cœur fonctionne (M1) : on peut changer l'habillage **sans risquer** de casser la logique, couverte par les tests.
+- La **P8 en dépend directement** : icônes 192/512 et maskable, splash screens, `theme_color` et `background_color` du manifest sont des éléments de la DA. Les faire avant évite de les refaire.
+- Les **P9 et P10** créent de nouveaux écrans (découverte, stats) : mieux vaut les construire directement avec les tokens et composants définitifs que les refaire ensuite.
+- Plus tôt on fige les tokens (`globals.css`), moins on réécrit de classes Tailwind. Plus tard, le coût de refonte grandit avec chaque écran ajouté.
+- La DA doit être **avant le pilote** : le restaurateur et ses clients jugent le produit sur son aspect dès la première minute.
 
 ### Étapes
-- [ ] **8.1** `app/manifest.ts` (nom, icônes 192/512 + maskable, `theme_color`, `display: standalone`, `start_url`), icônes Apple et splash screens.
+- [x] **DA.1** Brief : idées de DA du porteur de projet, références (moodboard), personnalité de marque, ton des textes ; deux usages à servir : client (plaisir, simplicité) et restaurateur (lisibilité en caisse, rapidité). *(Session 29 : références Snoonu, Klook, Angi ; 5 itérations validées avec le porteur)*
+- [x] **DA.2** Identité : logo (version complète + icône carrée de l'app, variante maskable), palette avec contrastes AA, typographies (via `next/font`), style d'illustration et d'icônes, décision sur le mode sombre. *(Session 29 : ADR-024 ; assets dans `public/brand/` ; Bricolage Grotesque + Plus Jakarta Sans ; pas d'illustrations, icônes en trait arrondi ; mode sombre reporté ; détail dans `05-DIRECTION-ARTISTIQUE.md`)*
+- [ ] **DA.3** Design tokens dans `src/app/globals.css` (couleurs, rayons, ombres, échelle typographique, mouvements) : source unique de la DA.
+- [ ] **DA.4** Composants `ui/` (shadcn) re-thémés et composants `shared/` (états vide, chargement, erreur, en-têtes).
+- [ ] **DA.5** Maquettes haute fidélité à 375 px des écrans clés : connexion, accueil client (QR + cartes), scanner et tiroir, logs, réglages, `/admin`. Validation par le porteur de projet **avant** de coder. *(Session 29 : connexion, accueil, carte d'un commerce, caisse et découvrir maquettés et validés ; logs, réglages et `/admin` non maquettés, à valider sur téléphone après DA.6)*
+- [ ] **DA.6** Application aux écrans existants (aucun changement de logique), animations de jauge et de célébration alignées sur la DA.
+- [ ] **DA.7** Supports : template d'email OTP, chevalet QR imprimable, assets prêts pour la P8 (icônes, splash, couleurs du manifest).
+
+### ✅ Tests de validation
+- [ ] Contrastes AA vérifiés sur les couleurs de texte, de boutons et d'états.
+- [ ] Écran scanner et tiroir lisibles en plein jour et d'une main ; boutons ≥ 48 px.
+- [ ] Le QR client reste sur fond blanc pur, quiet zone et taille inchangées (cf. P4).
+- [ ] Aucune régression de performance : Lighthouse `/` ≥ 86 (DT-005) et budget de scan inchangé (< 3 s).
+- [ ] `pnpm lint && pnpm typecheck && pnpm test` verts ; aucun test de logique modifié pour passer.
+- [ ] Retour de 2–3 personnes (client et restaurateur) sur la première impression.
+
+### ⚠️ Points de vigilance
+- **Habillage uniquement** : pas de changement de règle métier ni de schéma dans cette phase.
+- Pas de valeurs de couleur ou de taille en dur dans les composants : tout passe par les tokens.
+- Polices : limiter le nombre de graisses et utiliser `next/font` (poids et CLS).
+- La DA est « figée » ici ; les retouches ultérieures passent par les tokens. Un ajustement final est prévu avec le pilote (11.6).
+
+---
+
+## Phase 8 — PWA & hors-ligne
+
+**🎯 Objectif :** Rézone s'installe sur l'écran d'accueil en 1 clic et le QR client s'affiche **même sans réseau**.
+
+### Étapes
+- [ ] **8.1** `app/manifest.ts` (nom, icônes 192/512 + maskable, `theme_color`, `display: standalone`, `start_url`), icônes Apple et splash screens *(assets issus de la DA, étape DA.7)*.
 - [ ] **8.2** Service worker (Serwist, successeur de next-pwa) : mise en cache du shell de l'app et de l'écran QR ; stratégie *network-first* pour les données.
 - [ ] **8.3** Bannière d'installation : `beforeinstallprompt` sur Android ; instructions illustrées « Partager → Sur l'écran d'accueil » sur iOS ; affichage après un 1er passage réussi, refus mémorisé.
 - [ ] **8.4** Indicateur hors-ligne discret et données de cartes « dernière mise à jour à… ».
@@ -439,7 +478,7 @@ Parcours complet sur 2 téléphones : inscription client → configuration resta
 
 ### Étapes
 - [ ] **10.1** Attribution : un client inscrit via le QR du chevalet (`?ref=slug`) est rattaché au restaurant d'origine (`signup_restaurant_id`).
-- [ ] **10.2** RPC/vues agrégées : clients inscrits via le restaurant, clients actifs, passages par jour/semaine, **taux de retour** (clients avec ≥ 2 passages), récompenses consommées, clients « venus via le réseau Fidly ».
+- [ ] **10.2** RPC/vues agrégées : clients inscrits via le restaurant, clients actifs, passages par jour/semaine, **taux de retour** (clients avec ≥ 2 passages), récompenses consommées, clients « venus via le réseau Rézone ».
 - [ ] **10.3** `/pro/stats` : indicateurs clés + graphiques simples (shadcn charts) sur 7 / 30 / 90 jours.
 
 ### ✅ Tests de validation

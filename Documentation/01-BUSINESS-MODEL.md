@@ -1,7 +1,7 @@
-# Fidly — Business Model & Stratégie Go-To-Market
+# Rézone — Business Model & Stratégie Go-To-Market
 
 ## 1. Vision & Proposition de Valeur
-**Fidly** est un portefeuille de fidélité web (PWA) hyper-local conçu autour du concept "Zéro Friction".
+**Rézone** est un portefeuille de fidélité web (PWA) hyper-local conçu autour du concept "Zéro Friction".
 - **Pour le client :** Un seul QR code personnel pour tous les restaurants de son quartier/zone. Aucune carte papier à garder, aucune application lourde à télécharger en caisse, et une visibilité immédiate sur ses jauges de points.
 - **Pour le restaurateur :** Un programme de fidélité digitalisé en 5 minutes, une validation en caisse en moins de 3 secondes, une augmentation de la fréquence de visite des habitués et un partage de visibilité avec les commerces voisins.
 
@@ -17,7 +17,7 @@
 - **Ciblage Hyper-Local (Micro-zone fermée) :**
   - Ne pas lancer à l'échelle d'une ville entière. Cibler une seule rue commerçante, un pôle de restauration étudiant ou une zone de bureaux (4 à 6 restaurants indépendants proches).
 - **Onboarding "Clé en main" :**
-  - Le restaurateur n'a rien à imprimer : fournir le chevalet de comptoir plastifié (avec QR code d'inscription rapide pour les clients) et l'autocollant vitrine "Partenaire Fidly".
+  - Le restaurateur n'a rien à imprimer : fournir le chevalet de comptoir plastifié (avec QR code d'inscription rapide pour les clients) et l'autocollant vitrine "Partenaire Rézone".
 - **Indépendance financière des points (Multi-comptes cloisonnés) :**
   - 1 QR code unique par client, scanner par le restaurateur, incrémente le compteur vers la récompense pour le client en direct (animation visuel)
 

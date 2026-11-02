@@ -1,4 +1,4 @@
-# Fidly — Spécifications Produit, UX/UI & Règles Métier
+# Rézone — Spécifications Produit, UX/UI & Règles Métier
 
 ## 1. Philosophie "Zéro Friction"
 Le passage en caisse aux heures de pointe (service du midi) est critique. L'intégralité de l'interaction (ouverture + scan + validation) doit prendre **moins de 5 secondes**.
@@ -11,7 +11,7 @@ Le passage en caisse aux heures de pointe (service du midi) est critique. L'int�
 - **Accès immédiat :** Pas de téléchargement sur App Store / Play Store. Le client scanne le chevalet en caisse qui ouvre l'URL de la PWA.
 - **Connexion rapide :** Google Auth en 1 tap, ou code OTP à 6 chiffres par email (Magic Link et Apple Sign-In écartés, cf. ADR-003).
 - **Onboarding minimal :** Saisie d'un prénom ou pseudonyme (`display_name`, cf. Q-010) ; nom de famille non collecté.
-- **Bannière PWA :** Proposition d'ajouter Fidly sur l'écran d'accueil du téléphone en 1 clic pour un accès hors-ligne/instantané.
+- **Bannière PWA :** Proposition d'ajouter Rézone sur l'écran d'accueil du téléphone en 1 clic pour un accès hors-ligne/instantané.
 
 ### B. Écran Principal Client (`/`)
 1. **Zone Hero (Haut d'écran fixe) :**
@@ -59,7 +59,7 @@ Deux modes d'utilisation selon le matériel du commerçant :
 ## 4. Règles Métier & Sécurité Anti-Fraude
 1. **Scan inversé (Le commerçant scanne le client) :**
    - Le client ne peut jamais s'ajouter des points tout seul en prenant en photo un QR code fixe sur le comptoir. Seul un membre authentifié du restaurant (`owner` ou `staff` dans `restaurant_members`, cf. ADR-006) peut déclencher l'incrémentation.
-   - Onboarding restaurateur sur **invitation d'un admin Fidly** uniquement : le restaurateur crée lui-même son compte à partir de l'invitation afin d'empêcher toute usurpation d'enseigne (Q-004).
+   - Onboarding restaurateur sur **invitation d'un admin Rézone** uniquement : le restaurateur crée lui-même son compte à partir de l'invitation afin d'empêcher toute usurpation d'enseigne (Q-004).
 2. **Règle Anti-Doublon (Cooldown) :**
    - Un même client ne peut être crédité deux fois dans le même restaurant dans un intervalle inférieur à **2 heures** que si le vendeur confirme explicitement l'alerte affichée (autorisé pour tout employé mais tracé via `cooldown_overridden` et `staff_id`, cf. Q-009).
 3. **Log d'audit immuable & annulation :**

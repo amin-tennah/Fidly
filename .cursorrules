@@ -1,4 +1,4 @@
-# FIDLY — RÈGLES ABSOLUES DE DÉVELOPPEMENT (IA & HUMAINS)
+# RÉZONE — RÈGLES ABSOLUES DE DÉVELOPPEMENT (IA & HUMAINS)
 
 > Ce fichier est la **source unique de vérité** des conventions du projet.
 > Il est importé par `AGENTS.md` (Antigravity) et lu nativement par Cursor.
@@ -9,7 +9,7 @@
 
 ## 0. CONTEXTE & WORKFLOW DE SESSION
 
-- Fidly = PWA de fidélité hyper-locale "Zéro Friction". Contrainte produit n°1 : **scan + validation en caisse < 3 s**, interaction totale < 5 s.
+- Rézone = PWA de fidélité hyper-locale "Zéro Friction". Contrainte produit n°1 : **scan + validation en caisse < 3 s**, interaction totale < 5 s.
 - Documentation de référence (à relire si doute) : `Documentation/01-BUSINESS-MODEL.md`, `02-PRODUIT-ET-UX.md`, `03-ARCHITECTURE-TECHNIQUE.md`, `04-ROADMAP.md`.
 - **OBLIGATOIRE — Début de session** : lire la dernière entrée de `Documentation/CHANGELOG_ET_DECISIONS.md` et identifier l'étape courante dans `04-ROADMAP.md`.
 - **OBLIGATOIRE — Avant de coder** une tâche non triviale : annoncer un plan court (fichiers créés/modifiés, impact DB, risques). Attendre validation si la tâche touche au schéma DB, à la sécurité, ou ajoute une dépendance.
@@ -41,7 +41,7 @@ src/
     (client)/               # Espace client (/)
     (auth)/                 # Connexion / callback
     pro/                    # Espace restaurateur (/pro, /pro/settings, /pro/logs, /pro/stats)
-    admin/                  # Back-office Fidly (super-admin)
+    admin/                  # Back-office Rézone (super-admin)
     api/                    # Route Handlers : UNIQUEMENT webhooks / callbacks externes
     manifest.ts             # Manifest PWA
   components/
