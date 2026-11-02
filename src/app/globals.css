@@ -127,7 +127,7 @@
 
 @keyframes write {
   0% {
-    clip-path: inset(-10% 100% -10% -4%);
+    clip-path: inset(-10% 104% -10% -4%);
     transform: translateY(0.08em);
   }
   100% {
