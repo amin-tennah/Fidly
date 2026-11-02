@@ -57,11 +57,12 @@ export default async function LoginPage({
               </p>
             ) : null}
             <GoogleSignInButton nextPath={nextPath} />
-            <div className="relative flex items-center justify-center">
-              <span className="border-border w-full border-t-2" />
-              <span className="bg-card text-muted-foreground relative px-3 text-xs uppercase">
+            <div className="flex items-center gap-3">
+              <span className="border-border flex-1 border-t-2" />
+              <span className="text-muted-foreground text-sm whitespace-nowrap">
                 ou avec ton email
               </span>
+              <span className="border-border flex-1 border-t-2" />
             </div>
             <OtpLoginForm nextPath={nextPath} />
           </CardContent>

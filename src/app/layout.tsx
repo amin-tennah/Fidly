@@ -23,6 +23,13 @@ export const metadata: Metadata = {
     default: "Rézone — Fidélité Zéro Friction",
     template: "%s | Rézone",
   },
+  icons: {
+    icon: [
+      { url: "/brand/favicon.svg", type: "image/svg+xml" },
+      { url: "/brand/favicon-32.png", sizes: "32x32", type: "image/png" },
+    ],
+    apple: "/brand/apple-touch-icon.png",
+  },
   description:
     "Un seul QR code personnel pour vos restaurants de quartier. Cumulez vos passages et débloquez vos récompenses en moins de 3 secondes.",
 };
