@@ -36,8 +36,8 @@
 ## 🧭 État courant (à mettre à jour à chaque session)
 
 - **Phase en cours :** Phases 0 à 7 terminées et fusionnées dans `main` · jalon M1 (démo interne) validé · **nouvelle Phase 7 bis (direction artistique et design system) à faire avant la Phase 8**
-- **Dernière session :** Session 29 (2026-11-02) — Direction artistique : identité retenue, assets de marque dans `public/brand/`, document de passage `05-DIRECTION-ARTISTIQUE.md`
-- **Prochaine action :** commiter d'abord les changements non commités de la Session 28 (renommage) sur `main`, puis Phase 7 bis étape DA.3 (tokens et polices) sur `feat/phase-7bis-da`, en suivant `Documentation/05-DIRECTION-ARTISTIQUE.md` ; ensuite DA.4, DA.6, DA.7, puis Phase 8 (PWA) ; dette à régler avant le pilote : test E2E du scanner (DT-007), domaine vérifié dans Resend (DT-008)
+- **Dernière session :** Session 30 (2026-11-02) — Phase 7 bis DA.3, DA.4, DA.6, DA.7 : tokens, composants, écrans existants, email OTP et manifest, sur `feat/phase-7bis-da`
+- **Prochaine action :** valider sur téléphone (retour de 2 à 3 personnes), mesurer Lighthouse `/login` (≥ 86) et le temps de scan, puis fusionner `feat/phase-7bis-da` dans `main` ; ensuite Phase 8 (PWA) ; écrans « carte d'un commerce », « Découvrir » et barre du bas à habiller quand leurs routes existeront (DT-009)
 - **Bloquants :** Aucun
 
 ---
@@ -72,6 +72,41 @@
 
 **Prochaine étape** : ...
 ==================================================================================== -->
+
+### Session 30 — [2026-11-02] — Phase 7 bis : tokens, composants, écrans, email et manifest
+**Roadmap :** Phase 7 bis — DA.3, DA.4, DA.6, DA.7 · **Statut :** 🟡 Partiel (mesures Lighthouse et scan non faites) · **Branche :** `feat/phase-7bis-da`
+
+**Réalisé**
+- chore(git): changements de la Session 28 commités sur `main` (renommage Rézone), puis commit docs distinct (document 05, `public/brand/`, roadmap, changelog) ; secrets de `data.txt` et le .pptx laissés non suivis
+- feat(da) DA.3: tokens de la DA dans `globals.css` (noms shadcn gardés, `accent` devenu teinte douce, `gain` lime, teintes de carte, mouvements) ; polices Bricolage Grotesque (axe `opsz`) et Plus Jakarta Sans via `next/font` ; `getCardHue` (hash FNV-1a, testé) ; usages de `accent` migrés vers `primary`
+- feat(da) DA.4: `ui/` re-thémé (boutons ≥ 48 px, bordures `--input`, variante `gain`) ; `SegmentedProgress`, `LoyaltyHeroCard`, `CardBannerHeader`, `PlusOneBurst`, `IntroSplash` + `Wordmark` animé, `StepTransition`, `ErrorState`, `EmptyState`, `BrandLogo`, animations CSS de la section 5.5
+- feat(da) DA.6: connexion (étapes glissantes, bandeau Scanne·Cumule·Profite), accueil (en-tête forêt, intro une fois par ouverture, +1 via Realtime), caisse (coins lime, résultats icône + texte, sans animation), onboarding, invitation, `/pro`, `/admin`, pages d'erreur
+- feat(da) DA.7: template email OTP (en-tête forêt, code sur lime), `manifest.ts` (couleurs `#0a5c3a` / `#fff4e6`, icônes 192, 512, maskable), icônes d'onglet et Apple
+
+**Fichiers clés**
+- `src/app/globals.css` — tokens et keyframes ; `src/app/layout.tsx` — polices et icônes
+- `src/features/loyalty/components/` — `segmented-progress`, `loyalty-hero-card`, `intro-splash`, `plus-one-burst` ; `domain/` — `card-hue`, `segment-rows`, `card-message`
+- `src/components/shared/` — `step-transition`, `wordmark`, `brand-logo`, `error-state`, `empty-state`
+
+**Base de données** : aucune migration. `restaurantId` ajouté à `LoyaltyCardView` (lecture déjà sélectionnée).
+
+**Bugs rencontrés**
+| Symptôme | Cause racine | Correctif | Prévention |
+|---|---|---|---|
+| Build : « Axes can only be defined for variable fonts » | `weight` fixé avec l'axe `opsz` | `weight` retiré pour Bricolage | `pnpm build` après chaque changement de police |
+| Commit refusé par lint-staged | Prettier allonge une fonction au-delà de 40 lignes après `pnpm lint` | Sous-composants extraits | Lancer prettier avant lint |
+
+**Décisions** : ADR-024 appliqué ; aucun nouvel ADR (aucune dépendance ajoutée).
+**Dette introduite** : DT-009 (voir registre).
+
+**Tests de validation**
+- [x] `pnpm lint`, `pnpm typecheck`, `pnpm test` verts (167 tests, +11 nouveaux, aucun test de logique modifié) ; `pnpm build` OK ; e2e smoke OK
+- [x] Capture de `/login` à 375 px contrôlée
+- [ ] Lighthouse `/login` ≥ 86, scan < 3 s, contraste mesuré, retour de 2 à 3 personnes : non réalisés (à faire sur téléphone)
+
+**Écarts à signaler** : les textes du e2e smoke (titre et bouton de connexion) suivent la nouvelle copie ; l'intro sort par glissement du calque vers la gauche (pas d'accueil entrant au-dessus) ; messages de `lib/errors.ts` encore au vouvoiement.
+
+**Prochaine étape** : validation sur téléphone, mesures, fusion, puis Phase 8.
 
 ### Session 29 — [2026-11-02] — Direction artistique : identité retenue et document de passage
 **Roadmap :** Phase 7 bis (DA.1 et DA.2 terminées, DA.5 partielle) · **Statut :** ✅ Terminé · **Branche :** `main` (fichiers non commités)
@@ -1349,6 +1384,7 @@
 | DT-006 | Test chronomètre de la Phase 5 (un testeur non technique configure fiche + 2 paliers en < 5 min) non réalisé : il demande un vrai testeur | Pas de testeur disponible à ce stade | 🟢 L'ergonomie a été revue après retour du porteur de projet (Session 21) | Pilote (Phase 11.6) | ⏳ Ouverte |
 | DT-007 | Aucun test E2E Playwright du scanner : le projet n'a pas de stratégie de comptes de test (connexion par OTP email ou Google) | Décision à prendre (comptes de test, session injectée) avant d'écrire le parcours | 🟠 Parcours critique du scan couvert seulement par pgTAP et tests unitaires | Phase 6 (avant le jalon M1) | ⏳ Ouverte |
 | DT-008 | Resend est en mode test : les emails (codes de connexion à 6 chiffres) ne partent qu'à l'adresse du compte propriétaire, Supabase répond `500 unexpected_failure` pour toute autre adresse | Environnement de développement ; Google reste disponible pour se connecter | 🔴 Aucun client ni gérant d'une autre adresse ne peut se connecter par code | Phase 11 (avant le pilote) : acheter ou utiliser un nom de domaine, le vérifier dans Resend (SPF, DKIM), mettre l'expéditeur sur ce domaine | ⏳ Ouverte |
+| DT-009 | Écrans « carte d'un commerce » et « Découvrir » et barre du bas absents de l'app (pas de route) : `LoyaltyHeroCard` et `CardBannerHeader` créés mais non montés ; chevalet QR imprimable (DA.7) non refait | Pas d'invention de routes dans une étape d'habillage | 🟢 Code non utilisé jusqu'à la route | Phase 9 (découverte) ou étape dédiée | ⏳ Ouverte |
 
 ---
 

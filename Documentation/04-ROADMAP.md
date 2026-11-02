@@ -402,11 +402,11 @@ Parcours complet sur 2 téléphones : inscription client → configuration resta
 ### Étapes
 - [x] **DA.1** Brief : idées de DA du porteur de projet, références (moodboard), personnalité de marque, ton des textes ; deux usages à servir : client (plaisir, simplicité) et restaurateur (lisibilité en caisse, rapidité). *(Session 29 : références Snoonu, Klook, Angi ; 5 itérations validées avec le porteur)*
 - [x] **DA.2** Identité : logo (version complète + icône carrée de l'app, variante maskable), palette avec contrastes AA, typographies (via `next/font`), style d'illustration et d'icônes, décision sur le mode sombre. *(Session 29 : ADR-024 ; assets dans `public/brand/` ; Bricolage Grotesque + Plus Jakarta Sans ; pas d'illustrations, icônes en trait arrondi ; mode sombre reporté ; détail dans `05-DIRECTION-ARTISTIQUE.md`)*
-- [ ] **DA.3** Design tokens dans `src/app/globals.css` (couleurs, rayons, ombres, échelle typographique, mouvements) : source unique de la DA.
-- [ ] **DA.4** Composants `ui/` (shadcn) re-thémés et composants `shared/` (états vide, chargement, erreur, en-têtes).
+- [x] **DA.3** Design tokens dans `src/app/globals.css` (couleurs, rayons, ombres, échelle typographique, mouvements) : source unique de la DA.
+- [x] **DA.4** Composants `ui/` (shadcn) re-thémés et composants `shared/` (états vide, chargement, erreur, en-têtes).
 - [ ] **DA.5** Maquettes haute fidélité à 375 px des écrans clés : connexion, accueil client (QR + cartes), scanner et tiroir, logs, réglages, `/admin`. Validation par le porteur de projet **avant** de coder. *(Session 29 : connexion, accueil, carte d'un commerce, caisse et découvrir maquettés et validés ; logs, réglages et `/admin` non maquettés, à valider sur téléphone après DA.6)*
-- [ ] **DA.6** Application aux écrans existants (aucun changement de logique), animations de jauge et de célébration alignées sur la DA.
-- [ ] **DA.7** Supports : template d'email OTP, chevalet QR imprimable, assets prêts pour la P8 (icônes, splash, couleurs du manifest).
+- [x] **DA.6** Application aux écrans existants (aucun changement de logique), animations de jauge et de célébration alignées sur la DA.
+- [ ] **DA.7** *(Session 30 : email OTP et manifest faits ; chevalet imprimable restant)* Supports : template d'email OTP, chevalet QR imprimable, assets prêts pour la P8 (icônes, splash, couleurs du manifest).
 
 ### ✅ Tests de validation
 - [ ] Contrastes AA vérifiés sur les couleurs de texte, de boutons et d'états.
