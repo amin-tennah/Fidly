@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card";
 import { getPublicEnv } from "@/lib/env";
 
 export const metadata: Metadata = {
-  title: "Administration Fidly",
+  title: "Administration Rézone",
 };
 
 /** Back-office: create a restaurant, invite its owner, print the easel QR (Step 5.5). */
@@ -21,12 +21,12 @@ export default async function AdminHomePage(): Promise<ReactNode> {
       <header className="space-y-2">
         <div className="flex items-center justify-between gap-2">
           <span className="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
-            Super-Admin · Fidly
+            Super-Admin · Rézone
           </span>
           <SignOutButton variant="ghost" size="sm" />
         </div>
         <h1 className="text-foreground text-2xl font-bold tracking-tight">
-          Back-office Fidly
+          Back-office Rézone
         </h1>
       </header>
       <Card>

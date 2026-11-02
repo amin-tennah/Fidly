@@ -16,7 +16,7 @@ import {
 } from "@/features/auth/queries/get-session-context";
 
 export const metadata: Metadata = {
-  title: "Bienvenue sur Fidly",
+  title: "Bienvenue sur Rézone",
 };
 
 interface OnboardingPageProps {

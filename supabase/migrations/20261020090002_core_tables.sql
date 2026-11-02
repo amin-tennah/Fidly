@@ -67,7 +67,7 @@ create trigger set_profiles_updated_at
 create index profiles_signup_restaurant_id_idx
   on public.profiles (signup_restaurant_id);
 
--- 3. Platform Admins (super-admins Fidly, cf. ADR-006)
+-- 3. Platform Admins (super-admins Rézone, cf. ADR-006)
 create table public.platform_admins (
   user_id uuid primary key references public.profiles (id) on delete cascade,
   created_at timestamptz not null default now()

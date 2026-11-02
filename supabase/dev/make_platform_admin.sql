@@ -1,6 +1,6 @@
 -- ============================================================================
 -- DEV / EXPLOITATION (jamais une migration) : donne ou retire l'accès super-admin
--- (`/admin`) à un compte Fidly existant.
+-- (`/admin`) à un compte Rézone existant.
 --
 -- Pourquoi du SQL : personne ne peut s'ajouter dans `platform_admins` depuis
 -- l'application (aucun droit d'écriture, testé en pgTAP). Seul le SQL Editor du
@@ -15,7 +15,7 @@
 
 do $$
 declare
-  v_email  text    := 'votre.email@exemple.com';  -- À MODIFIER : l'email de votre compte Fidly
+  v_email  text    := 'votre.email@exemple.com';  -- À MODIFIER : l'email de votre compte Rézone
   v_enable boolean := true;                        -- À MODIFIER : true = ajouter, false = retirer
 
   v_user_id uuid;

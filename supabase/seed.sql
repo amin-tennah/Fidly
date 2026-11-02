@@ -1,5 +1,5 @@
 -- ============================================================================
--- Fidly — Données de développement (Étape 2.7 : seed.sql)
+-- Rézone — Données de développement (Étape 2.7 : seed.sql)
 -- 2 restaurants, 3 programmes (2 paliers + 1 palier), 1 owner, 3 clients,
 -- cartes illustrant ADR-009 (7/10, 13/10, 13/20) et logs illustrant ADR-010.
 -- ============================================================================

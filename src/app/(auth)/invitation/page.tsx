@@ -35,7 +35,7 @@ function InvitationList({ invitations }: InvitationListProps): ReactNode {
         <CardContent className="space-y-4 pt-6 text-sm">
           <p className="text-muted-foreground">
             Aucune invitation en attente pour cette adresse email. Vérifiez que vous êtes
-            connecté avec l&apos;email communiqué à l&apos;équipe Fidly.
+            connecté avec l&apos;email communiqué à l&apos;équipe Rézone.
           </p>
           <Button asChild variant="outline" className="w-full">
             <Link href={CLIENT_HOME_PATH}>Retour à mon espace client</Link>
@@ -72,7 +72,7 @@ export default async function InvitationPage(): Promise<ReactNode> {
       <div className="space-y-6">
         <header className="space-y-1">
           <span className="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
-            Espace Restaurateur Fidly
+            Espace Restaurateur Rézone
           </span>
           <h1 className="text-foreground text-2xl font-bold tracking-tight">
             Vos invitations en attente

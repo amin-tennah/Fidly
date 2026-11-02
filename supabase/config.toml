@@ -246,11 +246,11 @@ otp_expiry = 3600
 
 # Uncomment to customize email template
 [auth.email.template.confirmation]
-subject = "Votre code de connexion Fidly : {{ .Token }}"
+subject = "Votre code de connexion Rézone : {{ .Token }}"
 content_path = "./supabase/templates/otp.html"
 
 [auth.email.template.magic_link]
-subject = "Votre code de connexion Fidly : {{ .Token }}"
+subject = "Votre code de connexion Rézone : {{ .Token }}"
 content_path = "./supabase/templates/otp.html"
 # [auth.email.template.invite]
 # subject = "You have been invited"

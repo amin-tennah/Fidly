@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test.describe("Fidly mobile smoke & auth guard test (375px)", () => {
+test.describe("Rézone mobile smoke & auth guard test (375px)", () => {
   test("redirects unauthenticated visitor on / to /login and renders login form without console errors", async ({
     page,
   }) => {

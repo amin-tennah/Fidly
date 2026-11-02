@@ -9,7 +9,7 @@ export const APP_ERROR_MESSAGES = {
   EMAIL_SEND_FAILED:
     "L'envoi du code par email est momentanément indisponible. Réessayez dans un instant ou connectez-vous avec Google.",
   INVITATION_INVALID:
-    "Cette invitation est invalide, expirée ou déjà utilisée. Contactez l'équipe Fidly.",
+    "Cette invitation est invalide, expirée ou déjà utilisée. Contactez l'équipe Rézone.",
   CUSTOMER_NOT_FOUND:
     "Client introuvable. Vérifiez le QR code ou le code à 6 caractères.",
   COOLDOWN_ACTIVE:

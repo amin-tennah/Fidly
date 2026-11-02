@@ -48,7 +48,7 @@ export function ProAccessBanners({
           href={ADMIN_HOME_PATH}
           className="text-accent inline-block text-xs font-semibold underline-offset-4 hover:underline"
         >
-          Accéder au back-office Fidly →
+          Accéder au back-office Rézone →
         </Link>
       ) : null}
     </>

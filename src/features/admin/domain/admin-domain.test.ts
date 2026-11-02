@@ -38,8 +38,8 @@ describe("slugCandidate", () => {
 
 describe("easel helpers", () => {
   it("builds the QR address without a double slash and encodes the slug", () => {
-    expect(buildEaselUrl("https://fidly.app/", "chez-pepe")).toBe(
-      "https://fidly.app/?ref=chez-pepe",
+    expect(buildEaselUrl("https://rezone.app/", "chez-pepe")).toBe(
+      "https://rezone.app/?ref=chez-pepe",
     );
     expect(buildEaselUrl("http://localhost:3000", "a b")).toBe(
       "http://localhost:3000/?ref=a%20b",

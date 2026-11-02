@@ -18,7 +18,7 @@
 
 do $$
 declare
-  v_email    text := 'votre.email@exemple.com';  -- À MODIFIER : l'email de votre compte Fidly
+  v_email    text := 'votre.email@exemple.com';  -- À MODIFIER : l'email de votre compte Rézone
   v_scenario text := 'progress';                  -- À MODIFIER : progress | unlocked | chained | clean
 
   v_user_id uuid;

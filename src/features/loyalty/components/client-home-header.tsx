@@ -23,7 +23,7 @@ export function ClientHomeHeader({
     <header className="space-y-2">
       <div className="flex items-center justify-between gap-2">
         <span className="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
-          Fidly · Zéro Friction
+          Rézone · Zéro Friction
         </span>
         <SignOutButton variant="ghost" size="sm" />
       </div>

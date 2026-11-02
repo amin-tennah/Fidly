@@ -1,5 +1,5 @@
 /** Cookie remembering which restaurant the pro space is currently showing. */
-export const ACTIVE_RESTAURANT_COOKIE = "fidly-active-restaurant";
+export const ACTIVE_RESTAURANT_COOKIE = "rezone-active-restaurant";
 /** One year, in seconds. */
 export const ACTIVE_RESTAURANT_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
 

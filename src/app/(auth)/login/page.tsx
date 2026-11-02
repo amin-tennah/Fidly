@@ -28,7 +28,7 @@ function LoginHero(): ReactNode {
   return (
     <div className="mb-6 space-y-1 text-center">
       <span className="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
-        Fidly · Zéro Friction
+        Rézone · Zéro Friction
       </span>
       <h1 className="text-foreground text-2xl font-bold tracking-tight">
         Accédez à vos cartes de fidélité

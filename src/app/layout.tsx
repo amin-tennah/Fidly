@@ -5,8 +5,8 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "Fidly — Fidélité Zéro Friction",
-    template: "%s | Fidly",
+    default: "Rézone — Fidélité Zéro Friction",
+    template: "%s | Rézone",
   },
   description:
     "Un seul QR code personnel pour vos restaurants de quartier. Cumulez vos passages et débloquez vos récompenses en moins de 3 secondes.",

@@ -5,7 +5,7 @@ import {
   PUBLIC_PATH_PREFIXES,
 } from "@/features/auth/constants";
 
-const SAFE_ORIGIN = "http://fidly.internal";
+const SAFE_ORIGIN = "http://rezone.internal";
 
 /**
  * Returns a same-origin relative path, or the client home when `raw` is

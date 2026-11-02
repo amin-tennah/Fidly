@@ -42,3 +42,5 @@ Thumbs.db
 
 # agent tooling symlinks (restored by `npx skills`)
 .claude/
+
+certificates

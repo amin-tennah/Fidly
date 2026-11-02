@@ -28,4 +28,4 @@ export const EASEL = {
 
 export const EASEL_CAPTION = "Scannez pour cumuler vos passages";
 export const EASEL_FOOTER =
-  "Carte de fidélité Fidly · gratuite et sans appli à installer";
+  "Carte de fidélité Rézone · gratuite et sans appli à installer";
