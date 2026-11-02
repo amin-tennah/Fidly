@@ -21,7 +21,7 @@ function ProgressSection({ progress }: { readonly progress: CardProgress }): Rea
         <span className="text-muted-foreground flex-1">
           {progress.program.rewardLabel}
         </span>
-        <span className="text-accent shrink-0 font-semibold">{label}</span>
+        <span className="text-primary shrink-0 font-semibold">{label}</span>
       </div>
       <Progress
         value={progress.progressPercent}
@@ -40,7 +40,7 @@ export function LoyaltyCardItem({ card }: LoyaltyCardItemProps): ReactNode {
   return (
     <Card
       className={cn(
-        isUnlocked && "border-accent bg-emerald-50 ring-1 ring-emerald-500/40",
+        isUnlocked && "border-primary bg-emerald-50 ring-1 ring-emerald-500/40",
       )}
     >
       <div className="flex items-center gap-3">

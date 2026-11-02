@@ -37,7 +37,7 @@ export function ProBottomNav(): ReactNode {
                 aria-current={active ? "page" : undefined}
                 className={cn(
                   "flex min-h-14 flex-col items-center justify-center gap-0.5 text-xs font-medium",
-                  active ? "text-accent" : "text-muted-foreground",
+                  active ? "text-primary" : "text-muted-foreground",
                 )}
               >
                 <Icon className="size-5" aria-hidden="true" />

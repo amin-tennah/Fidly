@@ -29,7 +29,7 @@ export function ScanSuccess({
   return (
     <div className="space-y-4 p-4 pb-6">
       <div role="status" className="space-y-1 text-center">
-        <p className="text-accent text-2xl font-bold">{SUCCESS_TITLES[kind]}</p>
+        <p className="text-primary text-2xl font-bold">{SUCCESS_TITLES[kind]}</p>
         <p className="text-muted-foreground text-sm">{customerName}</p>
       </div>
       <CustomerProgress card={outcome} />

@@ -26,7 +26,7 @@ export function OpeningHoursSummary({
             aria-current={isToday ? "date" : undefined}
             className={cn("flex justify-between gap-3 py-2", isToday && "font-semibold")}
           >
-            <span className={cn(isToday && "text-accent")}>{DAY_LABELS[day]}</span>
+            <span className={cn(isToday && "text-primary")}>{DAY_LABELS[day]}</span>
             <span
               className={cn("text-right", text === "Fermé" && "text-muted-foreground")}
             >

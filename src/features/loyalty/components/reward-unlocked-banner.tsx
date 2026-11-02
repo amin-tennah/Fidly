@@ -14,7 +14,7 @@ export function RewardUnlockedBanner(): ReactNode {
     <p
       role="status"
       className={cn(
-        "text-accent rounded-lg text-sm font-bold",
+        "text-primary rounded-lg text-sm font-bold",
         isJustUnlocked && "motion-safe:animate-reward-pop",
       )}
     >

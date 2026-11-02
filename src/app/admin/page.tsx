@@ -39,7 +39,7 @@ export default async function AdminHomePage(): Promise<ReactNode> {
       </section>
       <Link
         href={CLIENT_HOME_PATH}
-        className="text-accent text-xs font-semibold underline-offset-4 hover:underline"
+        className="text-primary text-xs font-semibold underline-offset-4 hover:underline"
       >
         ← Retour à l&apos;accueil client
       </Link>

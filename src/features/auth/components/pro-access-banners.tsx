@@ -38,7 +38,7 @@ export function ProAccessBanners({
       {firstMembership ? (
         <Link
           href={PRO_HOME_PATH}
-          className="text-accent inline-block text-xs font-semibold underline-offset-4 hover:underline"
+          className="text-primary inline-block text-xs font-semibold underline-offset-4 hover:underline"
         >
           Accéder à l&apos;espace restaurateur ({firstMembership.restaurantName}) →
         </Link>
@@ -46,7 +46,7 @@ export function ProAccessBanners({
       {isPlatformAdmin ? (
         <Link
           href={ADMIN_HOME_PATH}
-          className="text-accent inline-block text-xs font-semibold underline-offset-4 hover:underline"
+          className="text-primary inline-block text-xs font-semibold underline-offset-4 hover:underline"
         >
           Accéder au back-office Rézone →
         </Link>

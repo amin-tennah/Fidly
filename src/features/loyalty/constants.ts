@@ -8,3 +8,6 @@ export const QR_SIZE_PX = 232;
 export const QR_QUIET_ZONE_MODULES = 4;
 export const QR_FOREGROUND_COLOR = "#000000";
 export const QR_BACKGROUND_COLOR = "#FFFFFF";
+
+/** Number of card colours (--hue-1 … --hue-6 in globals.css). */
+export const CARD_HUE_COUNT = 6;

@@ -44,7 +44,6 @@ function AcceptActionBody({
       ) : null}
       <Button
         type="button"
-        variant="accent"
         size="lg"
         className="w-full"
         disabled={isPending}

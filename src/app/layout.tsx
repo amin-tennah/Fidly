@@ -1,7 +1,22 @@
 import type { Metadata, Viewport } from "next";
+import { Bricolage_Grotesque, Plus_Jakarta_Sans } from "next/font/google";
 import type { ReactNode } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
+
+const fontDisplay = Bricolage_Grotesque({
+  subsets: ["latin"],
+  axes: ["opsz"],
+  display: "swap",
+  variable: "--font-bricolage",
+});
+
+const fontSans = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  weight: ["400", "600", "800"],
+  display: "swap",
+  variable: "--font-jakarta",
+});
 
 export const metadata: Metadata = {
   title: {
@@ -15,7 +30,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#09090b",
+  themeColor: "#0a5c3a",
 };
 
 interface RootLayoutProps {
@@ -24,7 +39,7 @@ interface RootLayoutProps {
 
 export default function RootLayout({ children }: RootLayoutProps): ReactNode {
   return (
-    <html lang="fr">
+    <html lang="fr" className={`${fontDisplay.variable} ${fontSans.variable}`}>
       <body className="bg-background text-foreground min-h-dvh antialiased">
         {children}
         <Toaster />

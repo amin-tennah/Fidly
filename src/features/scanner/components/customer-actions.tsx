@@ -31,7 +31,7 @@ export function CustomerActions({
       ) : null}
       {customer.isRewardUnlocked ? (
         <Button
-          variant="accent"
+          variant="gain"
           size="lg"
           className="min-h-16 w-full text-lg"
           disabled={isSubmitting}

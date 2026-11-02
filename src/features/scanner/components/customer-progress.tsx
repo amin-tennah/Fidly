@@ -21,7 +21,7 @@ export function CustomerProgress({ card }: CustomerProgressProps): ReactNode {
       </div>
       <Progress value={percent} aria-label={`Progression : ${label}`} className="h-4" />
       {card.isRewardUnlocked ? (
-        <p role="status" className="text-accent text-sm font-bold">
+        <p role="status" className="text-primary text-sm font-bold">
           Récompense disponible !
         </p>
       ) : null}

@@ -1,26 +1,49 @@
 @import "tailwindcss";
 
+/* Tokens: Documentation/05-DIRECTION-ARTISTIQUE.md §2. shadcn names are kept. */
 :root {
-  --background: #fafafa;
-  --foreground: #09090b;
+  --background: #ffffff;
+  --foreground: #0e1f17;
   --card: #ffffff;
-  --card-foreground: #09090b;
+  --card-foreground: #0e1f17;
   --popover: #ffffff;
-  --popover-foreground: #09090b;
-  --primary: #09090b;
-  --primary-foreground: #fafafa;
-  --secondary: #f4f4f5;
-  --secondary-foreground: #18181b;
-  --muted: #f4f4f5;
-  --muted-foreground: #52525b;
-  --accent: #059669;
-  --accent-foreground: #ffffff;
+  --popover-foreground: #0e1f17;
+  --primary: #0a5c3a;
+  --primary-foreground: #fff4e6;
+  --secondary: #eef4f0;
+  --secondary-foreground: #0e1f17;
+  --muted: #eef4f0;
+  --muted-foreground: #4a5a52;
+  --accent: #eef4f0;
+  --accent-foreground: #0e1f17;
   --destructive: #dc2626;
   --destructive-foreground: #fafafa;
-  --border: #e4e4e7;
-  --input: #e4e4e7;
-  --ring: #059669;
-  --radius: 0.875rem;
+  --border: #d5e2da; /* decorative only (1.3:1) */
+  --input: #6b8577; /* field and button borders (4.0:1 on white) */
+  --ring: #0a5c3a;
+  --radius: 1rem;
+
+  --cream: #fff4e6;
+  --gain: #c8f25a;
+  --gain-foreground: #0a5c3a;
+
+  /* card hues: -light = dark tone on white, -dark = light tone on forest */
+  --hue-1-light: #0a5c3a;
+  --hue-1-dark: #c8f25a;
+  --hue-2-light: #d9421f;
+  --hue-2-dark: #ff8a6b;
+  --hue-3-light: #5b47ff;
+  --hue-3-dark: #b4a9ff;
+  --hue-4-light: #b86e00;
+  --hue-4-dark: #ffd23f;
+  --hue-5-light: #0f6fd1;
+  --hue-5-dark: #7cc4ff;
+  --hue-6-light: #d6336c;
+  --hue-6-dark: #ff9cc7;
+
+  --ease-slide: cubic-bezier(0.22, 0.9, 0.3, 1);
+  --ease-pop: cubic-bezier(0.2, 1.7, 0.4, 1);
+  --dur-slide: 500ms;
 }
 
 @theme inline {
@@ -43,6 +66,23 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-cream: var(--cream);
+  --color-gain: var(--gain);
+  --color-gain-foreground: var(--gain-foreground);
+  --color-hue-1-light: var(--hue-1-light);
+  --color-hue-1-dark: var(--hue-1-dark);
+  --color-hue-2-light: var(--hue-2-light);
+  --color-hue-2-dark: var(--hue-2-dark);
+  --color-hue-3-light: var(--hue-3-light);
+  --color-hue-3-dark: var(--hue-3-dark);
+  --color-hue-4-light: var(--hue-4-light);
+  --color-hue-4-dark: var(--hue-4-dark);
+  --color-hue-5-light: var(--hue-5-light);
+  --color-hue-5-dark: var(--hue-5-dark);
+  --color-hue-6-light: var(--hue-6-light);
+  --color-hue-6-dark: var(--hue-6-dark);
+  --font-sans: var(--font-jakarta), system-ui, sans-serif;
+  --font-display: var(--font-bricolage), var(--font-jakarta), system-ui, sans-serif;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -56,28 +96,22 @@
 @keyframes reward-pop {
   0% {
     transform: scale(0.96);
-    box-shadow: 0 0 0 0 rgb(5 150 105 / 0.5);
+    box-shadow: 0 0 0 0 rgb(10 92 58 / 0.5);
   }
   60% {
     transform: scale(1.03);
-    box-shadow: 0 0 0 14px rgb(5 150 105 / 0);
+    box-shadow: 0 0 0 14px rgb(10 92 58 / 0);
   }
   100% {
     transform: scale(1);
-    box-shadow: 0 0 0 0 rgb(5 150 105 / 0);
+    box-shadow: 0 0 0 0 rgb(10 92 58 / 0);
   }
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family:
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Roboto,
-    sans-serif;
+  font-family: var(--font-sans);
 }
 
 @media (prefers-reduced-motion: reduce) {
