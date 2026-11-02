@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { BrandLogo } from "@/components/shared/brand-logo";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   GoogleSignInButton,
   LOGIN_ERROR_PARAM,
@@ -26,18 +25,6 @@ function firstParam(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
 }
 
-function LoginHero(): ReactNode {
-  return (
-    <div className="mb-6 space-y-5 text-center">
-      <BrandLogo tone="forest" width={200} className="mx-auto" />
-      <LoginStepsBand />
-      <h1 className="font-display text-foreground text-2xl font-extrabold tracking-tight">
-        Connecte-toi pour retrouver ta carte
-      </h1>
-    </div>
-  );
-}
-
 export default async function LoginPage({
   searchParams,
 }: LoginPageProps): Promise<ReactNode> {
@@ -47,26 +34,22 @@ export default async function LoginPage({
 
   return (
     <div className="bg-cream">
-      <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center px-4 py-8">
-        <LoginHero />
-        <Card>
-          <CardContent className="space-y-5">
-            {hasError ? (
-              <p role="alert" className="text-destructive text-xs font-medium">
-                La connexion a échoué ou a été annulée. Réessaie.
-              </p>
-            ) : null}
-            <GoogleSignInButton nextPath={nextPath} />
-            <div className="flex items-center gap-3">
-              <span className="border-border flex-1 border-t-2" />
-              <span className="text-muted-foreground text-sm whitespace-nowrap">
-                ou avec ton email
-              </span>
-              <span className="border-border flex-1 border-t-2" />
-            </div>
-            <OtpLoginForm nextPath={nextPath} />
-          </CardContent>
-        </Card>
+      <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-[22px] px-6 pt-14 pb-7">
+        <BrandLogo tone="forest" width={230} className="mx-auto" />
+        <LoginStepsBand />
+        <h1 className="font-display text-[28px] leading-[1.05] font-extrabold tracking-[-0.02em]">
+          Connecte-toi pour retrouver ta carte
+        </h1>
+        {hasError ? (
+          <p role="alert" className="text-destructive text-sm font-medium">
+            La connexion a échoué ou a été annulée. Réessaie.
+          </p>
+        ) : null}
+        <GoogleSignInButton nextPath={nextPath} />
+        <OtpLoginForm nextPath={nextPath} />
+        <p className="text-muted-foreground mt-auto pt-4 text-center text-[13px]">
+          Pas de mot de passe, pas d&apos;appli à télécharger.
+        </p>
       </main>
     </div>
   );

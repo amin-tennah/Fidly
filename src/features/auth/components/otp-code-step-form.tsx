@@ -45,7 +45,7 @@ function CodeField({ form, isPending }: CodeFieldProps): ReactNode {
               autoComplete="one-time-code"
               maxLength={OTP_LENGTH}
               placeholder="123456"
-              className="text-center font-mono text-lg tracking-widest"
+              className="min-h-14 rounded-2xl bg-white text-center font-mono text-lg tracking-widest"
               disabled={isPending}
               {...field}
             />

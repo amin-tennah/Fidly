@@ -33,13 +33,14 @@ function EmailField({ form, isPending }: EmailFieldProps): ReactNode {
       name="email"
       render={({ field }) => (
         <FormItem>
-          <FormLabel>Adresse email</FormLabel>
+          <FormLabel className="font-display text-[15px] font-bold">Ton email</FormLabel>
           <FormControl>
             <Input
               type="email"
               inputMode="email"
               autoComplete="email"
-              placeholder="toi@exemple.fr"
+              placeholder="prenom@email.fr"
+              className="min-h-14 rounded-2xl bg-white"
               disabled={isPending}
               {...field}
             />

@@ -46,7 +46,7 @@ export function GoogleSignInButton({ nextPath }: GoogleSignInButtonProps): React
         type="button"
         variant="outline"
         size="lg"
-        className="border-primary w-full"
+        className="border-primary text-foreground w-full bg-white"
         disabled={isLoading}
         onClick={() => void handleClick()}
       >
