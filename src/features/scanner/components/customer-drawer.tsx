@@ -21,7 +21,7 @@ function DrawerBody({ flow }: CustomerDrawerProps): ReactNode {
   const { state } = flow;
   if (state.step === "customer") {
     return (
-      <div className="space-y-4 p-4 pb-6">
+      <div className="space-y-4 px-5 pb-8">
         <CustomerProgress card={state.customer} />
         <CustomerActions
           customer={state.customer}
@@ -34,7 +34,7 @@ function DrawerBody({ flow }: CustomerDrawerProps): ReactNode {
     );
   }
   if (state.step === "done") {
-    return <ScanSuccess {...state} onCancel={flow.cancelLastScan} />;
+    return <ScanSuccess {...state} onCancel={flow.cancelLastScan} onNext={flow.close} />;
   }
   return null;
 }
@@ -54,8 +54,8 @@ export function CustomerDrawer({ flow }: CustomerDrawerProps): ReactNode {
 
   return (
     <Drawer open={isOpen} onOpenChange={(open) => !open && !isBusy && flow.close()}>
-      <DrawerContent>
-        <DrawerHeader>
+      <DrawerContent className="bg-cream">
+        <DrawerHeader className={state.step === "done" ? "sr-only" : undefined}>
           <DrawerTitle className="text-2xl">{drawerTitle(flow)}</DrawerTitle>
           <DrawerDescription>Carte de fidélité du client</DrawerDescription>
         </DrawerHeader>

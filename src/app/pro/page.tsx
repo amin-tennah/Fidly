@@ -18,5 +18,11 @@ export default async function ProScannerPage(): Promise<ReactNode> {
   }
 
   // `key` resets the flow (and its idempotency keys) when the owner switches restaurant.
-  return <ScannerScreen key={active.restaurantId} restaurantId={active.restaurantId} />;
+  return (
+    <ScannerScreen
+      key={active.restaurantId}
+      restaurantId={active.restaurantId}
+      restaurantName={active.restaurantName}
+    />
+  );
 }

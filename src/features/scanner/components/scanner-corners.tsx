@@ -1,19 +1,24 @@
 import type { ReactNode } from "react";
 
 const CORNERS = [
-  "top-4 left-4 border-t-4 border-l-4 rounded-tl-xl",
-  "top-4 right-4 border-t-4 border-r-4 rounded-tr-xl",
-  "bottom-4 left-4 border-b-4 border-l-4 rounded-bl-xl",
-  "bottom-4 right-4 border-b-4 border-r-4 rounded-br-xl",
+  "top-0 left-0 border-t-[7px] border-l-[7px] rounded-tl-[14px]",
+  "top-0 right-0 border-t-[7px] border-r-[7px] rounded-tr-[14px]",
+  "bottom-0 left-0 border-b-[7px] border-l-[7px] rounded-bl-[14px]",
+  "bottom-0 right-0 border-b-[7px] border-r-[7px] rounded-br-[14px]",
 ] as const;
 
-/** Lime corner marks over the dark camera zone. Decorative. */
+/** Lime viewfinder corners and the help line over the dark camera zone. Decorative. */
 export function ScannerCorners(): ReactNode {
   return (
     <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-      {CORNERS.map((corner) => (
-        <span key={corner} className={`border-gain absolute size-10 ${corner}`} />
-      ))}
+      <div className="absolute top-1/2 left-1/2 size-[190px] -translate-x-1/2 -translate-y-1/2">
+        {CORNERS.map((corner) => (
+          <span key={corner} className={`border-gain absolute size-11 ${corner}`} />
+        ))}
+      </div>
+      <p className="text-cream absolute inset-x-0 bottom-3 text-center text-sm font-semibold">
+        Place le QR du client dans le cadre
+      </p>
     </div>
   );
 }

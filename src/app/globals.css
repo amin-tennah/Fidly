@@ -25,6 +25,7 @@
 
   --cream: #fff4e6;
   --track: #e1ece5;
+  --ink-soft: #1b2f25;
   --gain: #c8f25a;
   --gain-foreground: #0a5c3a;
 
@@ -69,6 +70,7 @@
   --color-ring: var(--ring);
   --color-cream: var(--cream);
   --color-track: var(--track);
+  --color-ink-soft: var(--ink-soft);
   --color-gain: var(--gain);
   --color-gain-foreground: var(--gain-foreground);
   --color-hue-1-light: var(--hue-1-light);
