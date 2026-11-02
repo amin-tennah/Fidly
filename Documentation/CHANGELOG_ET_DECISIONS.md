@@ -36,7 +36,7 @@
 ## 🧭 État courant (à mettre à jour à chaque session)
 
 - **Phase en cours :** Phases 0 à 7 terminées et fusionnées dans `main` · jalon M1 (démo interne) validé · **nouvelle Phase 7 bis (direction artistique et design system) à faire avant la Phase 8**
-- **Dernière session :** Session 30 (2026-11-02) — Phase 7 bis DA.3, DA.4, DA.6, DA.7 : tokens, composants, écrans existants, email OTP et manifest, sur `feat/phase-7bis-da`
+- **Dernière session :** Session 31 (2026-11-02) — Phase 7 bis : refonte de la structure des écrans d'après les maquettes (`05b-ECRANS-SPEC.md`)
 - **Prochaine action :** valider sur téléphone (retour de 2 à 3 personnes), mesurer Lighthouse `/login` (≥ 86) et le temps de scan, puis fusionner `feat/phase-7bis-da` dans `main` ; ensuite Phase 8 (PWA) ; écrans « carte d'un commerce », « Découvrir » et barre du bas à habiller quand leurs routes existeront (DT-009)
 - **Bloquants :** Aucun
 
@@ -72,6 +72,39 @@
 
 **Prochaine étape** : ...
 ==================================================================================== -->
+
+### Session 31 — [2026-11-02] — Refonte de la structure des écrans d'après les maquettes
+**Roadmap :** Phase 7 bis — DA.6 (reprise) · **Statut :** 🟡 Partiel (mesures sur téléphone à faire) · **Branche :** `feat/phase-7bis-da`
+
+**Contexte** : la Session 30 avait changé couleurs et polices sans refaire l'agencement ; le porteur de projet l'a refusée. Lecture de `05b-ECRANS-SPEC.md` et de `da-mockups/LISEZ-MOI.md`, audit écran par écran, puis un commit par écran.
+
+**Réalisé**
+- Accueil client : en-tête forêt (logo SVG officiel, avatar lime 44 px, « Salut » 30 px), bloc QR qui chevauche l'en-tête (QR, taille et marge inchangés), lien pro sous le QR, titre « Mes cartes » + « N commerces »
+- Connexion : bloc forêt de 150 px avec 3 disques reliés, formulaire à plat sur fond crème, champ et boutons à 56 px, mention de bas de page
+- Cartes de la liste : logo tuile 44 px, nom, récompense, compteur Bricolage 22 px, traits de 16 px ; couleur par carte `HUES[hash(restaurant.id) % 6]` (ton light) ; carte cliquable vers `/cartes/<slug>`
+- Détail d'une carte (nouvelle route `/cartes/[slug]`, lecture seule, requête existante + `cover_path`) : bannière optionnelle de 150 px ou lien « ‹ Mes cartes », carte forêt, compteur de 92 px, traits de 22 px (ton dark), « C'est gagné ! », bloc « Ensuite »
+- Caisse : fond encre plein écran, viseur de 270 px avec coins lime, feuille crème (« Validé » 38 px, « Annuler », « Scanner suivant »)
+- Espace pro : bloc héros « Scanner un client », bloc « Code du client », marges de 20 px (débordement droit corrigé par `min-w-0` sur le champ), barre d'onglets de 72 px
+
+**Fichiers clés** : `src/features/loyalty/components/` (`client-home-header`, `customer-qr-hero`, `loyalty-card-item`, `loyalty-hero-card`, `next-tier-block`, `card-banner-header`), `src/app/(client)/cartes/[slug]/page.tsx`, `src/features/scanner/components/` (`cashier-view`, `scan-start-hero`, `scan-success`, `scanner-screen`), `src/features/auth/components/login-steps-band.tsx`
+
+**Base de données** : aucune migration (lecture de `cover_path`, colonne existante). Aucun hook métier, action serveur ni test fonctionnel modifié ; le texte du message de carte (`describeCardMessage`, test créé en Session 30) a changé.
+
+**Écarts assumés** (sans logique derrière, cf. LISEZ-MOI) : « Dans la même rue », « Découvrir les voisins », « Annuler (9 min) », bloc « Aujourd'hui », barre d'onglets client (pas de route Découvrir ni Profil). QR empilé au-dessus du titre (taille imposée). Message de carte « avant ta récompense » (le libellé du palier n'est pas garanti grammaticalement).
+
+**Bugs rencontrés**
+| Symptôme | Cause racine | Correctif | Prévention |
+|---|---|---|---|
+| Le serveur de dev servait un module périmé | Cache Turbopack d'un serveur déjà lancé | Captures via build de production sur un port à part | Prévisualiser avec `pnpm build` |
+| Commande bash rejetée entière | Quote non fermée dans une longue commande | Fichiers écrits avec l'outil Write | Commandes courtes |
+
+**Décisions** : aucune (ADR-024 appliqué). **Dette** : DT-009 mise à jour (la route détail existe ; restent « Découvrir », « Profil », voisins).
+
+**Tests de validation**
+- [x] `pnpm lint`, `pnpm typecheck`, `pnpm test` verts (167 tests), `pnpm build` OK ; captures à 375 px dans `Documentation/da-captures/`
+- [ ] Non réalisés : Lighthouse `/login` ≥ 86, scan < 3 s, contraste mesuré, caméra réelle, session connectée (les captures utilisaient une page de prévisualisation temporaire, supprimée), logs, stats, réglages et admin non revus
+
+**Prochaine étape** : valider sur téléphone, mesurer, fusionner dans `main`, puis Phase 8.
 
 ### Session 30 — [2026-11-02] — Phase 7 bis : tokens, composants, écrans, email et manifest
 **Roadmap :** Phase 7 bis — DA.3, DA.4, DA.6, DA.7 · **Statut :** 🟡 Partiel (mesures Lighthouse et scan non faites) · **Branche :** `feat/phase-7bis-da`
