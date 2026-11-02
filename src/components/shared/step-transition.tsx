@@ -13,7 +13,7 @@ export interface StepTransitionProps {
 }
 
 const TRANSITION =
-  "transition-[transform,visibility] duration-(--dur-slide) ease-(--ease-slide)";
+  "transition-[translate,visibility] duration-[var(--dur-slide),0s] ease-(--ease-slide)";
 
 function placementClass(index: number, activeIndex: number): string {
   if (index === activeIndex) {
