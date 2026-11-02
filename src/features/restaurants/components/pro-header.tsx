@@ -13,12 +13,16 @@ export function ProHeader({ memberships, active, logoUrl }: ProHeaderProps): Rea
   const roleLabel = active.role === "owner" ? "Gérant" : "Équipier";
 
   return (
-    <header className="space-y-2">
+    <header className="space-y-3">
       <div className="flex items-center justify-between gap-2">
         <span className="bg-gain text-gain-foreground inline-flex items-center rounded-full px-3 py-1 text-sm font-bold">
           Espace Pro · {roleLabel}
         </span>
-        <SignOutButton variant="ghost" size="sm" />
+        <SignOutButton
+          variant="ghost"
+          size="sm"
+          className="min-h-12 text-sm font-extrabold"
+        />
       </div>
       <div className="flex items-center gap-3">
         <RestaurantAvatar name={active.restaurantName} logoUrl={logoUrl} size="lg" />
@@ -28,7 +32,7 @@ export function ProHeader({ memberships, active, logoUrl }: ProHeaderProps): Rea
             activeRestaurantId={active.restaurantId}
           />
         ) : (
-          <h1 className="font-display text-foreground text-2xl font-bold tracking-tight">
+          <h1 className="font-display text-foreground text-[28px] leading-[1.05] font-extrabold tracking-[-0.02em]">
             {active.restaurantName}
           </h1>
         )}
