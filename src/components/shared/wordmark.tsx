@@ -80,7 +80,7 @@ export function Wordmark({ className }: WordmarkProps): ReactNode {
         <svg
           key={glyph.id}
           viewBox={`${glyph.x0} ${y} ${glyph.x1 - glyph.x0} ${height}`}
-          className="animate-write absolute top-0 h-full opacity-0"
+          className="animate-write absolute top-0 h-full"
           style={glyphBox(glyph)}
         >
           <path d={glyph.path} fill="var(--cream)" />
