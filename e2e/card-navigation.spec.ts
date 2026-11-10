@@ -1,5 +1,10 @@
 import { expect, type Page } from "@playwright/test";
-import { readSlide, signedInTest as test } from "./signed-in";
+import {
+  openWithoutIntro,
+  readMidSlide,
+  readSlide,
+  signedInTest as test,
+} from "./signed-in";
 
 const VIEWPORT_WIDTH_PX = 375;
 /** The receding screen stops at -28 % of the viewport (05-DIRECTION-ARTISTIQUE §5.4). */
@@ -7,10 +12,8 @@ const RECEDE_END_PX = -Math.round(VIEWPORT_WIDTH_PX * 0.28);
 const MID_SLIDE_MS = 150;
 const AFTER_SLIDE_MS = 700;
 
-async function openHomeWithoutIntro(page: Page): Promise<void> {
-  await page.goto("/");
-  await page.getByRole("button", { name: "Passer" }).click();
-  await expect(page.getByRole("status", { name: "Bienvenue sur Rézone" })).toHaveCount(0);
+function openHomeWithoutIntro(page: Page): Promise<void> {
+  return openWithoutIntro(page, "/");
 }
 
 async function openFirstCard(page: Page): Promise<void> {
@@ -24,9 +27,7 @@ test("card: the screen slides in from the right while the home recedes", async (
   await openHomeWithoutIntro(page);
   await openFirstCard(page);
 
-  await page.waitForTimeout(MID_SLIDE_MS);
-  const mid = await readSlide(page);
-  expect(mid.names).toEqual(expect.arrayContaining(["recede", "slide-in"]));
+  const mid = await readMidSlide(page, ["recede", "slide-in"]);
   expect(mid.incomingX).toBeGreaterThan(0);
   expect(mid.incomingX).toBeLessThan(VIEWPORT_WIDTH_PX);
   expect(mid.outgoingX).toBeLessThan(0);
@@ -45,10 +46,8 @@ test("card: the phone back button plays the slide in reverse", async ({ page }) 
   await page.waitForTimeout(AFTER_SLIDE_MS);
 
   await page.evaluate(() => window.history.back());
-  await page.waitForTimeout(MID_SLIDE_MS);
-  const mid = await readSlide(page);
+  const mid = await readMidSlide(page, ["slide-away", "return"]);
 
-  expect(mid.names).toEqual(expect.arrayContaining(["slide-away", "return"]));
   expect(mid.outgoingX).toBeGreaterThan(0);
   expect(mid.incomingX).toBeLessThan(0);
   await expect(page).toHaveURL(/\/$/);
@@ -63,10 +62,8 @@ test("card: the in-app back link slides back and leaves no card in the history",
   await page.waitForTimeout(AFTER_SLIDE_MS);
 
   await page.locator('main a[href="/"]').first().click();
-  await page.waitForTimeout(MID_SLIDE_MS);
-  expect((await readSlide(page)).names).toEqual(
-    expect.arrayContaining(["slide-away", "return"]),
-  );
+  const mid = await readMidSlide(page, ["slide-away", "return"]);
+  expect(mid.outgoingX).toBeGreaterThan(0);
 
   await expect(page).toHaveURL(/\/$/);
   // Popped, not pushed: one forward entry at most, and "back" does not return to the card.

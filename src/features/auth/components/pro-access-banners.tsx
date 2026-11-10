@@ -46,7 +46,7 @@ export function ProAccessBanners({
       {isPlatformAdmin ? (
         <Link
           href={ADMIN_HOME_PATH}
-          className="text-primary inline-block text-xs font-semibold underline-offset-4 hover:underline"
+          className="text-primary inline-flex min-h-12 items-center text-sm font-semibold underline-offset-4 hover:underline"
         >
           Accéder au back-office Rézone →
         </Link>

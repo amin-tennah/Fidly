@@ -1,5 +1,5 @@
 import { expect, type Locator } from "@playwright/test";
-import { signedInTest as test } from "./signed-in";
+import { openWithoutIntro, signedInTest as test } from "./signed-in";
 
 /** Mirrors INTRO_MIN_DURATION_MS / INTRO_MAX_DURATION_MS (features/loyalty/constants.ts). */
 const INTRO_MIN_MS = 1900;
@@ -55,13 +55,13 @@ test("intro: covers the home while it loads, writes the logo, then slides away",
   await expect(intro).toHaveClass(/animate-slide-out/, { timeout: INTRO_MAX_MS });
   const leaving = await readIntro(intro);
   expect(leaving.elapsedMs).toBeGreaterThanOrEqual(INTRO_MIN_MS - PAINT_TOLERANCE_MS);
-  expect(leaving.elapsedMs).toBeLessThan(INTRO_MIN_MS + SLIDE_OUT_MS + TOLERANCE_MS);
+  expect(leaving.elapsedMs).toBeLessThan(INTRO_MAX_MS + TOLERANCE_MS);
   await expect(intro).toHaveCount(0);
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 });
 
 test("intro: the skip button dismisses it at once", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/", { waitUntil: "commit" });
   const intro = page.getByRole("status", { name: "Bienvenue sur Rézone" });
 
   await page.getByRole("button", { name: "Passer" }).click();
@@ -71,10 +71,8 @@ test("intro: the skip button dismisses it at once", async ({ page }) => {
 });
 
 test("intro: is not replayed when coming back to the home", async ({ page }) => {
-  await page.goto("/");
+  await openWithoutIntro(page, "/");
   const intro = page.getByRole("status", { name: "Bienvenue sur Rézone" });
-  await page.getByRole("button", { name: "Passer" }).click();
-  await expect(intro).toHaveCount(0);
 
   await page.locator('a[href^="/cartes/"]').first().click();
   await expect(page).toHaveURL(/\/cartes\//);

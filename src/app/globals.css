@@ -127,18 +127,21 @@
   --animate-slide-out: slide-out var(--dur-slide) var(--ease-slide) both;
 }
 
+/*
+ * Motion rule: keyframes animate `transform` and `opacity` only, so that nothing triggers
+ * layout. Two exceptions, both set by 05-DIRECTION-ARTISTIQUE §5 and paint-only:
+ * `write` (clip-path sweep of the logo letters) and `segPop` (brightness flash of a new
+ * segment). e2e/motion.spec.ts enforces the list.
+ */
 @keyframes reward-pop {
   0% {
     transform: scale(0.96);
-    box-shadow: 0 0 0 0 rgb(10 92 58 / 0.5);
   }
   60% {
     transform: scale(1.03);
-    box-shadow: 0 0 0 14px rgb(10 92 58 / 0);
   }
   100% {
     transform: scale(1);
-    box-shadow: 0 0 0 0 rgb(10 92 58 / 0);
   }
 }
 
@@ -336,6 +339,17 @@
   z-index: 1;
 }
 
+/*
+ * Keyboard focus is always visible, including on links that set no ring of their own.
+ * In the base layer, so that a component's own ring (with `outline-none`) wins.
+ */
+@layer base {
+  :where(a, button, select, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+}
+
 /* Installed-app feel: no rubber band or pull-to-refresh, no iOS text inflation. */
 html {
   background-color: var(--background);
@@ -374,6 +388,7 @@ select {
     animation-delay: 0s !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
     scroll-behavior: auto !important;
   }
   ::view-transition-group(*),

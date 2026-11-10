@@ -1,4 +1,4 @@
-import { test as base, type Page } from "@playwright/test";
+import { test as base, expect, type Page } from "@playwright/test";
 
 /**
  * Signed-in journeys need a real session (login is by email code, DT-007). Save one with
@@ -26,6 +26,40 @@ signedInTest.skip(
   !SESSION_FILE,
   "E2E_SESSION is not set: signed-in journeys are skipped",
 );
+
+/** The intro leaves by itself (4 s at most); waiting is steadier than racing its skip button. */
+const INTRO_GONE_TIMEOUT_MS = 6000;
+
+/** Opens a signed-in screen and waits until the intro, if it played, has left. */
+export async function openWithoutIntro(page: Page, path: string): Promise<void> {
+  await page.goto(path, { waitUntil: "networkidle" });
+  await expect(page.getByRole("status", { name: "Bienvenue sur Rézone" })).toHaveCount(
+    0,
+    {
+      timeout: INTRO_GONE_TIMEOUT_MS,
+    },
+  );
+}
+
+const SLIDE_START_TIMEOUT_MS = 2000;
+const SLIDE_POLL_INTERVAL_MS = 25;
+/** Read a little after the start, so that both screens are visibly on their way. */
+const SLIDE_SETTLE_MS = 120;
+
+/** Waits for a slide running the given keyframes to start, then reads it mid-flight. */
+export async function readMidSlide(
+  page: Page,
+  keyframes: readonly string[],
+): Promise<SlideFrame> {
+  await expect
+    .poll(async () => (await readSlide(page)).names, {
+      timeout: SLIDE_START_TIMEOUT_MS,
+      intervals: [SLIDE_POLL_INTERVAL_MS],
+    })
+    .toEqual(expect.arrayContaining([...keyframes]));
+  await page.waitForTimeout(SLIDE_SETTLE_MS);
+  return readSlide(page);
+}
 
 export interface SlideFrame {
   /** Keyframes running on the outgoing and incoming screens ("recede", "slide-in", …). */
