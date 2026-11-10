@@ -33,7 +33,7 @@ export default async function CardPage({ params }: CardPageProps): Promise<React
   }
 
   return (
-    <main className="animate-slide-in mx-auto flex min-h-dvh w-full max-w-md flex-col gap-4 pb-8">
+    <main className="animate-slide-in pb-safe-8 mx-auto flex min-h-dvh w-full max-w-md flex-col gap-4">
       <CardBannerHeader bannerUrl={card.restaurantCoverUrl} backHref={CLIENT_HOME_PATH}>
         <LoyaltyHeroCard card={card} progress={card.progress} />
       </CardBannerHeader>

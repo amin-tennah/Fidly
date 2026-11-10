@@ -99,7 +99,7 @@ export function ImageCropDialog({
       aria-label={`Cadrer : ${title}`}
       className="fixed inset-0 z-50 flex flex-col bg-black"
     >
-      <p className="p-3 text-center text-sm font-medium text-white">
+      <p className="pt-safe-3 px-3 pb-3 text-center text-sm font-medium text-white">
         Glissez l&apos;image pour la centrer, pincez ou utilisez le zoom.
       </p>
       <CropStage
@@ -111,7 +111,7 @@ export function ImageCropDialog({
         onZoomChange={setZoom}
         onAreaChange={setArea}
       />
-      <div className="bg-background space-y-3 p-4">
+      <div className="bg-background pb-safe-4 space-y-3 px-4 pt-4">
         <ZoomSlider zoom={zoom} onZoomChange={setZoom} />
         <CropActions
           canConfirm={area !== null}

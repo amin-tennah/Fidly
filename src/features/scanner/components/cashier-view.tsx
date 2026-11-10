@@ -20,7 +20,7 @@ export function CashierView({
   return (
     <div className="bg-foreground text-cream fixed inset-0 z-[45] flex flex-col overflow-y-auto">
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col">
-        <header className="flex items-center justify-between gap-3 px-5 pt-5">
+        <header className="pt-safe-5 flex items-center justify-between gap-3 px-5">
           <h1 className="font-display text-[22px] font-extrabold">Scanner</h1>
           <div className="flex min-w-0 items-center gap-1">
             <p className="truncate text-sm font-semibold">{restaurantName}</p>
@@ -37,7 +37,7 @@ export function CashierView({
           </div>
         </header>
         <div className="mt-4 px-5">{camera}</div>
-        <div className="bg-cream text-foreground mt-auto space-y-3 rounded-t-[28px] px-5 pt-5 pb-8">
+        <div className="bg-cream text-foreground pb-safe-8 mt-auto space-y-3 rounded-t-[28px] px-5 pt-5">
           {sheet}
         </div>
       </div>

@@ -13,7 +13,7 @@ function initialOf(displayName: string): string {
 /** Forest header: logo and avatar, then the greeting. The QR block overlaps its bottom edge. */
 export function ClientHomeHeader({ displayName }: ClientHomeHeaderProps): ReactNode {
   return (
-    <header className="bg-primary text-primary-foreground space-y-3 rounded-b-[28px] px-5 pt-[22px] pb-[72px]">
+    <header className="bg-primary text-primary-foreground pt-safe-5.5 space-y-3 rounded-b-[28px] px-5 pb-[72px]">
       <div className="flex items-center justify-between gap-2">
         <BrandLogo tone="cream" width={116} />
         <span

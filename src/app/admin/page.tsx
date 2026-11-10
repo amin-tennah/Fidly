@@ -17,7 +17,7 @@ export default async function AdminHomePage(): Promise<ReactNode> {
   const { NEXT_PUBLIC_APP_URL } = getPublicEnv();
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-6 px-4 py-8">
+    <main className="pt-safe-8 pb-safe-8 mx-auto flex min-h-dvh w-full max-w-md flex-col gap-6 px-4">
       <header className="space-y-2">
         <div className="flex items-center justify-between gap-2">
           <span className="bg-gain text-gain-foreground inline-flex items-center rounded-full px-3 py-1 text-sm font-bold">

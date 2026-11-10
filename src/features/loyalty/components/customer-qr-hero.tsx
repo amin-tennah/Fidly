@@ -45,7 +45,7 @@ export function CustomerQrHero({ identity }: CustomerQrHeroProps): ReactNode {
           <p className="text-muted-foreground text-sm">
             Code de secours si le QR est illisible
           </p>
-          <p className="text-foreground font-mono text-xl font-bold tracking-widest">
+          <p className="text-foreground font-mono text-xl font-bold tracking-widest select-text">
             {formatShortCode(identity.shortCode)}
           </p>
         </div>

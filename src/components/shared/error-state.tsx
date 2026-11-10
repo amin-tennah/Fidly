@@ -18,7 +18,7 @@ export function ErrorState({
   onRetry,
 }: ErrorStateProps): ReactNode {
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col items-center justify-center gap-5 px-4 py-8 text-center">
+    <main className="pt-safe-8 pb-safe-8 mx-auto flex min-h-dvh w-full max-w-md flex-col items-center justify-center gap-5 px-4 text-center">
       <span className="bg-secondary text-primary flex size-16 items-center justify-center rounded-full">
         <TriangleAlert className="size-8" aria-hidden="true" />
       </span>

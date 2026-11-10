@@ -30,6 +30,13 @@ export const metadata: Metadata = {
     ],
     apple: "/brand/apple-touch-icon.png",
   },
+  // "default" keeps the iOS status bar outside the page: its text stays readable on the
+  // cream and white screens, which "black-translucent" (white text) would not allow.
+  appleWebApp: {
+    capable: true,
+    title: "Rézone",
+    statusBarStyle: "default",
+  },
   description:
     "Un seul QR code personnel pour vos restaurants de quartier. Cumulez vos passages et débloquez vos récompenses en moins de 3 secondes.",
 };
@@ -37,6 +44,8 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  // Edge to edge: the page handles the cut-outs itself (`--safe-top`, `--safe-bottom`).
+  viewportFit: "cover",
   themeColor: "#0a5c3a",
 };
 

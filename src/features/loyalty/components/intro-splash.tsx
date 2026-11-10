@@ -25,7 +25,7 @@ export function IntroSplash(): ReactNode {
       <Button
         type="button"
         variant="ghost"
-        className="text-primary-foreground hover:text-primary-foreground absolute top-4 right-4 hover:bg-white/10"
+        className="text-primary-foreground hover:text-primary-foreground top-safe-4 absolute right-4 hover:bg-white/10"
         onClick={skip}
       >
         Passer

@@ -46,6 +46,21 @@
   --ease-slide: cubic-bezier(0.22, 0.9, 0.3, 1);
   --ease-pop: cubic-bezier(0.2, 1.7, 0.4, 1);
   --dur-slide: 500ms;
+
+  /* Device cut-outs (notch, home indicator); 0 outside an installed, edge-to-edge app. */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Spacing plus the matching safe-area inset, e.g. `pb-safe-8` = 2rem + home indicator. */
+@utility pt-safe-* {
+  padding-top: calc(var(--spacing) * --value(number) + var(--safe-top));
+}
+@utility pb-safe-* {
+  padding-bottom: calc(var(--spacing) * --value(number) + var(--safe-bottom));
+}
+@utility top-safe-* {
+  top: calc(var(--spacing) * --value(number) + var(--safe-top));
 }
 
 @theme inline {
@@ -259,10 +274,34 @@
   }
 }
 
+/* Installed-app feel: no rubber band or pull-to-refresh, no iOS text inflation. */
+html {
+  background-color: var(--background);
+  overscroll-behavior: none;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/*
+ * No tap flash, no double-tap zoom (pinch zoom stays, for accessibility), no long-press
+ * callout and no accidental text selection. Fields and `.select-text` stay selectable.
+ */
 body {
   background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+input,
+textarea,
+select {
+  -webkit-user-select: text;
+  user-select: text;
 }
 
 @media (prefers-reduced-motion: reduce) {

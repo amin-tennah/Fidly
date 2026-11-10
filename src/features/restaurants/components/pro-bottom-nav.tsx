@@ -24,7 +24,7 @@ export function ProBottomNav(): ReactNode {
   return (
     <nav
       aria-label="Navigation espace restaurateur"
-      className="bg-background border-track fixed inset-x-0 bottom-0 z-40 border-t-2"
+      className="bg-background border-track pb-safe-0 fixed inset-x-0 bottom-0 z-40 border-t-2"
     >
       <ul className="mx-auto flex max-w-md">
         {PRO_NAV_ITEMS.map((item) => {

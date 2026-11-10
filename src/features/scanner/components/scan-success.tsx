@@ -58,7 +58,7 @@ export function ScanSuccess({
   onNext,
 }: ScanSuccessProps): ReactNode {
   return (
-    <div className="space-y-4 px-5 pb-8">
+    <div className="pb-safe-8 space-y-4 px-5">
       <div role="status" className="flex items-center gap-4">
         <span className="bg-primary text-gain flex size-[72px] shrink-0 items-center justify-center rounded-full">
           <Check className="size-10" strokeWidth={4} aria-hidden="true" />

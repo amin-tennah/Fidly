@@ -34,7 +34,7 @@ export default async function LoginPage({
 
   return (
     <div className="bg-cream">
-      <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-[22px] px-6 pt-14 pb-7">
+      <main className="pt-safe-14 pb-safe-7 mx-auto flex min-h-dvh w-full max-w-md flex-col gap-[22px] px-6">
         <BrandLogo tone="forest" width={230} className="mx-auto" />
         <LoginStepsBand />
         <h1 className="font-display text-[28px] leading-[1.05] font-extrabold tracking-[-0.02em]">

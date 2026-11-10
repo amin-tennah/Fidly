@@ -68,7 +68,7 @@ export default async function InvitationPage(): Promise<ReactNode> {
   const invitations = await listMyPendingInvitations();
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-between px-4 py-8">
+    <main className="pt-safe-8 pb-safe-8 mx-auto flex min-h-dvh w-full max-w-md flex-col justify-between px-4">
       <div className="space-y-6">
         <header className="space-y-1">
           <span className="bg-gain text-gain-foreground inline-flex items-center rounded-full px-3 py-1 text-sm font-bold">

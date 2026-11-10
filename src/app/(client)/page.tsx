@@ -43,7 +43,7 @@ export default async function HomePage(): Promise<ReactNode> {
   }
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-6 pb-8">
+    <main className="pb-safe-8 mx-auto flex min-h-dvh w-full max-w-md flex-col gap-6">
       <IntroSplash />
       <ClientHomeHeader displayName={displayName} />
       <div className="-mt-14 space-y-5 px-5">

@@ -7,6 +7,9 @@ export default function manifest(): MetadataRoute.Manifest {
     short_name: "Rézone",
     description: "Ta carte de fidélité pour les commerces de ton quartier.",
     lang: "fr",
+    // Stable identity: the installed app survives a later change of `start_url`.
+    id: "/",
+    scope: "/",
     start_url: "/",
     display: "standalone",
     theme_color: "#0a5c3a",

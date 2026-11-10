@@ -60,7 +60,7 @@ export default async function OnboardingPage({
   const currentName = profile?.displayName?.trim() ?? "";
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-between px-4 py-8">
+    <main className="pt-safe-8 pb-safe-8 mx-auto flex min-h-dvh w-full max-w-md flex-col justify-between px-4">
       <div className="space-y-6">
         <OnboardingHeader />
         <Card>

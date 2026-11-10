@@ -21,7 +21,7 @@ function DrawerBody({ flow }: CustomerDrawerProps): ReactNode {
   const { state } = flow;
   if (state.step === "customer") {
     return (
-      <div className="space-y-4 px-5 pb-8">
+      <div className="pb-safe-8 space-y-4 px-5">
         <CustomerProgress card={state.customer} />
         <CustomerActions
           customer={state.customer}

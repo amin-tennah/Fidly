@@ -15,7 +15,7 @@ function BannerBackButton({ href }: { readonly href: string }): ReactNode {
     <Link
       href={href}
       aria-label="Retour à mes cartes"
-      className="bg-cream text-primary absolute top-4 left-5 flex size-12 items-center justify-center rounded-full shadow-sm"
+      className="bg-cream text-primary top-safe-4 absolute left-5 flex size-12 items-center justify-center rounded-full shadow-sm"
     >
       <ChevronLeft className="size-6" strokeWidth={3} aria-hidden="true" />
     </Link>
@@ -42,7 +42,7 @@ export function CardBannerHeader({
 }: CardBannerHeaderProps): ReactNode {
   if (!bannerUrl) {
     return (
-      <div className="px-5 pt-3.5">
+      <div className="pt-safe-3.5 px-5">
         <TextBackLink href={backHref} />
         <div className="mt-1.5">{children}</div>
       </div>
