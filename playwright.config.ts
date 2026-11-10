@@ -26,6 +26,10 @@ export default defineConfig({
       use: {
         ...devices["Pixel 5"],
         viewport: { width: 375, height: 667 },
+        // A fake camera feed, accepted without a prompt (cashier tests).
+        launchOptions: {
+          args: ["--use-fake-device-for-media-stream", "--use-fake-ui-for-media-stream"],
+        },
       },
     },
   ],

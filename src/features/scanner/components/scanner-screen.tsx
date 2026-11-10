@@ -83,7 +83,7 @@ export function ScannerScreen({
           <ManualCodeForm isDisabled={state.step !== "idle"} onSubmit={flow.decode} />
         </>
       )}
-      <CustomerDrawer flow={flow} />
+      <CustomerDrawer flow={flow} restaurantId={restaurantId} />
     </section>
   );
 }

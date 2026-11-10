@@ -16,7 +16,7 @@
   --muted-foreground: #4a5a52;
   --accent: #eef4f0;
   --accent-foreground: #0e1f17;
-  --destructive: #dc2626;
+  --destructive: #b42318; /* 6.6:1 on white, 6.0:1 on cream */
   --destructive-foreground: #fafafa;
   --border: #d5e2da; /* decorative only (1.3:1) */
   --input: #6b8577; /* field and button borders (4.0:1 on white) */
