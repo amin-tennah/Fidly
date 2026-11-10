@@ -36,8 +36,8 @@
 ## 🧭 État courant (à mettre à jour à chaque session)
 
 - **Phase en cours :** Phases 0 à 7 terminées et fusionnées dans `main` · jalon M1 (démo interne) validé · **nouvelle Phase 7 bis (direction artistique et design system) à faire avant la Phase 8**
-- **Dernière session :** Session 31 (2026-11-02) — Phase 7 bis : refonte de la structure des écrans d'après les maquettes (`05b-ECRANS-SPEC.md`)
-- **Prochaine action :** valider sur téléphone (retour de 2 à 3 personnes), mesurer Lighthouse `/login` (≥ 86) et le temps de scan, puis fusionner `feat/phase-7bis-da` dans `main` ; ensuite Phase 8 (PWA) ; écrans « carte d'un commerce », « Découvrir » et barre du bas à habiller quand leurs routes existeront (DT-009)
+- **Dernière session :** Session 32 (2026-11-10) — Finition PWA : audit mesuré et socle d'app installée (lot 1 sur 9)
+- **Prochaine action :** lots 2 à 9 de la finition PWA (carte et retour arrière, intro pendant le chargement, squelettes et erreurs, caisse, mouvement et accessibilité, écrans pro et auth, hors-ligne, clôture), un lot validé à la fois ; puis valider sur téléphone (retour de 2 à 3 personnes), mesurer Lighthouse `/login` (≥ 86) et le temps de scan, puis fusionner `feat/phase-7bis-da` dans `main` ; ensuite Phase 8 (PWA) ; écrans « carte d'un commerce », « Découvrir » et barre du bas à habiller quand leurs routes existeront (DT-009)
 - **Bloquants :** Aucun
 
 ---
@@ -72,6 +72,40 @@
 
 **Prochaine étape** : ...
 ==================================================================================== -->
+
+### Session 32 — [2026-11-10] — Finition PWA : audit mesuré et socle d'app installée
+**Roadmap :** Phase 7 bis — DA.6 (finition) et préparation de la Phase 8 · **Statut :** 🟡 Partiel (lot 1 sur 9 livré) · **Branche :** `feat/phase-7bis-da`
+
+**Contexte** : mission « zéro friction » en lots validés un par un. Lot 0 = audit mesuré sur build de production (Playwright, 375 px, session réelle enregistrée hors dépôt). Lot 1 = socle d'app installée.
+
+**Réalisé**
+- fix(da) (commits `193042d`, `a9b1ef2`, `8526f52`, antérieurs à cette session, non consignés jusqu'ici) : lettres de l'intro bloquées à `opacity: 0` ; liseré visible avant le balayage de chaque lettre ; glissement des étapes inerte (propriété animée `translate`, pas `transform`)
+- audit mesuré (aucun fichier modifié) : relevés dans le tableau des tests ci-dessous
+- feat(da) lot 1 : `viewport-fit=cover`, balises Apple (`statusBarStyle: "default"`), tokens `--safe-top` / `--safe-bottom` et utilitaires `pt-safe-*`, `pb-safe-*`, `top-safe-*` appliqués à tous les bords d'écran (barre d'onglets pro, caisse, tiroir, intro, accueil, carte, connexion, invitation, onboarding, admin, erreurs, recadrage d'image, toasts) ; `overscroll-behavior: none`, pas de surbrillance au toucher, `touch-action: manipulation`, sélection de texte réservée aux champs et au code de secours ; manifest `id` et `scope`
+- test(e2e) : `playwright.config.ts` lance désormais un build de production sur le port 3100 ; `e2e/app-shell.spec.ts` (3 tests de rendu)
+
+**Fichiers clés**
+- `src/app/globals.css` — tokens et utilitaires de zone sûre, comportements tactiles ; `src/app/layout.tsx` — viewport et balises Apple ; `src/app/manifest.ts`
+- `e2e/app-shell.spec.ts`, `playwright.config.ts`
+
+**Base de données** : aucune migration.
+
+**Bugs rencontrés**
+| Symptôme | Cause racine | Correctif | Prévention |
+|---|---|---|---|
+| Lettres de l'intro invisibles ; étapes de connexion sans glissement (commits antérieurs) | Code relu mais rendu jamais regardé : `opacity: 0` jamais levée, `transform` animé alors que Tailwind 4 écrit `translate` | Corrigés dans les 3 commits cités | Toute animation est relevée avec Playwright à plusieurs instants sur build de production |
+| Relevé de `top` faux juste après l'injection d'une feuille de style | Lecture faite avant le recalcul des styles | Attente de 200 ms avant lecture | Les tests utilisent `toHaveCSS` (qui réessaie) |
+
+**Décisions** : aucune dépendance ajoutée, pas de nouvel ADR. Choix consignés : zoom par pincement conservé (accessibilité), seul le double-tap est neutralisé ; barre de statut iOS en `default` (texte lisible sur les écrans crème et blancs) ; `background_color` du manifest laissé crème (document 05) malgré l'intro forêt, écart connu ; `overscroll-behavior: none` supprime le tirer-pour-rafraîchir (les cartes se resynchronisent par Realtime et au retour au premier plan).
+**Dette introduite / remboursée** : aucune. DT-007 partiellement contournée : session de test enregistrée à la main, hors dépôt, pour les mesures.
+
+**Tests de validation**
+- [x] `pnpm lint`, `pnpm typecheck`, `pnpm test` (167), `pnpm build`, `pnpm test:e2e` (5) verts
+- [x] Audit mesuré : `/login` CLS 0, LCP 516 ms ; accueil CLS 0, LCP 1 080 ms ; ouverture à froid : squelette de 0,6 à 1,1 s puis intro de 1,1 à 2,6 s (l'intro s'ajoute au chargement) ; entrée dans une carte : squelette de l'accueil 300 ms, document élargi à 750 × 1 334 px ; retour du téléphone sans animation ; « ‹ Mes cartes » empile l'historique (2 → 4) et recharge l'accueil (1,8 s) ; 404 en anglais ; caisse : squelette caméra 335 px puis viseur 270 px ; onglets pro : squelette générique de 0,6 à 1 s ; cibles de 36 px dans réglages, invitation, onboarding, admin ; `--destructive` 4,45:1 sur crème
+- [x] Lot 1 re-mesuré avec zones sûres simulées (47 px haut, 34 px bas) : barre d'onglets 74 → 108 px (liens de 72 px au-dessus de l'indicateur), « Passer » 16 → 63 px, en-tête de caisse 20 → 67 px, feuille de caisse 32 → 66 px, en-tête de l'accueil 22 → 69 px
+- [ ] Non vérifiés : appareil physique (encoche, barre de statut iOS, rebond), caméra réelle, glissement email → code et animation +1 en mouvement, Lighthouse
+
+**Prochaine étape** : lot 2 (carte : débordement, glissement d'entrée et de retour, historique, squelette du détail), après validation du porteur de projet.
 
 ### Session 31 — [2026-11-02] — Refonte de la structure des écrans d'après les maquettes
 **Roadmap :** Phase 7 bis — DA.6 (reprise) · **Statut :** 🟡 Partiel (mesures sur téléphone à faire) · **Branche :** `feat/phase-7bis-da`
