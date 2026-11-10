@@ -1,20 +1,31 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useCallback, useRef, type ReactNode } from "react";
 import { Wordmark } from "@/components/shared/wordmark";
 import { Button } from "@/components/ui/button";
 import { useIntroSplash } from "@/features/loyalty/hooks/use-intro-splash";
 import { cn } from "@/lib/utils";
 
-/** Full-screen animated intro (05-DIRECTION-ARTISTIQUE §5.3), played once per app opening. */
+/**
+ * Full-screen animated intro (05-DIRECTION-ARTISTIQUE §5.3). Mounted in the root layout so
+ * that it covers the home while it loads; it then slides away and reveals it.
+ */
 export function IntroSplash(): ReactNode {
-  const { phase, skip } = useIntroSplash();
+  const layerRef = useRef<HTMLDivElement>(null);
+  // Time already spent animating, read from the rendered animations themselves (a finished
+  // one stops counting, hence the longest).
+  const readElapsedMs = useCallback((): number => {
+    const animations = layerRef.current?.getAnimations({ subtree: true }) ?? [];
+    return Math.max(0, ...animations.map((animation) => Number(animation.currentTime)));
+  }, []);
+  const { phase, skip } = useIntroSplash(readElapsedMs);
 
-  if (phase === "hidden") {
+  if (phase !== "visible" && phase !== "leaving") {
     return null;
   }
   return (
     <div
+      ref={layerRef}
       role="status"
       aria-label="Bienvenue sur Rézone"
       className={cn(

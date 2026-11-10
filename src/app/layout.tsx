@@ -3,6 +3,7 @@ import { Bricolage_Grotesque, Plus_Jakarta_Sans } from "next/font/google";
 import type { ReactNode } from "react";
 import { NavDirectionListener } from "@/components/shared/nav-direction-listener";
 import { Toaster } from "@/components/ui/sonner";
+import { IntroSplash } from "@/features/loyalty";
 import "./globals.css";
 
 const fontDisplay = Bricolage_Grotesque({
@@ -59,6 +60,7 @@ export default function RootLayout({ children }: RootLayoutProps): ReactNode {
     <html lang="fr" className={`${fontDisplay.variable} ${fontSans.variable}`}>
       <body className="bg-background text-foreground min-h-dvh antialiased">
         {children}
+        <IntroSplash />
         <NavDirectionListener />
         <Toaster />
       </body>

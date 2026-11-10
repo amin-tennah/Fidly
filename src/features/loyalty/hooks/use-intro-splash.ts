@@ -1,39 +1,57 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useEffect, useState, useSyncExternalStore } from "react";
+import { CLIENT_HOME_PATH, LOGIN_PATH, ONBOARDING_PATH } from "@/features/auth";
+import { INTRO_EXIT_DURATION_MS } from "@/features/loyalty/constants";
 import {
-  INTRO_EXIT_DURATION_MS,
-  INTRO_MIN_DURATION_MS,
-} from "@/features/loyalty/constants";
+  initialIntroPhase,
+  introPhaseAt,
+  shouldIntroLeave,
+  type IntroLocation,
+  type IntroPhase,
+} from "@/features/loyalty/domain/intro-phase";
+import {
+  getHomeReady,
+  getServerHomeReady,
+  subscribeHomeReady,
+} from "@/features/loyalty/hooks/home-ready-store";
+import { useIntroClock } from "@/features/loyalty/hooks/use-intro-clock";
 
-export type IntroPhase = "visible" | "leaving" | "hidden";
+const AUTH_PATHS: readonly string[] = [LOGIN_PATH, ONBOARDING_PATH];
 
-/** Module scope: survives client-side navigation, reset by a full reload (= app opening). */
-let hasPlayed = false;
-
-function prefersReducedMotion(): boolean {
-  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+function locate(pathname: string): IntroLocation {
+  if (pathname === CLIENT_HOME_PATH) {
+    return "home";
+  }
+  return AUTH_PATHS.includes(pathname) ? "auth" : "other";
 }
 
 /**
- * Plays the intro once per app opening. Server data is already rendered when the page
- * hydrates, so the intro only lasts the minimum time the stamp needs to land.
+ * Drives the intro mounted in the root layout: it plays once per app opening (or sign-in),
+ * on top of the home while it loads. It stays at least the time the stamp needs to land,
+ * then leaves as soon as the home is ready, and never later than the ceiling.
  */
-export function useIntroSplash(): { phase: IntroPhase; skip: () => void } {
-  const [phase, setPhase] = useState<IntroPhase>(hasPlayed ? "hidden" : "visible");
+export function useIntroSplash(readElapsedMs: () => number): {
+  phase: IntroPhase;
+  skip: () => void;
+} {
+  const location = locate(usePathname());
+  const [phase, setPhase] = useState<IntroPhase>(() => initialIntroPhase(location));
+  const isHomeReady = useSyncExternalStore(
+    subscribeHomeReady,
+    getHomeReady,
+    getServerHomeReady,
+  );
+  const clock = useIntroClock(phase === "visible", readElapsedMs);
 
-  useEffect(() => {
-    if (phase !== "visible") {
-      return;
-    }
-    hasPlayed = true;
-    const isReduced = prefersReducedMotion();
-    const timer = window.setTimeout(
-      () => setPhase(isReduced ? "hidden" : "leaving"),
-      isReduced ? 0 : INTRO_MIN_DURATION_MS,
-    );
-    return () => window.clearTimeout(timer);
-  }, [phase]);
+  // Derived transitions, applied during render (no effect needed).
+  const located = introPhaseAt(phase, location);
+  const next =
+    located === "visible" && shouldIntroLeave(clock, isHomeReady) ? "leaving" : located;
+  if (next !== phase) {
+    setPhase(next);
+  }
 
   useEffect(() => {
     if (phase !== "leaving") {

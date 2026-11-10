@@ -5,6 +5,7 @@ export { CardBannerHeader } from "./components/card-banner-header";
 export { LoyaltyHeroCard } from "./components/loyalty-hero-card";
 export { NextTierBlock } from "./components/next-tier-block";
 export { IntroSplash } from "./components/intro-splash";
+export { HomeReadyMarker } from "./components/home-ready-marker";
 export { LoyaltyCardsList } from "./components/loyalty-cards-list";
 
 export { computeCardProgress } from "./domain/compute-card-progress";

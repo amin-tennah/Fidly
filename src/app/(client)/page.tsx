@@ -18,7 +18,7 @@ import { PageTransition } from "@/components/shared/page-transition";
 import {
   ClientHomeHeader,
   CustomerQrHero,
-  IntroSplash,
+  HomeReadyMarker,
   LoyaltyCardsList,
   LoyaltyRealtimeSync,
 } from "@/features/loyalty";
@@ -53,7 +53,7 @@ export default async function HomePage(): Promise<ReactNode> {
   return (
     <PageTransition>
       <main className="bg-background pb-safe-8 mx-auto flex min-h-dvh w-full max-w-md flex-col gap-6">
-        <IntroSplash />
+        <HomeReadyMarker />
         <ClientHomeHeader displayName={displayName} />
         <div className="-mt-14 space-y-5 px-5">
           <CustomerQrHero

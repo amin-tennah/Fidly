@@ -21,8 +21,12 @@ export const SEGMENT_WAVE_STEP_MS = 40;
 /** Confetti pieces thrown around the hero card on a new stamp (half card colour, half cream). */
 export const BURST_PARTICLE_COUNT = 8;
 
-/** Intro splash: minimum time on screen so the stamp can land, and the slide-out duration (--dur-slide). */
-export const INTRO_MIN_DURATION_MS = 1400;
+/**
+ * Intro splash: minimum time on screen (the stamp lands and its ripple fades, ~1.85 s),
+ * ceiling when the home is slow to load, and the slide-out duration (--dur-slide).
+ */
+export const INTRO_MIN_DURATION_MS = 1900;
+export const INTRO_MAX_DURATION_MS = 4000;
 export const INTRO_EXIT_DURATION_MS = 500;
 
 /** How long the "+1" celebration stays on a card after its counter increased. */
