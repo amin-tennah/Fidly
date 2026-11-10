@@ -14,6 +14,7 @@ import {
   listMyPendingInvitations,
   listMyRestaurantMemberships,
 } from "@/features/auth/queries/get-session-context";
+import { PageTransition } from "@/components/shared/page-transition";
 import {
   ClientHomeHeader,
   CustomerQrHero,
@@ -23,19 +24,26 @@ import {
 } from "@/features/loyalty";
 import { listMyLoyaltyCards } from "@/features/loyalty/queries/list-my-loyalty-cards";
 
+/** Everything the home shows, read in parallel. */
+function loadHomeData(userId: string) {
+  return Promise.all([
+    getMyProfile(userId),
+    listMyRestaurantMemberships(userId),
+    listMyPendingInvitations(),
+    listMyLoyaltyCards(userId),
+    isUserPlatformAdmin(userId),
+  ]);
+}
+
 export default async function HomePage(): Promise<ReactNode> {
   const user = await getAuthenticatedUser();
   if (!user) {
     redirect(buildLoginPath(CLIENT_HOME_PATH));
   }
 
-  const [profile, memberships, invitations, cards, isPlatformAdmin] = await Promise.all([
-    getMyProfile(user.id),
-    listMyRestaurantMemberships(user.id),
-    listMyPendingInvitations(),
-    listMyLoyaltyCards(user.id),
-    isUserPlatformAdmin(user.id),
-  ]);
+  const [profile, memberships, invitations, cards, isPlatformAdmin] = await loadHomeData(
+    user.id,
+  );
 
   const displayName = profile?.displayName?.trim();
   if (!profile || !displayName) {
@@ -43,26 +51,28 @@ export default async function HomePage(): Promise<ReactNode> {
   }
 
   return (
-    <main className="pb-safe-8 mx-auto flex min-h-dvh w-full max-w-md flex-col gap-6">
-      <IntroSplash />
-      <ClientHomeHeader displayName={displayName} />
-      <div className="-mt-14 space-y-5 px-5">
-        <CustomerQrHero
-          identity={{
-            userId: user.id,
-            displayName,
-            qrToken: profile.qrToken,
-            shortCode: profile.shortCode,
-          }}
-        />
-        <ProAccessBanners
-          invitations={invitations}
-          memberships={memberships}
-          isPlatformAdmin={isPlatformAdmin}
-        />
-        <LoyaltyCardsList cards={cards} />
-      </div>
-      <LoyaltyRealtimeSync userId={user.id} />
-    </main>
+    <PageTransition>
+      <main className="bg-background pb-safe-8 mx-auto flex min-h-dvh w-full max-w-md flex-col gap-6">
+        <IntroSplash />
+        <ClientHomeHeader displayName={displayName} />
+        <div className="-mt-14 space-y-5 px-5">
+          <CustomerQrHero
+            identity={{
+              userId: user.id,
+              displayName,
+              qrToken: profile.qrToken,
+              shortCode: profile.shortCode,
+            }}
+          />
+          <ProAccessBanners
+            invitations={invitations}
+            memberships={memberships}
+            isPlatformAdmin={isPlatformAdmin}
+          />
+          <LoyaltyCardsList cards={cards} />
+        </div>
+        <LoyaltyRealtimeSync userId={user.id} />
+      </main>
+    </PageTransition>
   );
 }

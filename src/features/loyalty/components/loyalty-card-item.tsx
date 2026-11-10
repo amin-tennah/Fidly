@@ -1,5 +1,5 @@
-import Link from "next/link";
 import type { ReactNode } from "react";
+import { ForwardLink } from "@/components/shared/forward-link";
 import { RestaurantAvatar } from "@/components/shared/restaurant-avatar";
 import { Card } from "@/components/ui/card";
 import { LoyaltyCardProgress } from "@/features/loyalty/components/loyalty-card-progress";
@@ -75,7 +75,7 @@ export function LoyaltyCardItem({ card }: LoyaltyCardItemProps): ReactNode {
   const isUnlocked = card.progress?.isRewardUnlocked ?? false;
 
   return (
-    <Link
+    <ForwardLink
       href={`${CARD_DETAIL_PATH}/${card.restaurantSlug}`}
       aria-label={`Ouvrir la carte ${card.restaurantName}`}
       className="focus-visible:ring-ring block rounded-[20px] outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
@@ -89,6 +89,6 @@ export function LoyaltyCardItem({ card }: LoyaltyCardItemProps): ReactNode {
         <CardHeaderRow card={card} />
         <CardBody card={card} />
       </Card>
-    </Link>
+    </ForwardLink>
   );
 }

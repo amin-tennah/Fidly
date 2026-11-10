@@ -46,6 +46,8 @@
   --ease-slide: cubic-bezier(0.22, 0.9, 0.3, 1);
   --ease-pop: cubic-bezier(0.2, 1.7, 0.4, 1);
   --dur-slide: 500ms;
+  /* Cast on its left edge by a screen that slides over another. */
+  --shadow-slide: -12px 0 32px rgb(14 31 23 / 0.3);
 
   /* Device cut-outs (notch, home indicator); 0 outside an installed, edge-to-edge app. */
   --safe-top: env(safe-area-inset-top, 0px);
@@ -273,6 +275,66 @@
     transform: translateX(-100%);
   }
 }
+/* Route slides (§5.4): the screen underneath recedes to -28 %, the one on top travels 100 %. */
+@keyframes recede {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-28%);
+  }
+}
+@keyframes return {
+  0% {
+    transform: translateX(-28%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+@keyframes slide-away {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/*
+ * Screen-to-screen slides between the two screens wrapped in `PageTransition`
+ * (components/shared/page-transition.tsx), for navigations typed "forward" or "back".
+ */
+::view-transition {
+  pointer-events: none;
+}
+/* Only the two screens take part: the rest of the page is neither captured nor cross-faded. */
+:root {
+  view-transition-name: none;
+}
+::view-transition-old(.page-out-forward) {
+  animation: recede var(--dur-slide) var(--ease-slide) both;
+  mix-blend-mode: normal;
+}
+::view-transition-new(.page-in-forward) {
+  animation: slide-in var(--dur-slide) var(--ease-slide) both;
+  mix-blend-mode: normal;
+  box-shadow: var(--shadow-slide);
+}
+::view-transition-new(.page-in-back) {
+  animation: return var(--dur-slide) var(--ease-slide) both;
+  mix-blend-mode: normal;
+}
+::view-transition-old(.page-out-back) {
+  animation: slide-away var(--dur-slide) var(--ease-slide) both;
+  mix-blend-mode: normal;
+  box-shadow: var(--shadow-slide);
+}
+/* The travelling screen stays above the receding one. */
+::view-transition-group(.page-in-forward),
+::view-transition-group(.page-out-back) {
+  z-index: 1;
+}
 
 /* Installed-app feel: no rubber band or pull-to-refresh, no iOS text inflation. */
 html {
@@ -313,5 +375,11 @@ select {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
   }
 }

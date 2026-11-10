@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import type { ReactNode } from "react";
+import { PageTransition } from "@/components/shared/page-transition";
 import { buildLoginPath, CLIENT_HOME_PATH } from "@/features/auth";
 import { getAuthenticatedUser } from "@/features/auth/queries/get-session-context";
 import {
@@ -33,14 +34,16 @@ export default async function CardPage({ params }: CardPageProps): Promise<React
   }
 
   return (
-    <main className="animate-slide-in pb-safe-8 mx-auto flex min-h-dvh w-full max-w-md flex-col gap-4">
-      <CardBannerHeader bannerUrl={card.restaurantCoverUrl} backHref={CLIENT_HOME_PATH}>
-        <LoyaltyHeroCard card={card} progress={card.progress} />
-      </CardBannerHeader>
-      <div className="px-5">
-        <NextTierBlock progress={card.progress} />
-      </div>
-      <LoyaltyRealtimeSync userId={user.id} />
-    </main>
+    <PageTransition>
+      <main className="bg-background pb-safe-8 mx-auto flex min-h-dvh w-full max-w-md flex-col gap-4">
+        <CardBannerHeader bannerUrl={card.restaurantCoverUrl} backHref={CLIENT_HOME_PATH}>
+          <LoyaltyHeroCard card={card} progress={card.progress} />
+        </CardBannerHeader>
+        <div className="px-5">
+          <NextTierBlock progress={card.progress} />
+        </div>
+        <LoyaltyRealtimeSync userId={user.id} />
+      </main>
+    </PageTransition>
   );
 }

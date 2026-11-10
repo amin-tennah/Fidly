@@ -12,7 +12,8 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  // One worker with a signed-in session too: its file is rewritten after each test.
+  workers: process.env.CI || process.env.E2E_SESSION ? 1 : undefined,
   reporter: "list",
   use: {
     baseURL: E2E_URL,

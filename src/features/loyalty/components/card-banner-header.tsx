@@ -1,7 +1,7 @@
 import { ChevronLeft } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 import type { ReactNode } from "react";
+import { BackLink } from "@/components/shared/back-link";
 
 export interface CardBannerHeaderProps {
   readonly bannerUrl: string | null;
@@ -12,25 +12,25 @@ export interface CardBannerHeaderProps {
 
 function BannerBackButton({ href }: { readonly href: string }): ReactNode {
   return (
-    <Link
+    <BackLink
       href={href}
       aria-label="Retour à mes cartes"
       className="bg-cream text-primary top-safe-4 absolute left-5 flex size-12 items-center justify-center rounded-full shadow-sm"
     >
       <ChevronLeft className="size-6" strokeWidth={3} aria-hidden="true" />
-    </Link>
+    </BackLink>
   );
 }
 
 function TextBackLink({ href }: { readonly href: string }): ReactNode {
   return (
-    <Link
+    <BackLink
       href={href}
       className="text-primary -ml-1 inline-flex min-h-12 items-center gap-1 text-[15px] font-extrabold"
     >
       <ChevronLeft className="size-5" strokeWidth={3} aria-hidden="true" />
       Mes cartes
-    </Link>
+    </BackLink>
   );
 }
 
