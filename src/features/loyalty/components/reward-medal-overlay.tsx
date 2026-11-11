@@ -77,7 +77,7 @@ function MedalText({ celebration, isReduced }: MedalTextProps): ReactNode {
       </h2>
       <p
         className={cn(
-          "text-cream text-lg font-semibold",
+          "text-cream text-lg font-semibold first-letter:uppercase",
           pickMotion(isReduced, "animate-fade-up [animation-delay:1950ms]"),
         )}
       >

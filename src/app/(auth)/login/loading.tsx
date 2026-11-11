@@ -6,7 +6,7 @@ import { LoginStepsBand } from "@/features/auth";
 /** Same cream frame, logo and forest band as the login screen; only the form is pending. */
 export default function LoginLoading(): ReactNode {
   return (
-    <div className="bg-cream">
+    <div className="bg-background">
       <main
         aria-busy="true"
         className="pt-safe-14 pb-safe-7 mx-auto flex min-h-dvh w-full max-w-md flex-col gap-[22px] px-6"

@@ -34,7 +34,7 @@ export default async function LoginPage({
   const hasError = Boolean(firstParam(params[LOGIN_ERROR_PARAM]));
 
   return (
-    <div className="bg-cream">
+    <div className="bg-background">
       <main className="pt-safe-14 pb-safe-7 mx-auto flex min-h-dvh w-full max-w-md flex-col gap-[22px] px-6">
         <BrandLogo tone="forest" width={230} className="mx-auto" />
         <LoginStepsBand />

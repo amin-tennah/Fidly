@@ -36,6 +36,8 @@ export default defineConfig({
   webServer: {
     command: `pnpm build && pnpm exec next start -p ${E2E_PORT}`,
     url: E2E_URL,
+    // Opens /login/da-preview (made-up cards) so the celebrations can be measured signed out.
+    env: { DA_PREVIEW: "1" },
     reuseExistingServer: !process.env.CI,
     timeout: 240000,
   },

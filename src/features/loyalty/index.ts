@@ -2,6 +2,7 @@ export { ClientHomeHeader } from "./components/client-home-header";
 export { CustomerQrHero } from "./components/customer-qr-hero";
 export { LoyaltyRealtimeSync } from "./components/loyalty-realtime-sync";
 export { CardCelebrations } from "./components/card-celebrations";
+export { CelebrationPreview } from "./components/celebration-preview";
 export { CardBannerHeader } from "./components/card-banner-header";
 export { LoyaltyHeroCard } from "./components/loyalty-hero-card";
 export { NextTierBlock } from "./components/next-tier-block";
