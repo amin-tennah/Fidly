@@ -12,7 +12,7 @@ import { test as base, expect, type Page } from "@playwright/test";
  */
 const SESSION_FILE = process.env.E2E_SESSION;
 
-export const signedInTest = base.extend({
+export const signedInTest = base.extend<{ requireSession: void }>({
   storageState: SESSION_FILE,
   context: async ({ context }, runTest) => {
     await runTest(context);
@@ -20,12 +20,19 @@ export const signedInTest = base.extend({
       await context.storageState({ path: SESSION_FILE });
     }
   },
+  // A per-test skip: a module-level `skip` here would only reach the first spec file that
+  // imports this helper, and the others would fail on the login screen.
+  requireSession: [
+    async ({}, runTest, testInfo) => {
+      testInfo.skip(
+        !SESSION_FILE,
+        "E2E_SESSION is not set: signed-in journeys are skipped",
+      );
+      await runTest();
+    },
+    { auto: true },
+  ],
 });
-
-signedInTest.skip(
-  !SESSION_FILE,
-  "E2E_SESSION is not set: signed-in journeys are skipped",
-);
 
 /** The intro leaves by itself (4 s at most); waiting is steadier than racing its skip button. */
 const INTRO_GONE_TIMEOUT_MS = 6000;

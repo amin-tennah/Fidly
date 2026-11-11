@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, Plus_Jakarta_Sans } from "next/font/google";
 import type { ReactNode } from "react";
 import { NavDirectionListener } from "@/components/shared/nav-direction-listener";
+import { ServiceWorkerRegistrar } from "@/components/shared/service-worker-registrar";
 import { Toaster } from "@/components/ui/sonner";
 import { IntroSplash } from "@/features/loyalty";
 import "./globals.css";
@@ -62,6 +63,7 @@ export default function RootLayout({ children }: RootLayoutProps): ReactNode {
         {children}
         <IntroSplash />
         <NavDirectionListener />
+        <ServiceWorkerRegistrar />
         <Toaster />
       </body>
     </html>

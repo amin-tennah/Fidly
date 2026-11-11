@@ -1,7 +1,7 @@
 "use client";
 
 import { QRCodeSVG } from "qrcode.react";
-import type { ReactNode } from "react";
+import { type ReactNode, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { type StoredIdentity, usePersistIdentity } from "@/features/auth";
 import {
@@ -18,7 +18,8 @@ export interface CustomerQrHeroProps {
 
 /** Personal QR (opaque `qr_token`, ADR-005/013) with the backup short code below. */
 export function CustomerQrHero({ identity }: CustomerQrHeroProps): ReactNode {
-  usePersistIdentity(identity);
+  const qrRef = useRef<HTMLDivElement>(null);
+  usePersistIdentity(identity, qrRef);
 
   return (
     <Card
@@ -28,6 +29,7 @@ export function CustomerQrHero({ identity }: CustomerQrHeroProps): ReactNode {
       <CardContent className="flex w-full flex-col items-center gap-4">
         <p className="font-display text-xl font-extrabold">Montre-le en caisse</p>
         <div
+          ref={qrRef}
           role="img"
           aria-label="QR code personnel à présenter en caisse"
           className="rounded-xl bg-white p-1 shadow-xs ring-1 ring-black/5"
