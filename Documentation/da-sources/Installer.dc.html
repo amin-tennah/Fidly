@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Rézone — installer l'appli</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&amp;family=Plus+Jakarta+Sans:wght@400;600;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+@keyframes ovlIn{0%{opacity:0}100%{opacity:1}}
+@keyframes sheetUp{0%{transform:translateY(100%)}100%{transform:translateY(0)}}
+@keyframes panelIn{0%{transform:translateY(26px) scale(.94);opacity:0}100%{transform:none;opacity:1}}
+@keyframes iconDrop{0%{transform:translateY(-330px) scale(1.5) rotate(-14deg);opacity:0}18%{opacity:1}55%{transform:translateY(0) scale(1) rotate(0)}70%{transform:translateY(-16px) scale(1.04)}86%{transform:translateY(0) scale(1)}100%{transform:none}}
+@keyframes ripple{0%{transform:scale(.8);opacity:.9}100%{transform:scale(2.6);opacity:0}}
+@keyframes fadeup{0%{transform:translateY(14px);opacity:0}100%{transform:translateY(0);opacity:1}}
+@keyframes slotPulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes slotOut{to{opacity:0}}
+@keyframes spark{0%{transform:scale(0) rotate(0);opacity:0}40%{transform:scale(1) rotate(30deg);opacity:1}100%{transform:scale(0) rotate(90deg);opacity:0}}
+.phone{position:relative;width:375px;height:780px;background:#FBF6EC;border-radius:28px;box-shadow:0 0 0 2px #D8D2C4;overflow:hidden}
+@media (prefers-reduced-motion: reduce){*{animation-duration:.01ms !important;animation-delay:0s !important}}
+</style>
+</helmet>
+<div style="width: 1500px; height: 1000px; box-sizing: border-box; padding: 28px 40px; background: #F3F1EC; font-family: 'Plus Jakarta Sans', sans-serif; color: #0E1F17; display: flex; flex-direction: column; gap: 14px">
+
+  <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap">
+    <button type="button" onClick="{{reset}}" style="height: 52px; padding: 0 22px; border: 0; border-radius: 14px; background: #0A5C3A; color: #FFF4E6; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 18px; cursor: pointer">Remettre à zéro</button>
+    <div style="font-size: 14px; color: #3D3D3D">Dans le téléphone de droite : touchez « Installer », puis « Installer » dans la fenêtre de Chrome simulée. L'animation se lance une fois l'appli installée.</div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 375px 375px 420px; gap: 40px; align-items: start">
+
+    <!-- ACTUEL -->
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <div style="font-size: 16px; font-weight: 800">Actuel</div>
+      <div style="font-size: 13px; color: #4A5A52; line-height: 1.45; min-height: 38px">Message utile, mais on ne voit pas ce qu'on installe ni ce qu'on y gagne.</div>
+      <div class="phone">
+        <div style="position: absolute; left: 0; right: 0; top: 0; height: 150px; background: #0A5C3A; border-radius: 0 0 28px 28px; box-sizing: border-box; padding: 22px 20px; color: #FFF4E6">
+          <div style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 24px; letter-spacing: -0.04em">rézone</div>
+          <div style="margin-top: 10px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 30px; letter-spacing: -0.02em">Salut Client</div>
+        </div>
+        <div style="position: absolute; left: 20px; right: 20px; top: 110px; height: 250px; background: #FFFFFF; border-radius: 24px; box-shadow: 0 10px 24px rgba(14,31,23,0.12); display: flex; flex-direction: column; align-items: center; gap: 12px; padding-top: 18px; box-sizing: border-box">
+          <div style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 20px">Montre-le en caisse</div>
+          <div style="width: 124px; height: 124px; position: relative; border: 1px solid #E7E0CF; border-radius: 14px; box-sizing: border-box">
+            <div style="position: absolute; left: 12px; top: 12px; width: 30px; height: 30px; border: 6px solid #000; box-sizing: border-box"></div>
+            <div style="position: absolute; right: 12px; top: 12px; width: 30px; height: 30px; border: 6px solid #000; box-sizing: border-box"></div>
+            <div style="position: absolute; left: 12px; bottom: 12px; width: 30px; height: 30px; border: 6px solid #000; box-sizing: border-box"></div>
+            <div style="position: absolute; right: 16px; bottom: 16px; width: 34px; height: 34px; background: repeating-linear-gradient(90deg, #000 0 6px, #fff 6px 12px)"></div>
+          </div>
+          <div style="font-size: 12px; color: #4A5A52">Code de secours si le QR est illisible</div>
+          <div style="font-family: monospace; font-weight: 700; font-size: 18px; letter-spacing: 0.12em">BKR HPH</div>
+        </div>
+        <div style="position: absolute; left: 20px; right: 20px; top: 380px; display: flex; flex-direction: column; gap: 24px">
+          <div style="background: #EDF9D0; border: 2px solid #0A5C3A; border-radius: 20px; padding: 16px; box-sizing: border-box; display: flex; flex-direction: column; gap: 8px">
+            <div style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 18px">Garde Rézone sous la main</div>
+            <div style="font-size: 14px; line-height: 1.4">Ton QR s'ouvre en un geste, même sans réseau.</div>
+            <div style="display: flex; gap: 10px; margin-top: 4px">
+              <div style="flex: 1.2; height: 48px; border-radius: 14px; background: #0A5C3A; color: #FFF4E6; display: flex; align-items: center; justify-content: center; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 17px">Installer</div>
+              <div style="flex: 1; height: 48px; border-radius: 14px; border: 2px solid #6B8577; background: #FFFFFF; color: #0A5C3A; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 15px; box-sizing: border-box">Plus tard</div>
+            </div>
+          </div>
+          <div style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 21px">Mes cartes</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROPOSÉ + PARCOURS -->
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <div style="font-size: 16px; font-weight: 800">Proposé · bandeau puis animation</div>
+      <div style="font-size: 13px; color: #4A5A52; line-height: 1.45; min-height: 38px">L'icône, trois bénéfices concrets, un seul bouton fort. Après l'installation : l'icône atterrit sur l'écran d'accueil du téléphone.</div>
+      <div class="phone">
+        <div style="position: absolute; left: 0; right: 0; top: 0; height: 150px; background: #0A5C3A; border-radius: 0 0 28px 28px; box-sizing: border-box; padding: 22px 20px; color: #FFF4E6">
+          <div style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 24px; letter-spacing: -0.04em">rézone</div>
+          <div style="margin-top: 10px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 30px; letter-spacing: -0.02em">Salut Client</div>
+        </div>
+        <div style="position: absolute; left: 20px; right: 20px; top: 110px; height: 250px; background: #FFFFFF; border-radius: 24px; box-shadow: 0 10px 24px rgba(14,31,23,0.12); display: flex; flex-direction: column; align-items: center; gap: 12px; padding-top: 18px; box-sizing: border-box">
+          <div style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 20px">Montre-le en caisse</div>
+          <div style="width: 124px; height: 124px; position: relative; border: 1px solid #E7E0CF; border-radius: 14px; box-sizing: border-box">
+            <div style="position: absolute; left: 12px; top: 12px; width: 30px; height: 30px; border: 6px solid #000; box-sizing: border-box"></div>
+            <div style="position: absolute; right: 12px; top: 12px; width: 30px; height: 30px; border: 6px solid #000; box-sizing: border-box"></div>
+            <div style="position: absolute; left: 12px; bottom: 12px; width: 30px; height: 30px; border: 6px solid #000; box-sizing: border-box"></div>
+            <div style="position: absolute; right: 16px; bottom: 16px; width: 34px; height: 34px; background: repeating-linear-gradient(90deg, #000 0 6px, #fff 6px 12px)"></div>
+          </div>
+          <div style="font-size: 12px; color: #4A5A52">Code de secours si le QR est illisible</div>
+          <div style="font-family: monospace; font-weight: 700; font-size: 18px; letter-spacing: 0.12em">BKR HPH</div>
+        </div>
+        <div style="position: absolute; left: 20px; right: 20px; top: 380px; display: flex; flex-direction: column; gap: 24px">
+          <sc-if value="{{bannerOn}}" hint-placeholder-val="{{ true }}">
+            <div style="background: #FFFFFF; border: 2px solid #E7E0CF; border-radius: 22px; padding: 16px; box-sizing: border-box; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 6px 18px rgba(14,31,23,0.07)">
+              <div style="display: flex; gap: 12px; align-items: center">
+                <svg aria-hidden="true" viewBox="0 0 512 512" style="width: 56px; height: 56px; flex-shrink: 0; filter: drop-shadow(0 4px 8px rgba(10,92,58,0.3))"><rect width="512" height="512" rx="114" fill="#0A5C3A"/><path d="M145.4 393.1V275.1V175.9H203V262.3H206.3Q208.8 227.7 216 207.8Q223.2 187.8 234.1 179.4Q245 171 258.5 171Q265.9 171 274 173Q282 175.1 289.8 179.6L286.5 253.7Q277.5 248.3 268.8 245.6Q260.2 243 252.4 243Q239.2 243 230.1 250.4Q221.1 257.8 216.4 272.2Q211.6 286.6 211.6 307.2V393.1H145.4Z" fill="#FFF4E6"/><g transform="translate(0.0 0.0) rotate(-12 365.7 155.4) translate(283.4 73.1) scale(4.114)"><circle cx="20" cy="20" r="20" fill="#C8F25A"/><path d="M12.5 20.5l5.2 5.2 9.8-10.5" fill="none" stroke="#0A5C3A" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></g></svg>
+                <div style="display: flex; flex-direction: column; gap: 3px">
+                  <div style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 19px; line-height: 1.1">Mets Rézone sur ton écran d'accueil</div>
+                  <div style="font-size: 13px; color: #4A5A52; line-height: 1.35">Un geste pour ouvrir ton QR, comme une vraie appli.</div>
+                </div>
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(3, 1fr); padding: 4px 0"><div style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 6px; text-align: center; font-size: 12px; font-weight: 800; line-height: 1.2; "><svg aria-hidden="true" viewBox="0 0 24 24" style="width: 26px; height: 26px; flex-shrink: 0"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5" fill="none" stroke="#0A5C3A" stroke-width="2.2"></rect><rect x="13.5" y="3.5" width="7" height="7" rx="1.5" fill="none" stroke="#0A5C3A" stroke-width="2.2"></rect><rect x="3.5" y="13.5" width="7" height="7" rx="1.5" fill="none" stroke="#0A5C3A" stroke-width="2.2"></rect><path d="M14 14h2.5v2.5H14zM18 18h2.5v2.5H18z" fill="#0A5C3A"></path></svg><span style="white-space: nowrap">Ton QR</span></div><div style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 6px; text-align: center; font-size: 12px; font-weight: 800; line-height: 1.2; border-left: 1px solid #E7E0CF;"><svg aria-hidden="true" viewBox="0 0 24 24" style="width: 26px; height: 26px; flex-shrink: 0"><rect x="3" y="5" width="18" height="14" rx="3" fill="none" stroke="#0A5C3A" stroke-width="2.2"></rect><path d="M7 9.5h5" stroke="#0A5C3A" stroke-width="2.2" stroke-linecap="round"></path><rect x="6.5" y="13" width="3" height="3" rx="1" fill="#0A5C3A"></rect><rect x="10.5" y="13" width="3" height="3" rx="1" fill="#0A5C3A"></rect><rect x="14.5" y="13" width="3" height="3" rx="1" fill="#0A5C3A" opacity="0.35"></rect></svg><span style="white-space: nowrap">Tes cartes</span></div><div style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 6px; text-align: center; font-size: 12px; font-weight: 800; line-height: 1.2; border-left: 1px solid #E7E0CF;"><svg aria-hidden="true" viewBox="0 0 24 24" style="width: 26px; height: 26px; flex-shrink: 0"><path d="M3.5 6.5l5.2-2 6.6 2.5 5.2-2v12.5l-5.2 2-6.6-2.5-5.2 2z" fill="none" stroke="#0A5C3A" stroke-width="2.2" stroke-linejoin="round"></path><path d="M8.7 4.5v12.5M15.3 7v12.5" stroke="#0A5C3A" stroke-width="2"></path></svg><span style="white-space: nowrap">Les commerces</span></div></div>
+              <div style="display: flex; gap: 10px; align-items: center">
+                <button type="button" onClick="{{tapInstall}}" style="flex: 1.5; height: 52px; border: 0; border-radius: 16px; background: #0A5C3A; color: #FFF4E6; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 18px; cursor: pointer">Installer</button>
+                <button type="button" onClick="{{later}}" style="flex: 1; height: 52px; border: 0; border-radius: 16px; background: transparent; color: #0A5C3A; font-weight: 800; font-size: 15px; cursor: pointer">Plus tard</button>
+              </div>
+            </div>
+          </sc-if>
+          <div style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 21px">Mes cartes</div>
+          <div style="border: 2px solid #E7E0CF; border-radius: 20px; height: 100px; box-sizing: border-box; padding: 12px; background: #FFFFFF; display: flex; align-items: center; gap: 12px; margin-top: -12px">
+            <div style="width: 44px; height: 44px; border-radius: 12px; background: #F3EEDF; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 18px">N</div>
+            <div style="flex-grow: 1"><div style="font-size: 16px; font-weight: 800">NouilleAtomique</div><div style="font-size: 13px; color: #4A5A52">Nouilles</div></div>
+            <div style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 22px">5<span style="font-size: 14px; color: #4A5A52"> / 10</span></div>
+          </div>
+        </div>
+
+        <!-- fenêtre Chrome simulée -->
+        <sc-if value="{{dialogOn}}" hint-placeholder-val="{{ false }}">
+          <div style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); animation: ovlIn .25s ease both">
+            <div style="position: absolute; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-radius: 28px 28px 0 0; padding: 24px 22px 26px; box-sizing: border-box; font-family: Roboto, Arial, sans-serif; animation: sheetUp .3s cubic-bezier(.2,.9,.3,1) both">
+              <div style="font-size: 12px; color: #5F6368; letter-spacing: 0.04em; margin-bottom: 14px">FENÊTRE DE CHROME (SIMULÉE)</div>
+              <div style="display: flex; align-items: center; gap: 14px">
+                <svg aria-hidden="true" viewBox="0 0 512 512" style="width: 44px; height: 44px; flex-shrink: 0"><rect width="512" height="512" rx="114" fill="#0A5C3A"/><path d="M145.4 393.1V275.1V175.9H203V262.3H206.3Q208.8 227.7 216 207.8Q223.2 187.8 234.1 179.4Q245 171 258.5 171Q265.9 171 274 173Q282 175.1 289.8 179.6L286.5 253.7Q277.5 248.3 268.8 245.6Q260.2 243 252.4 243Q239.2 243 230.1 250.4Q221.1 257.8 216.4 272.2Q211.6 286.6 211.6 307.2V393.1H145.4Z" fill="#FFF4E6"/><g transform="translate(0.0 0.0) rotate(-12 365.7 155.4) translate(283.4 73.1) scale(4.114)"><circle cx="20" cy="20" r="20" fill="#C8F25A"/><path d="M12.5 20.5l5.2 5.2 9.8-10.5" fill="none" stroke="#0A5C3A" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></g></svg>
+                <div><div style="font-size: 20px; color: #202124">Installer l'application ?</div><div style="font-size: 14px; color: #5F6368; margin-top: 2px">Rézone</div></div>
+              </div>
+              <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px">
+                <button type="button" onClick="{{cancelDialog}}" style="height: 44px; padding: 0 20px; border: 0; border-radius: 22px; background: transparent; color: #0B57D0; font-size: 15px; font-weight: 600; cursor: pointer">Annuler</button>
+                <button type="button" onClick="{{acceptDialog}}" style="height: 44px; padding: 0 24px; border: 0; border-radius: 22px; background: #0B57D0; color: #FFFFFF; font-size: 15px; font-weight: 600; cursor: pointer">Installer</button>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- animation d'installation réussie -->
+        <sc-if value="{{animOn}}" hint-placeholder-val="{{ false }}">
+          <div style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; background: rgba(14,31,23,0.86); animation: ovlIn .4s ease both; overflow: hidden">
+            <div style="position: absolute; left: 27.5px; top: 120px; width: 320px; height: 182px; background: #FFF4E6; border-radius: 28px; box-shadow: 0 24px 48px rgba(0,0,0,0.35); animation: panelIn .55s cubic-bezier(.2,1.2,.4,1) .2s both">
+              <sc-for list="{{cells}}" as="c" hint-placeholder-count="7"><div style="position: absolute; left: {{c.x}}px; top: {{c.y}}px; width: 56px; height: 56px; border-radius: 15px; background: {{c.bg}}"></div></sc-for>
+              <div style="position: absolute; left: 167px; top: 98px; width: 56px; height: 56px; border-radius: 15px; border: 2px dashed #0A5C3A; box-sizing: border-box; animation: slotPulse 1s ease-in-out .5s 1, slotOut .2s linear 1.15s forwards"></div>
+              <div style="position: absolute; left: 167px; top: 98px; width: 56px; height: 56px; border-radius: 15px; border: 3px solid #C8F25A; box-sizing: border-box; animation: ripple .7s ease-out 1.15s both"></div>
+              <svg aria-hidden="true" viewBox="0 0 512 512" style="position: absolute; left: 167px; top: 98px; width: 56px; height: 56px; filter: drop-shadow(0 6px 10px rgba(10,92,58,0.35)); animation: iconDrop 1.0s cubic-bezier(.3,.1,.3,1) .75s both"><rect width="512" height="512" rx="114" fill="#0A5C3A"/><path d="M145.4 393.1V275.1V175.9H203V262.3H206.3Q208.8 227.7 216 207.8Q223.2 187.8 234.1 179.4Q245 171 258.5 171Q265.9 171 274 173Q282 175.1 289.8 179.6L286.5 253.7Q277.5 248.3 268.8 245.6Q260.2 243 252.4 243Q239.2 243 230.1 250.4Q221.1 257.8 216.4 272.2Q211.6 286.6 211.6 307.2V393.1H145.4Z" fill="#FFF4E6"/><g transform="translate(0.0 0.0) rotate(-12 365.7 155.4) translate(283.4 73.1) scale(4.114)"><circle cx="20" cy="20" r="20" fill="#C8F25A"/><path d="M12.5 20.5l5.2 5.2 9.8-10.5" fill="none" stroke="#0A5C3A" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></g></svg>
+              <svg aria-hidden="true" viewBox="0 0 24 24" style="position: absolute; left: 150px; top: 82px; width: 18px; height: 18px; animation: spark .7s ease-out 1.3s both"><path d="M12 1l2.6 8.4L23 12l-8.4 2.6L12 23l-2.6-8.4L1 12l8.4-2.6z" fill="#0A5C3A"></path></svg>
+              <svg aria-hidden="true" viewBox="0 0 24 24" style="position: absolute; left: 218px; top: 90px; width: 14px; height: 14px; animation: spark .7s ease-out 1.4s both"><path d="M12 1l2.6 8.4L23 12l-8.4 2.6L12 23l-2.6-8.4L1 12l8.4-2.6z" fill="#B4A9FF"></path></svg>
+              <div style="position: absolute; left: 157px; top: 158px; width: 76px; text-align: center; font-size: 10px; font-weight: 800; color: #0A5C3A; animation: fadeup .3s ease-out 1.5s both">Rézone</div>
+            </div>
+            <div style="position: absolute; left: 0; right: 0; top: 326px; display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 0 28px; box-sizing: border-box; text-align: center">
+              <div style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 31px; line-height: 1.05; letter-spacing: -0.02em; color: #FFF4E6; animation: fadeup .45s ease-out 1.55s both">Rézone est sur ton écran d'accueil</div>
+              <div style="display: flex; flex-direction: column; gap: 8px; width: 100%">
+                <div style="display: flex; align-items: center; gap: 12px; height: 46px; padding: 0 14px; border-radius: 14px; background: rgba(255,244,230,0.12); color: #FFF4E6; font-size: 15px; font-weight: 800; animation: fadeup .4s ease-out 1.85s both"><svg aria-hidden="true" viewBox="0 0 24 24" style="width: 24px; height: 24px; flex-shrink: 0"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5" fill="none" stroke="#C8F25A" stroke-width="2.2"></rect><rect x="13.5" y="3.5" width="7" height="7" rx="1.5" fill="none" stroke="#C8F25A" stroke-width="2.2"></rect><rect x="3.5" y="13.5" width="7" height="7" rx="1.5" fill="none" stroke="#C8F25A" stroke-width="2.2"></rect><path d="M14 14h2.5v2.5H14zM18 18h2.5v2.5H18z" fill="#C8F25A"></path></svg>Ton QR, prêt en un geste</div>
+                <div style="display: flex; align-items: center; gap: 12px; height: 46px; padding: 0 14px; border-radius: 14px; background: rgba(255,244,230,0.12); color: #FFF4E6; font-size: 15px; font-weight: 800; animation: fadeup .4s ease-out 2.05s both"><svg aria-hidden="true" viewBox="0 0 24 24" style="width: 24px; height: 24px; flex-shrink: 0"><rect x="3" y="5" width="18" height="14" rx="3" fill="none" stroke="#C8F25A" stroke-width="2.2"></rect><path d="M7 9.5h5" stroke="#C8F25A" stroke-width="2.2" stroke-linecap="round"></path><rect x="6.5" y="13" width="3" height="3" rx="1" fill="#C8F25A"></rect><rect x="10.5" y="13" width="3" height="3" rx="1" fill="#C8F25A"></rect><rect x="14.5" y="13" width="3" height="3" rx="1" fill="#C8F25A" opacity="0.35"></rect></svg>Tes cartes et tes tampons</div>
+                <div style="display: flex; align-items: center; gap: 12px; height: 46px; padding: 0 14px; border-radius: 14px; background: rgba(255,244,230,0.12); color: #FFF4E6; font-size: 15px; font-weight: 800; animation: fadeup .4s ease-out 2.25s both"><svg aria-hidden="true" viewBox="0 0 24 24" style="width: 24px; height: 24px; flex-shrink: 0"><path d="M3.5 6.5l5.2-2 6.6 2.5 5.2-2v12.5l-5.2 2-6.6-2.5-5.2 2z" fill="none" stroke="#C8F25A" stroke-width="2.2" stroke-linejoin="round"></path><path d="M8.7 4.5v12.5M15.3 7v12.5" stroke="#C8F25A" stroke-width="2"></path></svg>Les commerces du réseau</div>
+              </div>
+              <button type="button" onClick="{{dismiss}}" style="margin-top: 8px; height: 56px; padding: 0 34px; border: 0; border-radius: 16px; background: #C8F25A; color: #0A5C3A; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 19px; cursor: pointer; animation: fadeup .4s ease-out 2.55s both">Compris</button>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+
+    <!-- NOTES -->
+    <div style="display: flex; flex-direction: column; gap: 12px; padding-top: 46px">
+      <div style="font-size: 16px; font-weight: 800">À savoir pour le code</div>
+      <div style="background: #FFFFFF; border: 2px solid #E7E0CF; border-radius: 20px; padding: 18px; font-size: 14px; line-height: 1.5; display: flex; flex-direction: column; gap: 10px">
+        <div><b>Déclenchement.</b> L'animation se lance sur l'événement <code>appinstalled</code> de Chrome, c'est-à-dire une fois l'installation acceptée, pas au clic sur le bouton.</div>
+        <div><b>Durée.</b> Environ 2,6 s avant que le bouton « Compris » apparaisse. L'écran reste affiché jusqu'au toucher.</div>
+        <div><b>Après.</b> Le bandeau disparaît pour de bon et la liste remonte.</div>
+        <div><b>Plus tard.</b> Le bandeau se range et ne revient pas avant quelques jours.</div>
+        <div><b>iPhone.</b> Safari n'a pas d'invite d'installation : le bandeau doit expliquer « Partager, puis Sur l'écran d'accueil ». Pas d'animation possible, l'installation ne se détecte pas.</div>
+        <div style="background: #FFF4E6; border-radius: 14px; padding: 12px"><b>À vérifier avant de promettre « même sans réseau ».</b> Je n'ai pas trouvé de service worker dans le dépôt : sans lui, l'appli ne s'ouvre pas sans connexion. Le texte proposé ne le promet pas, volontairement.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1500,"height":1000}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { stage: 0 };
+  }
+  renderVals() {
+    var self = this;
+    var stage = this.state.stage;
+    var cells = [];
+    var colors = ['#D9D2C0', '#CBD9D0', '#D9CBC4', '#CCD3E0', '#DDD6B8', '#CFD8C4', '#D8CCD9'];
+    var k = 0;
+    for (var r = 0; r < 2; r++) {
+      for (var c = 0; c < 4; c++) {
+        if (r === 1 && c === 2) continue;
+        cells.push({ x: 27 + c * 70, y: 28 + r * 70, bg: colors[k % colors.length] });
+        k++;
+      }
+    }
+    return {
+      bannerOn: stage < 3,
+      dialogOn: stage === 1,
+      animOn: stage === 2,
+      cells: cells,
+      tapInstall: function () { self.setState({ stage: 1 }); },
+      later: function () { self.setState({ stage: 3 }); },
+      cancelDialog: function () { self.setState({ stage: 0 }); },
+      acceptDialog: function () { self.setState({ stage: 2 }); },
+      dismiss: function () { self.setState({ stage: 3 }); },
+      reset: function () { self.setState({ stage: 0 }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

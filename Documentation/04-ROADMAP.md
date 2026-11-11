@@ -405,7 +405,7 @@ Parcours complet sur 2 téléphones : inscription client → configuration resta
 - [x] **DA.3** Design tokens dans `src/app/globals.css` (couleurs, rayons, ombres, échelle typographique, mouvements) : source unique de la DA.
 - [x] **DA.4** Composants `ui/` (shadcn) re-thémés et composants `shared/` (états vide, chargement, erreur, en-têtes).
 - [ ] **DA.5** Maquettes haute fidélité à 375 px des écrans clés : connexion, accueil client (QR + cartes), scanner et tiroir, logs, réglages, `/admin`. Validation par le porteur de projet **avant** de coder. *(Session 29 : connexion, accueil, carte d'un commerce, caisse et découvrir maquettés et validés ; logs, réglages et `/admin` non maquettés, à valider sur téléphone après DA.6)*
-- [x] **DA.6** Application aux écrans existants (aucun changement de logique), animations de jauge et de célébration alignées sur la DA.
+- [x] **DA.6** Application aux écrans existants (aucun changement de logique), animations de jauge et de célébration alignées sur la DA. *(Session 35, itération 2 : fond crème léger, animation de scan « carte dévoilée », médaille « Récompense disponible », traits au-delà de 10 ; `06-DA-ITERATION-2.md` ; à essayer sur téléphone)*
 - [ ] **DA.7** *(Session 30 : email OTP et manifest faits ; chevalet imprimable restant)* Supports : template d'email OTP, chevalet QR imprimable, assets prêts pour la P8 (icônes, splash, couleurs du manifest).
 
 ### ✅ Tests de validation

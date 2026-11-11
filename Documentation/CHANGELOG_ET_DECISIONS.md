@@ -36,8 +36,8 @@
 ## 🧭 État courant (à mettre à jour à chaque session)
 
 - **Phase en cours :** Phases 0 à 7 terminées et fusionnées dans `main` · jalon M1 (démo interne) validé · Phase 7 bis (direction artistique) : finition PWA terminée sur `feat/phase-7bis-da` (Session 32, lots 1 à 8), en attente de validation sur téléphone avant fusion
-- **Dernière session :** Session 34 (2026-11-11) — Phase 8 : bannière d'installation (8.3), indicateur hors-ligne (8.4), clôture de Q-015
-- **Prochaine action :** tester 8.3 et 8.4 sur Android puis iPhone (bannière, pastille, ligne « cartes à jour à »), diagnostic du retour par geste (Session 33, point 3), les 20 e2e connectés avec `E2E_SESSION`, Lighthouse `/login` (≥ 86) et temps de scan ; fusion de `feat/phase-7bis-da` dans `main` ; ensuite fin de la Phase 8 (tests de validation de la roadmap sur appareils) puis Phase 9 ; animation de récompense plus visible côté client (à planifier) ; écrans « carte d'un commerce », « Découvrir » et barre du bas (DT-009)
+- **Dernière session :** Session 35 (2026-11-11) — DA, itération 2 : fond crème léger, animation de scan « carte dévoilée », médaille de récompense, nouvelle bannière et animation d'installation, correctif des traits au-delà de 10
+- **Prochaine action :** essayer sur téléphone l'itération 2 de la DA (Session 35 : scan réel puis médaille, installation Android et animation, bannière sur iPhone, vibration) et arbitrer le visuel de la bannière ; tester 8.3 et 8.4 sur Android puis iPhone (bannière, pastille, ligne « cartes à jour à »), diagnostic du retour par geste (Session 33, point 3), les 20 e2e connectés avec `E2E_SESSION`, Lighthouse `/login` (≥ 86) et temps de scan ; fusion de `feat/phase-7bis-da` dans `main` ; ensuite fin de la Phase 8 (tests de validation de la roadmap sur appareils) puis Phase 9 ; écrans « carte d'un commerce », « Découvrir » et barre du bas (DT-009)
 - **Bloquants :** Aucun
 
 ---
@@ -72,6 +72,56 @@
 
 **Prochaine étape** : ...
 ==================================================================================== -->
+
+### Session 35 — [2026-11-11] — DA, itération 2 : fond crème, célébrations de scan et de récompense, installation
+**Roadmap :** Phase 7 bis — DA.6 (itération 2) · Phase 8 — 8.3 (nouveau visuel) · **Statut :** 🟡 Partiel (code, tests et mesures en navigateur verts ; rien essayé sur téléphone ni avec une session réelle) · **Branche :** `feat/phase-7bis-da`
+
+Cahier des charges : `Documentation/06-DA-ITERATION-2.md` (décisions validées par le porteur de projet le 2026-11-11). Aucune logique métier, aucune base de données, aucun service worker modifié.
+
+**Réalisé**
+- feat(da) (`df56c90`) : fond crème léger (option A). Tokens seulement : `--background #fbf6ec`, `--border #e7e0cf`, fonds doux `#f3eedf`, trait vide `#e9e2d0` ; cartes et QR toujours blancs ; `background_color` du manifest aligné. `--input` inchangé
+- feat(loyalty) (`5d1d7a8`) : domaine pur `detect-card-celebrations` (compare deux lectures serveur des cartes : événement `stamp` avec `from`/`to`, événement `reward`), confettis déterministes `confetti-pieces`, constantes des célébrations
+- fix(loyalty) (`0f6f245`) : traits au-delà de 10 (`13/15`) : une seule grille calée sur une première rangée pleine, la rangée incomplète garde la même largeur de trait, alignée à gauche
+- feat(loyalty) (`a957a79`) : animation de scan « carte dévoilée » puis médaille « Récompense disponible », montées une fois sur l'accueil client (`CardCelebrations`), jouées l'une après l'autre (file d'attente), uniquement quand les nouvelles props serveur arrivent. Le « +1 » existant reste. Médaille mémorisée par carte et palier en `sessionStorage` (`rezone.reward-seen.v1`, repli en mémoire)
+- feat(pwa) (`1b77d57`) : bannière d'installation redessinée (icône de l'app, « Ajoute Rézone à tes applis », trois repères avec les icônes validées) ; `decide-install-banner`, le refus mémorisé et le flux d'installation sont inchangés
+- feat(pwa) (`88e9e8f`) : animation « Rézone est sur ton écran d'accueil », état indépendant de la bannière (`useInstallSuccess`), déclenchée par `appinstalled` seulement, jamais sur iOS ; fermée une fois pour toutes par « Compris » (`rezone.install-celebrated.v1`)
+- test(da) (`46cdbc3`) : page d'aperçu `/login/da-preview` (cartes fictives, 404 sans `DA_PREVIEW=1`) et 10 tests navigateur qui échantillonnent les valeurs peintes pendant les animations ; écran de connexion passé sur le fond crème léger (maquette 1)
+
+**Fichiers clés**
+- `src/features/loyalty/domain/detect-card-celebrations.ts`, `confetti-pieces.ts`, `segment-rows.ts` — logique pure testée
+- `src/features/loyalty/hooks/use-card-celebrations.ts` (file d'attente), `use-scan-reveal.ts` (horloge, vibration, fermeture au toucher) ; `components/card-celebrations.tsx`, `scan-reveal-overlay.tsx`, `reward-medal-overlay.tsx`, `reward-medal.tsx`, `confetti-burst.tsx` ; `reward-seen-storage.ts`
+- `src/features/pwa/components/install-banner.tsx`, `install-benefits.tsx`, `benefit-icon.tsx`, `app-icon.tsx`, `install-success-overlay.tsx`, `home-screen-drop.tsx` ; `hooks/use-install-success.ts`
+- `src/app/globals.css` — tokens du fond, keyframes des trois animations (transform et opacité seulement), repli `.reduced-fade`
+- `src/lib/prefers-reduced-motion.ts`, `src/lib/use-close-on-escape.ts` — partagés par les deux features
+- `e2e/celebrations.spec.ts`, `celebrations-fallbacks.spec.ts`, `install.spec.ts`, `da-preview.ts`
+
+**Base de données** : aucune migration ; types non concernés.
+
+**Bugs rencontrés** : aucun.
+
+**Décisions** (pas de nouvel ADR, aucune dépendance)
+- Bannière : le §4 du cahier des charges (fond crème, bordure forêt, icônes dans un cercle) et la planche validée (`Installer.dc.html`, `global.png` : carte blanche, bordure sable, repères séparés par un filet, sans pastille) se contredisent. Textes repris du cahier des charges, visuel repris de la planche. À confirmer par le porteur de projet
+- Compteur de l'animation de scan : teinte claire de la carte = token `--hue-N-dark` (le cahier des charges écrit `-light`, mais dans `globals.css` `-light` est le ton foncé sur blanc)
+- Phrase de l'animation de scan : `describeCardMessage` existant (« … avant ta récompense »), comme la grosse carte ; « ton menu offert » de la maquette ne s'accorde pas avec tous les libellés
+- Animation de scan : elle laisse passer les touchers (`pointer-events: none`) et se ferme au premier toucher, qui atteint aussi l'écran dessous
+- Médaille : 24 confettis (36 dans la planche) ; tout toucher la ferme ; « Le montrer en caisse » remonte au QR (la médaille n'existe que sur l'accueil)
+- Animation d'installation : fermée par « Compris » ou Échap seulement, pas par un toucher ailleurs (le bouton n'apparaît qu'à 2,6 s : un toucher involontaire l'aurait fermée pour toujours)
+- Une carte vue pour la première fois ne joue pas l'animation de scan (pas de chiffre « avant ») ; les célébrations ne sont montées que sur l'accueil, pas sur l'écran d'une carte (qui garde son « +1 »)
+- Scan et médaille livrés dans un même commit : la file d'attente les relie, un commit intermédiaire aurait laissé une récompense sans affichage
+
+**Dette introduite / remboursée** : DT-011 (page d'aperçu livrée dans le build). Limite connue : la clé « médaille déjà vue » est par carte et palier ; un second cycle complet du même palier dans la même session de navigateur ne rejoue pas la médaille.
+
+**Tests de validation**
+- [x] `pnpm lint`, `typecheck`, `test` (219, soit 199 + 20), `build` verts ; `pnpm test:e2e` sans session : 24 réussis (14 + 10 nouveaux), 20 ignorés, 0 échec
+- [x] Sur le build de production, valeurs calculées échantillonnées pendant chaque animation : scan (carte à l'échelle < 1 puis 1, nouveau chiffre opacité 0 puis 1, disparition seule en 3,4 s, fermeture au toucher), médaille (après le scan, pièce à l'échelle < 1 puis 1, titre opacité 0 puis 1, bouton focalisé, Échap, une seule fois par récompense), installation (icône au-dessus puis posée, bouton opacité 0 puis 1, pas de rejeu après « Compris », rien sur la seule acceptation de l'invite)
+- [x] `prefers-reduced-motion` : scan en fondu sans roulement ni confettis, parti en ~2,2 s ; installation avec icône déjà posée. Médaille réduite : même code de repli, non mesurée séparément
+- [x] Captures à 375 px comparées à `da-mockups/v2/global.png` : bannière, scan D, médaille, après installation, cartes `13/15`, connexion
+- [x] Lighthouse mobile sur le build local : `/login` performance 95, accessibilité 100 ; `/login/da-preview` (bannière, cartes, célébrations chargées) 95 et 100
+- [ ] Lighthouse de `/` et taille du JS de la route : non mesurés (l'accueil exige une session ; pas de mesure avant/après)
+- [ ] Non vérifié, à essayer sur téléphone : scan réel avec session (temps réel de bout en bout, enchaînement scan puis médaille), installation réelle sur Android (`appinstalled`, animation, bannière disparue), iPhone (étapes de la bannière, aucune animation), vibration, fluidité sur un appareil modeste
+- [ ] Les 20 e2e connectés (`E2E_SESSION`) : non relancés
+
+**Prochaine étape** : essai sur téléphone des cinq changements, arbitrage du visuel de la bannière, puis fusion de `feat/phase-7bis-da`.
 
 ### Session 34 — [2026-11-11] — Phase 8 : bannière d'installation, indicateur hors-ligne, Q-015
 **Roadmap :** Phase 8 — 8.3 et 8.4 · **Statut :** 🟡 Partiel (code et tests automatiques verts, pas encore essayé sur téléphone) · **Branche :** `feat/phase-7bis-da`
@@ -1542,6 +1592,7 @@
 | DT-008 | Resend est en mode test : les emails (codes de connexion à 6 chiffres) ne partent qu'à l'adresse du compte propriétaire, Supabase répond `500 unexpected_failure` pour toute autre adresse | Environnement de développement ; Google reste disponible pour se connecter | 🔴 Aucun client ni gérant d'une autre adresse ne peut se connecter par code | Phase 11 (avant le pilote) : acheter ou utiliser un nom de domaine, le vérifier dans Resend (SPF, DKIM), mettre l'expéditeur sur ce domaine | ⏳ Ouverte |
 | DT-009 | Écrans « carte d'un commerce » et « Découvrir » et barre du bas absents de l'app (pas de route) : `LoyaltyHeroCard` et `CardBannerHeader` créés mais non montés ; chevalet QR imprimable (DA.7) non refait | Pas d'invention de routes dans une étape d'habillage | 🟢 Code non utilisé jusqu'à la route | Phase 9 (découverte) ou étape dédiée | ⏳ Ouverte |
 | DT-010 | Hors-ligne limité à la page de secours (QR et code) : cartes, caisse et écrans pro ne s'affichent pas sans réseau ; comportement vérifié par Playwright seulement, pas en mode avion sur iPhone ni Android, ni la mise à jour du worker sur un second déploiement | Le besoin produit est le QR (ADR-025) ; pas d'appareil de test ni de second déploiement à ce stade | 🟢 Un client sans réseau voit son QR mais pas ses cartes | Phase 8 (8.4 indicateur hors-ligne et « dernière mise à jour ») | ⏳ Ouverte |
+| DT-011 | Page d'aperçu `/login/da-preview` (cartes fictives, bannière et célébrations) livrée dans le build ; elle répond 404 sans `DA_PREVIEW=1` | L'accueil exige une session : sans elle, aucune animation ne pouvait être mesurée en navigateur (06-DA-ITERATION-2 §8) | 🟢 Un peu de code de test dans l'app, aucune donnée réelle, aucune garde de route modifiée | À retirer ou à garder quand les e2e connectés tourneront (DT-007) | ⏳ Ouverte |
 
 ---
 

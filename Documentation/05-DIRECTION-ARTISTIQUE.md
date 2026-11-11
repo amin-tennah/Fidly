@@ -26,6 +26,8 @@
 
 ## 2. Couleurs (tokens)
 
+> **Itération 2 (Session 35, `06-DA-ITERATION-2.md`) :** le fond est passé au crème léger. Valeurs en vigueur dans `globals.css` : `--background #fbf6ec`, `--border #e7e0cf`, `--secondary` / `--muted` / `--accent` `#f3eedf`, `--track #e9e2d0`. Les cartes et le QR restent blancs. Le bloc ci-dessous garde les valeurs d'origine pour mémoire.
+
 À reporter dans `src/app/globals.css` (noms shadcn conservés pour ne pas casser les composants `ui/`). **Attention :** dans shadcn, `accent` sert aux survols et sélections discrets. Le lime est donc un token à part, `gain`, et `accent` reste une teinte douce. Vérifier les usages de `accent` avant de changer sa valeur.
 
 ```css
