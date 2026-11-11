@@ -35,9 +35,9 @@
 
 ## 🧭 État courant (à mettre à jour à chaque session)
 
-- **Phase en cours :** Phases 0 à 7 terminées et fusionnées dans `main` · jalon M1 (démo interne) validé · **nouvelle Phase 7 bis (direction artistique et design system) à faire avant la Phase 8**
-- **Dernière session :** Session 32 (2026-11-10) — Finition PWA : audit mesuré et socle d'app installée (lot 1 sur 9)
-- **Prochaine action :** lots 2 à 9 de la finition PWA (carte et retour arrière, intro pendant le chargement, squelettes et erreurs, caisse, mouvement et accessibilité, écrans pro et auth, hors-ligne, clôture), un lot validé à la fois ; puis valider sur téléphone (retour de 2 à 3 personnes), mesurer Lighthouse `/login` (≥ 86) et le temps de scan, puis fusionner `feat/phase-7bis-da` dans `main` ; ensuite Phase 8 (PWA) ; écrans « carte d'un commerce », « Découvrir » et barre du bas à habiller quand leurs routes existeront (DT-009)
+- **Phase en cours :** Phases 0 à 7 terminées et fusionnées dans `main` · jalon M1 (démo interne) validé · Phase 7 bis (direction artistique) : finition PWA terminée sur `feat/phase-7bis-da` (Session 32, lots 1 à 8), en attente de validation sur téléphone avant fusion
+- **Dernière session :** Session 32 (2026-11-11) — Finition PWA : lots 1 à 8 (socle d'app installée, animations, états de chargement et d'erreur, caisse, accessibilité, écrans pro/auth, hors-ligne)
+- **Prochaine action :** valider sur téléphone (retour de 2 à 3 personnes : zones sûres iOS, glissements, intro, page hors-ligne en mode avion), exécuter les 20 tests e2e connectés avec `E2E_SESSION`, mesurer Lighthouse `/login` (≥ 86) et le temps de scan, puis fusionner `feat/phase-7bis-da` dans `main` ; ensuite reste de la Phase 8 (8.3 bannière d'installation, 8.4 indicateur hors-ligne et « dernière mise à jour ») ; écrans « carte d'un commerce », « Découvrir » et barre du bas à habiller quand leurs routes existeront (DT-009)
 - **Bloquants :** Aucun
 
 ---
@@ -73,20 +73,30 @@
 **Prochaine étape** : ...
 ==================================================================================== -->
 
-### Session 32 — [2026-11-10] — Finition PWA : audit mesuré et socle d'app installée
-**Roadmap :** Phase 7 bis — DA.6 (finition) et préparation de la Phase 8 · **Statut :** 🟡 Partiel (lot 1 sur 9 livré) · **Branche :** `feat/phase-7bis-da`
+### Session 32 — [2026-11-11] — Finition PWA : audit mesuré, socle d'app installée, animations, états, accessibilité et hors-ligne
+**Roadmap :** Phase 7 bis — DA.6 (finition) et Phase 8 — 8.2 (service worker) · **Statut :** ✅ Terminé (lots 1 à 8 ; validation sur appareil physique à faire) · **Branche :** `feat/phase-7bis-da`
 
-**Contexte** : mission « zéro friction » en lots validés un par un. Lot 0 = audit mesuré sur build de production (Playwright, 375 px, session réelle enregistrée hors dépôt). Lot 1 = socle d'app installée.
+**Contexte** : mission « zéro friction » en lots validés un par un, chaque changement mesuré sur build de production (Playwright, 375 px). Lot 0 = audit, lots 1 à 8 = corrections. Le lot 9 initialement prévu était cette clôture.
 
 **Réalisé**
-- fix(da) (commits `193042d`, `a9b1ef2`, `8526f52`, antérieurs à cette session, non consignés jusqu'ici) : lettres de l'intro bloquées à `opacity: 0` ; liseré visible avant le balayage de chaque lettre ; glissement des étapes inerte (propriété animée `translate`, pas `transform`)
-- audit mesuré (aucun fichier modifié) : relevés dans le tableau des tests ci-dessous
-- feat(da) lot 1 : `viewport-fit=cover`, balises Apple (`statusBarStyle: "default"`), tokens `--safe-top` / `--safe-bottom` et utilitaires `pt-safe-*`, `pb-safe-*`, `top-safe-*` appliqués à tous les bords d'écran (barre d'onglets pro, caisse, tiroir, intro, accueil, carte, connexion, invitation, onboarding, admin, erreurs, recadrage d'image, toasts) ; `overscroll-behavior: none`, pas de surbrillance au toucher, `touch-action: manipulation`, sélection de texte réservée aux champs et au code de secours ; manifest `id` et `scope`
-- test(e2e) : `playwright.config.ts` lance désormais un build de production sur le port 3100 ; `e2e/app-shell.spec.ts` (3 tests de rendu)
+- fix(da) (commits `193042d`, `a9b1ef2`, `8526f52`, antérieurs, non consignés jusqu'ici) : lettres de l'intro bloquées à `opacity: 0` ; liseré visible avant le balayage de chaque lettre ; glissement des étapes inerte (propriété animée `translate`, pas `transform`)
+- audit mesuré, lot 0 (aucun fichier modifié) : relevés dans le tableau des tests ci-dessous
+- feat(da) lot 1 (`0d00ad8`) : `viewport-fit=cover`, balises Apple (`statusBarStyle: "default"`), tokens `--safe-top` / `--safe-bottom` appliqués à tous les bords d'écran ; `overscroll-behavior: none`, pas de surbrillance au toucher, `touch-action: manipulation`, sélection de texte réservée aux champs et au code de secours ; manifest `id` et `scope` ; `playwright.config.ts` lance un build de production sur le port 3100
+- feat(da) lot 2 (`b9e0f63`) : glissement vers une carte et retour par les view transitions de React (plus de `transform` sur `<main>`), « ‹ Mes cartes » dépile l'historique, squelette propre au détail d'une carte ; Chromium seulement (voir bugs)
+- feat(da) lot 3 (`7533ed3`) : l'intro vit dans le layout racine, couvre le squelette, dure 1,9 s minimum et 4 s au plus, minuteries alignées sur l'animation rendue
+- feat(da) lot 4 (`9608678`) : un squelette par écran (onglets pro, connexion, invitation, onboarding, admin), `retry` à la place de `reset` dans les `error.tsx`, 404 en français, `global-error`
+- fix(da) lot 5 (`99a9467`) : le faux écran de caméra prend la boîte du viseur (plus de saut de 65 px), tiroir client en segments, erreurs de caméra expliquées en français, rouge d'erreur assombri (`#b42318`)
+- fix(da) lot 6 (`421cfdf`) : `prefers-reduced-motion` annule aussi les délais de transition, seuls `transform` et `opacity` sont animés (deux exceptions documentées), cibles de 48 px partout, focus clavier visible
+- feat(da) lot 7 (`43ae173`) : écrans pro, admin, invitation et onboarding alignés sur la grammaire des écrans ; composants `Pill`, `ScreenTitle`, `SectionTitle` à la place de copies
+- feat(pwa) lot 8 (`ac5fe8d`) : service worker maison `public/sw.js` (79 lignes, aucune dépendance) qui ne met en cache que `/offline.html` et `/_next/static/*` ; page autonome `public/offline.html` qui redessine le QR et le code de secours lus dans `localStorage` ; cache nommé d'après l'identifiant de build (`/sw.js?v=<id>`) et purgé à l'activation ; `sw.js` servi en `no-store` ; `/sw.js` et `/offline.html` exclus du proxy d'auth ; enregistrement en production seulement (ADR-025)
+- test(e2e) : `app-shell`, `card-navigation`, `intro-splash`, `loading-and-errors`, `cashier`, `motion`, `touch-targets`, `offline` (3 tests de rendu dans `offline.spec.ts`)
 
-**Fichiers clés**
-- `src/app/globals.css` — tokens et utilitaires de zone sûre, comportements tactiles ; `src/app/layout.tsx` — viewport et balises Apple ; `src/app/manifest.ts`
-- `e2e/app-shell.spec.ts`, `playwright.config.ts`
+**Fichiers clés (lot 8)**
+- `public/sw.js`, `public/offline.html` — le worker et la page hors-ligne
+- `src/components/shared/service-worker-registrar.tsx`, `src/lib/offline.ts` — enregistrement (production seulement) et URL versionnée
+- `src/features/auth/identity-storage.ts`, `src/features/auth/qr-snapshot.ts`, `src/features/auth/hooks/use-persist-identity.ts` — copie locale du tracé du QR, effacée à la déconnexion
+- `next.config.ts` — identifiant de build commun (`generateBuildId` et `NEXT_PUBLIC_BUILD_ID`), en-têtes de `/sw.js` ; `src/proxy.ts` — exclusion du matcher
+- `src/lib/offline-assets.test.ts`, `e2e/offline.spec.ts` — garde-fous (clés partagées, aucun script externe, aucun `innerHTML`, cache purgé, repli hors-ligne)
 
 **Base de données** : aucune migration.
 
@@ -95,17 +105,21 @@
 |---|---|---|---|
 | Lettres de l'intro invisibles ; étapes de connexion sans glissement (commits antérieurs) | Code relu mais rendu jamais regardé : `opacity: 0` jamais levée, `transform` animé alors que Tailwind 4 écrit `translate` | Corrigés dans les 3 commits cités | Toute animation est relevée avec Playwright à plusieurs instants sur build de production |
 | Relevé de `top` faux juste après l'injection d'une feuille de style | Lecture faite avant le recalcul des styles | Attente de 200 ms avant lecture | Les tests utilisent `toHaveCSS` (qui réessaie) |
+| Après un glissement, un retour arrière plante la page sur WebKit (3 essais sur 3) | Les view transitions de React ne sont pas fiables sur le WebKit de test | Glissement joué sur Chromium seulement, échange instantané ailleurs (4 essais sur 4 sans plantage) | Test de glissement limité à Chromium ; à revérifier sur iPhone réel |
+| 3 tests e2e connectés échouaient sur l'écran de connexion quand `E2E_SESSION` est absent | `signedInTest.skip(...)` appelé au niveau du module de `e2e/signed-in.ts` : il ne protège que le premier fichier de test qui l'importe | Fixture automatique `requireSession` qui ignore chaque test sans session | Sans session : 11 réussis, 20 ignorés, 0 échec |
 
-**Décisions** : aucune dépendance ajoutée, pas de nouvel ADR. Choix consignés : zoom par pincement conservé (accessibilité), seul le double-tap est neutralisé ; barre de statut iOS en `default` (texte lisible sur les écrans crème et blancs) ; `background_color` du manifest laissé crème (document 05) malgré l'intro forêt, écart connu ; `overscroll-behavior: none` supprime le tirer-pour-rafraîchir (les cartes se resynchronisent par Realtime et au retour au premier plan).
-**Dette introduite / remboursée** : aucune. DT-007 partiellement contournée : session de test enregistrée à la main, hors dépôt, pour les mesures.
+**Décisions** : ADR-025 (service worker maison, page hors-ligne autonome). Aucune dépendance ajoutée. Choix consignés : zoom par pincement conservé (accessibilité), seul le double-tap est neutralisé ; barre de statut iOS en `default` ; `background_color` du manifest laissé crème (document 05) malgré l'intro forêt, écart connu ; `overscroll-behavior: none` supprime le tirer-pour-rafraîchir (les cartes se resynchronisent par Realtime et au retour au premier plan).
+**Dette introduite / remboursée** : DT-010 introduite (hors-ligne limité au QR, non vérifié sur appareil). DT-007 toujours ouverte : les parcours connectés exigent une session enregistrée à la main, hors dépôt.
 
 **Tests de validation**
-- [x] `pnpm lint`, `pnpm typecheck`, `pnpm test` (167), `pnpm build`, `pnpm test:e2e` (5) verts
-- [x] Audit mesuré : `/login` CLS 0, LCP 516 ms ; accueil CLS 0, LCP 1 080 ms ; ouverture à froid : squelette de 0,6 à 1,1 s puis intro de 1,1 à 2,6 s (l'intro s'ajoute au chargement) ; entrée dans une carte : squelette de l'accueil 300 ms, document élargi à 750 × 1 334 px ; retour du téléphone sans animation ; « ‹ Mes cartes » empile l'historique (2 → 4) et recharge l'accueil (1,8 s) ; 404 en anglais ; caisse : squelette caméra 335 px puis viseur 270 px ; onglets pro : squelette générique de 0,6 à 1 s ; cibles de 36 px dans réglages, invitation, onboarding, admin ; `--destructive` 4,45:1 sur crème
-- [x] Lot 1 re-mesuré avec zones sûres simulées (47 px haut, 34 px bas) : barre d'onglets 74 → 108 px (liens de 72 px au-dessus de l'indicateur), « Passer » 16 → 63 px, en-tête de caisse 20 → 67 px, feuille de caisse 32 → 66 px, en-tête de l'accueil 22 → 69 px
-- [ ] Non vérifiés : appareil physique (encoche, barre de statut iOS, rebond), caméra réelle, glissement email → code et animation +1 en mouvement, Lighthouse
+- [x] Lot 8 : `pnpm lint`, `pnpm typecheck`, `pnpm test` (190, dont 6 nouveaux), `pnpm format:check`, `pnpm build` verts
+- [x] Lot 8, e2e sans session : 11 réussis (dont 3 de `offline.spec.ts`), 20 ignorés, 0 échec. Hors-ligne simulé par Playwright sur `/login` : titre « Tu es hors ligne », QR redessiné depuis le tracé stocké, code « 7DN WSA » ; sans identité stockée : message « après ta première visite avec du réseau » ; seuls `/offline.html` et des fichiers `/_next/static/` sont en cache ; un cache d'ancien build planté avant l'installation est purgé ; `/sw.js` répond 200 sans redirection, `cache-control: no-store` ; `.next/BUILD_ID` égal à l'identifiant inliné dans le bundle client
+- [x] Lots 1 à 7 : relevés détaillés dans les messages de commit (`0d00ad8` à `43ae173`), mesurés sur build de production à 375 px
+- [x] Audit initial (lot 0) : `/login` CLS 0, LCP 516 ms ; accueil CLS 0, LCP 1 080 ms ; ouverture à froid : squelette 0,6 à 1,1 s puis intro 1,1 à 2,6 s ; « ‹ Mes cartes » empilait l'historique (2 → 4) ; 404 en anglais ; caisse : squelette de 335 px puis viseur de 270 px ; cibles de 36 px dans réglages, invitation, onboarding, admin ; `--destructive` 4,45:1 sur crème
+- [ ] Non exécutés ici : les 20 tests e2e connectés (pas de fichier de session dans cet environnement) ; les 28 réussis annoncés avant le lot 8 l'étaient avec `E2E_SESSION`, à relancer
+- [ ] Non vérifiés : appareil physique (encoche, barre de statut iOS, rebond, mode avion réel sur Android et iPhone), caméra réelle, mise à jour du worker sur un second déploiement, Lighthouse
 
-**Prochaine étape** : lot 2 (carte : débordement, glissement d'entrée et de retour, historique, squelette du détail), après validation du porteur de projet.
+**Prochaine étape** : validation sur téléphone par 2 à 3 personnes, relance de `pnpm test:e2e` avec `E2E_SESSION`, Lighthouse, puis fusion dans `main` ; ensuite 8.3 et 8.4.
 
 ### Session 31 — [2026-11-02] — Refonte de la structure des écrans d'après les maquettes
 **Roadmap :** Phase 7 bis — DA.6 (reprise) · **Statut :** 🟡 Partiel (mesures sur téléphone à faire) · **Branche :** `feat/phase-7bis-da`
@@ -1175,6 +1189,7 @@
 | ADR-022 | Scan : RPC appelées directement depuis le navigateur plutôt que par Server Actions | ✅ Accepté | 2026-11-01 |
 | ADR-023 | Direction artistique en Phase 7 bis, avant la PWA (P8) | ✅ Accepté | 2026-11-01 |
 | ADR-024 | Identité visuelle : vert forêt, logotype « tampon », couleur par carte | ✅ Accepté | 2026-11-02 |
+| ADR-025 | Hors-ligne : service worker maison et page autonome plutôt que Serwist | ✅ Accepté | 2026-11-11 |
 
 <!-- ============ TEMPLATE ADR ============
 ### ADR-NNN — Titre
@@ -1437,6 +1452,18 @@
 - **Conséquences :** `globals.css` à réécrire (source unique) ; deux familles de polices via `next/font` ; assets de marque dans `public/brand/` ; trois composants à créer ; aucune règle métier ni schéma modifié.
 - **Réversibilité :** facile pour les couleurs et composants (tokens centralisés) ; moyenne pour le logotype une fois les supports imprimés.
 
+### ADR-025 — Hors-ligne : service worker maison et page autonome plutôt que Serwist
+- **Date :** 2026-11-11 · **Statut :** ✅ Accepté · **Phase :** 7 bis (lot 8), avance l'étape 8.2 · **Déroge à :** `04-ROADMAP.md` 8.2 (Serwist)
+- **Contexte :** le QR client doit rester affichable sans réseau (`.cursorrules` §10). Tout le reste de l'app dépend du serveur (session Supabase, Server Components, Realtime) : mettre des pages en cache servirait des données périmées ou d'un autre compte, et une page de caisse hors-ligne n'a pas de sens. Contraintes : aucune dépendance de plus (§0), aucun cache périmé après un déploiement.
+- **Options envisagées :**
+  1. Serwist (prévu à la roadmap) — ✅ stratégies de cache toutes faites, précache généré ; ❌ dépendance et plugin de build, configuration à vérifier avec Next 16 (Turbopack), précache du shell que le produit ne veut pas.
+  2. Cache complet du shell et des pages en *network-first* — ❌ risque de servir une page d'un autre compte sur un appareil partagé, complexité de l'invalidation des charges RSC.
+  3. Worker maison de 79 lignes, deux entrées en cache seulement — ✅ aucune dépendance, surface minimale, tout le reste va au réseau sans passer par le worker ; ❌ pas de page hors-ligne pour les cartes ni les écrans pro.
+- **Décision :** option 3. `public/sw.js` met en cache `/offline.html` (à l'installation) et les fichiers hachés `/_next/static/*` (cache d'abord), répond à une navigation en échec réseau par `/offline.html`, et ne s'occupe de rien d'autre. `public/offline.html` est autonome (styles et script en ligne) et lit `localStorage` : identité (`rezone.identity.v1`) et tracé du QR (`rezone.identity-qr.v1`, ajouté car aucune librairie QR n'est disponible dans la page). Versionnement : l'identifiant de build est passé en `?v=` sur l'URL du script, donc chaque déploiement installe un nouveau worker, un cache `rezone-<id>` neuf, et l'activation supprime les anciens. `/sw.js` est servi en `no-cache, no-store, must-revalidate` ; le proxy d'auth l'exclut, ainsi que `/offline.html` ; l'enregistrement se fait en production seulement.
+- **Pourquoi :** le besoin produit est un QR affichable, pas une app hors-ligne ; deux entrées en cache l'obtiennent sans risque de donnée périmée ni dépendance.
+- **Conséquences :** hors-ligne, seule la page de secours s'affiche (QR et code, bouton « Réessayer », rechargement au retour du réseau) ; la page ne contient aucun `innerHTML` (le tracé est validé par expression régulière puis posé en attribut) ; si une CSP est ajoutée un jour, le script en ligne de `offline.html` devra recevoir un hachage ou un nonce ; le tracé du QR est un jeton équivalent à celui déjà stocké, effacé à la déconnexion. À surveiller : durée de vie de `localStorage` sur iOS quand l'app n'est pas installée (à mesurer sur appareil), mise à jour du worker sur un second déploiement (non testée ici).
+- **Réversibilité :** facile : supprimer `public/sw.js`, `public/offline.html` et le registrar ; un worker déjà installé se désinstalle en servant un `sw.js` qui appelle `registration.unregister()`.
+
 ---
 
 ## 🧾 Dette technique
@@ -1452,6 +1479,7 @@
 | DT-007 | Aucun test E2E Playwright du scanner : le projet n'a pas de stratégie de comptes de test (connexion par OTP email ou Google) | Décision à prendre (comptes de test, session injectée) avant d'écrire le parcours | 🟠 Parcours critique du scan couvert seulement par pgTAP et tests unitaires | Phase 6 (avant le jalon M1) | ⏳ Ouverte |
 | DT-008 | Resend est en mode test : les emails (codes de connexion à 6 chiffres) ne partent qu'à l'adresse du compte propriétaire, Supabase répond `500 unexpected_failure` pour toute autre adresse | Environnement de développement ; Google reste disponible pour se connecter | 🔴 Aucun client ni gérant d'une autre adresse ne peut se connecter par code | Phase 11 (avant le pilote) : acheter ou utiliser un nom de domaine, le vérifier dans Resend (SPF, DKIM), mettre l'expéditeur sur ce domaine | ⏳ Ouverte |
 | DT-009 | Écrans « carte d'un commerce » et « Découvrir » et barre du bas absents de l'app (pas de route) : `LoyaltyHeroCard` et `CardBannerHeader` créés mais non montés ; chevalet QR imprimable (DA.7) non refait | Pas d'invention de routes dans une étape d'habillage | 🟢 Code non utilisé jusqu'à la route | Phase 9 (découverte) ou étape dédiée | ⏳ Ouverte |
+| DT-010 | Hors-ligne limité à la page de secours (QR et code) : cartes, caisse et écrans pro ne s'affichent pas sans réseau ; comportement vérifié par Playwright seulement, pas en mode avion sur iPhone ni Android, ni la mise à jour du worker sur un second déploiement | Le besoin produit est le QR (ADR-025) ; pas d'appareil de test ni de second déploiement à ce stade | 🟢 Un client sans réseau voit son QR mais pas ses cartes | Phase 8 (8.4 indicateur hors-ligne et « dernière mise à jour ») | ⏳ Ouverte |
 
 ---
 
