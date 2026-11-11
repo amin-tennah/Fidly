@@ -3,6 +3,7 @@
 --   - écriture directe interdite ; création, édition, ordre, désactivation par RPC
 --   - règles : seuils strictement croissants, 5 paliers actifs maximum
 --   - désactivation : cartes basculées sur le palier suivant, `stamps` conservé (Q-013)
+--   - réactivation : cartes avancées reprises par le palier réactivé (Q-015)
 -- Exécutable via `pnpm db:test`.
 -- ============================================================================
 
@@ -18,7 +19,7 @@ create temp table tap_log (
 grant insert, select on table tap_log to anon, authenticated;
 grant usage, select on sequence tap_log_seq_seq to anon, authenticated;
 
-insert into tap_log (tap) select plan(19);
+insert into tap_log (tap) select plan(22);
 
 -- Fixtures (superuser) : R1 vide, R3 avec 3 paliers et une carte, R4 avec 5 paliers actifs
 insert into public.restaurants (id, slug, name, category, is_active)
@@ -167,6 +168,54 @@ insert into tap_log (tap) select is(
   (select current_program_id::text from public.loyalty_cards where id = 'd5d5d5d5-dddd-4ddd-8ddd-ddddddddddd1'),
   'b5b5b5b5-bbbb-4bbb-8bbb-bbbbbbbbbbb1',
   'Désactiver le dernier palier actif est permis ; la carte reste inchangée'
+);
+
+-- 10 bis. Réactivation (Q-015). Fixtures en superuser : tous les paliers de R3 sont inactifs ;
+-- on rend P1 et P2 actifs puis on place la carte sur P3 (palier avancé).
+reset role;
+update public.loyalty_programs set is_active = true
+where id in ('b5b5b5b5-bbbb-4bbb-8bbb-bbbbbbbbbbb1', 'b5b5b5b5-bbbb-4bbb-8bbb-bbbbbbbbbbb3');
+update public.loyalty_cards set current_program_id = 'b5b5b5b5-bbbb-4bbb-8bbb-bbbbbbbbbbb3', stamps = 8
+where id = 'd5d5d5d5-dddd-4ddd-8ddd-ddddddddddd1';
+set local role authenticated;
+set local "request.jwt.claims" = '{"sub":"c5c5c5c5-cccc-4ccc-8ccc-ccccccccccc1","role":"authenticated"}';
+
+do $$ begin perform public.set_loyalty_program_active('b5b5b5b5-bbbb-4bbb-8bbb-bbbbbbbbbbb2', true); end $$;
+
+insert into tap_log (tap) select is(
+  (select current_program_id::text || '/' || stamps from public.loyalty_cards where id = 'd5d5d5d5-dddd-4ddd-8ddd-ddddddddddd1'),
+  'b5b5b5b5-bbbb-4bbb-8bbb-bbbbbbbbbbb2/8',
+  'Réactiver P2 (seuil 20) : la carte à 8 passages sur P3 revient sur P2, passages inchangés'
+);
+
+reset role;
+update public.loyalty_cards set current_program_id = 'b5b5b5b5-bbbb-4bbb-8bbb-bbbbbbbbbbb3', stamps = 25
+where id = 'd5d5d5d5-dddd-4ddd-8ddd-ddddddddddd1';
+update public.loyalty_programs set is_active = false where id = 'b5b5b5b5-bbbb-4bbb-8bbb-bbbbbbbbbbb2';
+set local role authenticated;
+set local "request.jwt.claims" = '{"sub":"c5c5c5c5-cccc-4ccc-8ccc-ccccccccccc1","role":"authenticated"}';
+
+do $$ begin perform public.set_loyalty_program_active('b5b5b5b5-bbbb-4bbb-8bbb-bbbbbbbbbbb2', true); end $$;
+
+insert into tap_log (tap) select is(
+  (select current_program_id::text from public.loyalty_cards where id = 'd5d5d5d5-dddd-4ddd-8ddd-ddddddddddd1'),
+  'b5b5b5b5-bbbb-4bbb-8bbb-bbbbbbbbbbb3',
+  'Réactiver P2 : la carte à 25 passages (P2 consommé) reste sur P3'
+);
+
+reset role;
+update public.loyalty_cards set current_program_id = 'b5b5b5b5-bbbb-4bbb-8bbb-bbbbbbbbbbb1', stamps = 3
+where id = 'd5d5d5d5-dddd-4ddd-8ddd-ddddddddddd1';
+update public.loyalty_programs set is_active = false where id = 'b5b5b5b5-bbbb-4bbb-8bbb-bbbbbbbbbbb2';
+set local role authenticated;
+set local "request.jwt.claims" = '{"sub":"c5c5c5c5-cccc-4ccc-8ccc-ccccccccccc1","role":"authenticated"}';
+
+do $$ begin perform public.set_loyalty_program_active('b5b5b5b5-bbbb-4bbb-8bbb-bbbbbbbbbbb2', true); end $$;
+
+insert into tap_log (tap) select is(
+  (select current_program_id::text from public.loyalty_cards where id = 'd5d5d5d5-dddd-4ddd-8ddd-ddddddddddd1'),
+  'b5b5b5b5-bbbb-4bbb-8bbb-bbbbbbbbbbb1',
+  'Réactiver P2 : une carte restée sur un palier plus bas (P1) n''est pas avancée'
 );
 
 -- 13. Maximum de 5 paliers actifs
