@@ -36,8 +36,8 @@
 ## 🧭 État courant (à mettre à jour à chaque session)
 
 - **Phase en cours :** Phases 0 à 7 terminées et fusionnées dans `main` · jalon M1 (démo interne) validé · Phase 7 bis (direction artistique) : finition PWA terminée sur `feat/phase-7bis-da` (Session 32, lots 1 à 8), en attente de validation sur téléphone avant fusion
-- **Dernière session :** Session 32 (2026-11-11) — Finition PWA : lots 1 à 8 (socle d'app installée, animations, états de chargement et d'erreur, caisse, accessibilité, écrans pro/auth, hors-ligne)
-- **Prochaine action :** valider sur téléphone (retour de 2 à 3 personnes : zones sûres iOS, glissements, intro, page hors-ligne en mode avion), exécuter les 20 tests e2e connectés avec `E2E_SESSION`, mesurer Lighthouse `/login` (≥ 86) et le temps de scan, puis fusionner `feat/phase-7bis-da` dans `main` ; ensuite reste de la Phase 8 (8.3 bannière d'installation, 8.4 indicateur hors-ligne et « dernière mise à jour ») ; écrans « carte d'un commerce », « Découvrir » et barre du bas à habiller quand leurs routes existeront (DT-009)
+- **Dernière session :** Session 33 (2026-11-11) — Retour du test sur Android (Galaxy S26) : connexion, page hors-ligne, 3 points ouverts
+- **Prochaine action :** décision du porteur sur Q-015 (réactivation d'un palier), diagnostic du retour par geste (Session 33, point 3), puis test sur iPhone, les 20 e2e connectés avec `E2E_SESSION`, Lighthouse `/login` (≥ 86) et temps de scan ; fusion de `feat/phase-7bis-da` dans `main` ; ensuite 8.3 et 8.4 ; animation de récompense plus visible côté client (idée du test, à planifier) ; écrans « carte d'un commerce », « Découvrir » et barre du bas (DT-009)
 - **Bloquants :** Aucun
 
 ---
@@ -72,6 +72,40 @@
 
 **Prochaine étape** : ...
 ==================================================================================== -->
+
+### Session 33 — [2026-11-11] — Retour du test sur Android : connexion, page hors-ligne, points ouverts
+**Roadmap :** Phase 7 bis — DA.6 (finition) et Phase 8 — 8.2 · **Statut :** 🟡 Partiel (2 corrections livrées, 3 points en attente) · **Branche :** `feat/phase-7bis-da`
+
+**Contexte** : première série de tests sur téléphone réel (Android, Galaxy S26 Ultra, build de production par tunnel) des lots 1 à 8 de la Session 32. Parcours 1 à 17 : 14 sans remarque, 3 écarts, plus 4 remarques libres.
+
+**Réalisé**
+- fix(pwa) (`12072f6`) : connexion par code, les deux étapes se lisaient l'une sur l'autre pendant le balayage ; l'étape qui part s'efface en 160 ms et celle qui arrive apparaît ensuite (`step-transition.tsx`, jeton `--dur-step-fade`)
+- fix(pwa) (`12072f6`) : la page hors-ligne se rechargeait au retour du réseau mais restait sur elle-même ; elle teste maintenant le réseau (`/manifest.webmanifest`) à l'événement `online`, au retour au premier plan et toutes les 3 s, et ne recharge qu'en cas de réponse
+- test : `offline.spec.ts` (sortie automatique de la page hors-ligne), `motion.spec.ts` (une seule étape visible)
+
+**Base de données** : aucune migration.
+
+**Bugs rencontrés**
+| Symptôme | Cause racine | Correctif | Prévention |
+|---|---|---|---|
+| Étapes de connexion superposées pendant le balayage | Les deux étapes sont empilées dans la même cellule ; celle qui part ne recule que de 28 % alors que l'autre arrive de 100 % : 500 ms de chevauchement lisible. Mon audit n'avait mesuré que les positions, pas la lisibilité | Fondu des deux étapes | Test de rendu sur l'opacité ; à regarder sur téléphone à chaque changement d'animation |
+| Page hors-ligne rechargée mais toujours affichée (retour du mode avion) | `online` se déclenche avant que la connexion transporte des données : le rechargement échoue et le worker resert la page hors-ligne. Playwright ne le reproduit pas (réseau rétabli instantanément) | Sonde réseau avant rechargement | Test e2e de sortie automatique ; vérification réelle en mode avion |
+
+**Points ouverts**
+1. **Palier réactivé non repris par les cartes** (Q-015) : `set_loyalty_program_active` déplace les cartes vers le palier actif suivant à la désactivation (Q-013), mais ne fait rien à la réactivation, donc les cartes restent sur le palier B. Le réordonnancement « corrige » en apparence : les seuils restent attachés aux places, donc B reprend le seuil de 10 ; ce n'est pas un vrai retour sur A. Correction = migration + tests pgTAP, après décision du porteur.
+2. **Barre de navigation Android sur les onglets pro** : vue une fois, non reproduite au second essai. Hypothèse : hauteur de la fenêtre au moment où la barre du navigateur se replie. À surveiller, aucune modification faite.
+3. **Retour par geste de gauche à droite : double chargement** (écran d'accueil) ; le geste de droite à gauche est fluide. Non reproductible sur ordinateur. Hypothèse : le geste du navigateur et notre glissement de retour (`NavDirectionListener`) se jouent tous les deux. Pas de correction à l'aveugle : enregistrement d'écran et contexte (onglet Chrome ou app installée) demandés.
+4. **Idée** : animation de récompense plus visible côté client (à planifier avec la DA, hors périmètre des lots 1 à 8).
+
+**Décisions** : aucune dépendance, pas de nouvel ADR. **Dette introduite / remboursée** : aucune.
+
+**Tests de validation**
+- [x] `pnpm lint`, `typecheck`, `test` (190) verts ; e2e hors connexion : offline et motion verts
+- [x] Android (Galaxy S26 Ultra), parcours 1 à 15 et 17 : conformes sauf points 1 à 3 ci-dessus ; parcours 10 fait en 4G (la 3G n'est pas ciblée)
+- [ ] Non revérifié sur téléphone : les deux corrections (à retester : connexion par code, retour du mode avion)
+- [ ] Non vérifiés : iPhone (Safari, app installée), les 20 e2e connectés, Lighthouse
+
+**Prochaine étape** : décision Q-015 puis migration ; retest des deux corrections sur Android ; diagnostic du retour par geste ; test iPhone.
 
 ### Session 32 — [2026-11-11] — Finition PWA : audit mesuré, socle d'app installée, animations, états, accessibilité et hors-ligne
 **Roadmap :** Phase 7 bis — DA.6 (finition) et Phase 8 — 8.2 (service worker) · **Statut :** ✅ Terminé (lots 1 à 8 ; validation sur appareil physique à faire) · **Branche :** `feat/phase-7bis-da`
@@ -1501,4 +1535,5 @@
 | Q-012 | Annulation d'un scan : qui, quoi, jusqu'à quand ? | Owner : tout ; staff : ses propres scans < 15 min | **Owner = tout ; staff = ses propres scans < 10 min** ⇒ ADR-010 | Phase 6 | ✅ Session 1 |
 | Q-013 | Modification d'un seuil en cours : que devient la carte ? | Appliquée immédiatement aux cartes en cours | **Oui, application immédiate** aux cartes en cours ⇒ ADR-009 | Phase 5 | ✅ Session 1 |
 | Q-014 | Un employé peut-il créditer son propre compte ? | À trancher | **Oui**, autorisé ; la trace est dans les logs (`staff_id`) | Phase 6 | ✅ Session 23 |
+| Q-015 | Un palier désactivé puis réactivé : que deviennent les cartes qui avaient basculé sur le palier suivant ? | Remettre sur le palier réactivé les cartes placées sur un palier plus loin dont les passages sont inférieurs à son seuil (une carte qui a vraiment consommé ce palier a toujours des passages au moins égaux à son seuil, ADR-009) | **À trancher** | Phase 7 bis | ⏳ Ouvert (Session 33) |
 
