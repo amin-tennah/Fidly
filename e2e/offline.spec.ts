@@ -104,3 +104,23 @@ test("offline without a stored identity: asks for a first visit instead of showi
   await expect(page.getByText(/après ta première visite avec du réseau/)).toBeVisible();
   await expect(page.locator("#card")).toBeHidden();
 });
+
+test("offline page: leaves by itself once the network really answers again", async ({
+  page,
+  context,
+}) => {
+  await page.goto("/login");
+  await page.evaluate(() => navigator.serviceWorker.ready);
+  await context.setOffline(true);
+  await page.goto("/login");
+  await expect(page.getByRole("heading", { name: "Tu es hors ligne" })).toBeVisible();
+
+  await context.setOffline(false);
+
+  await expect(page.getByRole("heading", { name: "Tu es hors ligne" })).toHaveCount(0, {
+    timeout: 8000,
+  });
+  await expect(
+    page.getByRole("button", { name: /Continuer|Recevoir/i }).first(),
+  ).toBeVisible();
+});

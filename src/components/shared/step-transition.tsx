@@ -12,15 +12,22 @@ export interface StepTransitionProps {
   readonly activeId: string;
 }
 
+/**
+ * Properties: translate, opacity, visibility. The leaving step fades out at once and the
+ * arriving one fades in once it has left, so two steps are never readable at the same time.
+ */
 const TRANSITION =
-  "transition-[translate,visibility] duration-[var(--dur-slide),0s] ease-(--ease-slide)";
+  "transition-[translate,opacity,visibility] duration-[var(--dur-slide),var(--dur-step-fade),0s] ease-(--ease-slide)";
 
 function placementClass(index: number, activeIndex: number): string {
   if (index === activeIndex) {
-    return cn(TRANSITION, "visible translate-x-0 delay-0");
+    return cn(
+      TRANSITION,
+      "visible translate-x-0 opacity-100 delay-[0s,var(--dur-step-fade),0s]",
+    );
   }
   const side = index < activeIndex ? "-translate-x-[28%]" : "translate-x-full";
-  return cn(TRANSITION, side, "invisible delay-[0s,var(--dur-slide)]");
+  return cn(TRANSITION, side, "invisible opacity-0 delay-[0s,0s,var(--dur-slide)]");
 }
 
 /**

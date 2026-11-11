@@ -47,6 +47,8 @@
   --ease-slide: cubic-bezier(0.22, 0.9, 0.3, 1);
   --ease-pop: cubic-bezier(0.2, 1.7, 0.4, 1);
   --dur-slide: 500ms;
+  /* The leaving step of a flow fades out this fast, the arriving one fades in right after. */
+  --dur-step-fade: 160ms;
   /* Cast on its left edge by a screen that slides over another. */
   --shadow-slide: -12px 0 32px rgb(14 31 23 / 0.3);
 

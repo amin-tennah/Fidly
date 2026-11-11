@@ -95,3 +95,26 @@ test("motion: buttons give a pressed feedback through transform only", async ({
 
   await expect(button).toHaveCSS("transition-property", TRANSFORM_FAMILY);
 });
+
+test("motion: only the active login step is visible, the others are faded out", async ({
+  page,
+}) => {
+  await page.goto("/login");
+
+  const opacities = await page.evaluate(() =>
+    [...document.querySelectorAll("form")]
+      .map((form) => form.parentElement)
+      .filter((node): node is HTMLElement => node instanceof HTMLElement)
+      .map((node) => ({
+        isInert: node.inert,
+        opacity: getComputedStyle(node).opacity,
+        properties: getComputedStyle(node).transitionProperty,
+      })),
+  );
+
+  expect(opacities.length).toBeGreaterThanOrEqual(2);
+  for (const step of opacities) {
+    expect(step.opacity).toBe(step.isInert ? "0" : "1");
+    expect(step.properties).toContain("opacity");
+  }
+});

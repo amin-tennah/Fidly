@@ -184,8 +184,28 @@
             window.location.reload();
           }
         }
+        // The "online" event can fire before the connection really carries data, and a
+        // reload then lands on this page again. So the network is probed first (this request
+        // is not a navigation: the worker leaves it alone) and the page reloads on success.
+        var PROBE_URL = "/manifest.webmanifest";
+        var PROBE_INTERVAL_MS = 3000;
+        function probe() {
+          fetch(PROBE_URL, { cache: "no-store" })
+            .then(function (response) {
+              if (response.ok) {
+                retry();
+              }
+            })
+            .catch(function () {});
+        }
         document.getElementById("retry").addEventListener("click", retry);
-        window.addEventListener("online", retry);
+        window.addEventListener("online", probe);
+        document.addEventListener("visibilitychange", function () {
+          if (!document.hidden) {
+            probe();
+          }
+        });
+        window.setInterval(probe, PROBE_INTERVAL_MS);
       })();
     </script>
   </body>
