@@ -36,8 +36,8 @@
 ## 🧭 État courant (à mettre à jour à chaque session)
 
 - **Phase en cours :** Phases 0 à 7 terminées et fusionnées dans `main` · jalon M1 (démo interne) validé · Phase 7 bis (direction artistique) : finition PWA terminée sur `feat/phase-7bis-da` (Session 32, lots 1 à 8), en attente de validation sur téléphone avant fusion
-- **Dernière session :** Session 33 (2026-11-11) — Retour du test sur Android (Galaxy S26) : connexion, page hors-ligne, 3 points ouverts
-- **Prochaine action :** décision du porteur sur Q-015 (réactivation d'un palier), diagnostic du retour par geste (Session 33, point 3), puis test sur iPhone, les 20 e2e connectés avec `E2E_SESSION`, Lighthouse `/login` (≥ 86) et temps de scan ; fusion de `feat/phase-7bis-da` dans `main` ; ensuite 8.3 et 8.4 ; animation de récompense plus visible côté client (idée du test, à planifier) ; écrans « carte d'un commerce », « Découvrir » et barre du bas (DT-009)
+- **Dernière session :** Session 34 (2026-11-11) — Phase 8 : bannière d'installation (8.3), indicateur hors-ligne (8.4), clôture de Q-015
+- **Prochaine action :** tester 8.3 et 8.4 sur Android puis iPhone (bannière, pastille, ligne « cartes à jour à »), diagnostic du retour par geste (Session 33, point 3), les 20 e2e connectés avec `E2E_SESSION`, Lighthouse `/login` (≥ 86) et temps de scan ; fusion de `feat/phase-7bis-da` dans `main` ; ensuite fin de la Phase 8 (tests de validation de la roadmap sur appareils) puis Phase 9 ; animation de récompense plus visible côté client (à planifier) ; écrans « carte d'un commerce », « Découvrir » et barre du bas (DT-009)
 - **Bloquants :** Aucun
 
 ---
@@ -72,6 +72,34 @@
 
 **Prochaine étape** : ...
 ==================================================================================== -->
+
+### Session 34 — [2026-11-11] — Phase 8 : bannière d'installation, indicateur hors-ligne, Q-015
+**Roadmap :** Phase 8 — 8.3 et 8.4 · **Statut :** 🟡 Partiel (code et tests automatiques verts, pas encore essayé sur téléphone) · **Branche :** `feat/phase-7bis-da`
+
+**Réalisé**
+- db (`338feb6`) : Q-015 appliquée, un palier réactivé reprend les cartes que sa désactivation avait avancées quand leurs passages sont inférieurs à son seuil ; les passages ne changent jamais. Migration `20261111100001_reactivated_program_takes_cards_back.sql`, trois cas ajoutés à `loyalty_programs.test.sql`. Appliquée et testée par le porteur de projet (je n'ai pas pu joindre la base depuis cet environnement)
+- feat(pwa) 8.3 (`b3ee7a4`) : bannière d'installation sur l'accueil client, affichée dès que le client a une carte (premier passage crédité). Android Chrome : bouton « Installer » (événement `beforeinstallprompt`) ; iPhone et iPad : étapes « Partager » puis « Sur l'écran d'accueil » ; masquée si l'app est installée ou ouverte en plein écran, ou si le client a refusé (refus mémorisé dans `localStorage`, une seule fois). Un refus du message natif compte comme un refus
+- feat(pwa) 8.4 (`b3ee7a4`) : pastille « Hors ligne » discrète sur tous les écrans (état du navigateur) ; sur l'accueil, ligne « Hors ligne · cartes à jour à HH:MM » (heure de lecture côté serveur, affichée seulement hors-ligne)
+- test : 9 tests unitaires (décision de la bannière, détection iOS), 1 test e2e de la pastille
+
+**Fichiers clés**
+- `src/features/pwa/` — nouvelle feature : `domain/decide-install-banner.ts` et `detect-platform.ts` (logique pure), `install-environment-store.ts` (état du navigateur pour `useSyncExternalStore`), `hooks/`, `components/`
+- `src/app/layout.tsx` — pastille ; `src/app/(client)/page.tsx` — bannière et heure de lecture
+
+**Base de données** : migration Q-015 ci-dessus ; types non concernés (signature inchangée).
+
+**Bugs rencontrés** : aucun.
+
+**Décisions** : aucune dépendance, pas de nouvel ADR. Choix : « premier passage réussi » = le client a au moins une carte ; l'état « en ligne » vient de `navigator.onLine` (un indice, pas une preuve : un Wi-Fi sans internet se lit « en ligne »), suffisant pour une pastille discrète. L'API `useOffline` de Next est expérimentale et n'a pas été activée.
+**Dette introduite / remboursée** : DT-010 reste ouverte (hors-ligne limité au QR) ; l'heure de mise à jour ne couvre que la page déjà chargée, pas un rechargement hors-ligne (la page de secours n'affiche pas les cartes).
+
+**Tests de validation**
+- [x] `pnpm lint`, `typecheck`, `test` (199), `build` verts ; e2e sans session : 14 réussis, 20 ignorés, 0 échec
+- [ ] Non exécuté : parcours de la bannière dans un navigateur (l'accueil exige une session) ; seule sa logique de décision est testée
+- [ ] À faire sur téléphone : Android (installation réelle, bannière disparue ensuite, refus mémorisé), iPhone (étapes lisibles, bannière absente dans l'app installée), pastille en mode avion, heure affichée sur l'accueil hors-ligne
+- [ ] Roadmap Phase 8, tests de validation : Lighthouse PWA installable, mode avion et mise à jour d'un second déploiement, toujours à faire
+
+**Prochaine étape** : essai sur téléphone de 8.3 et 8.4, puis validation de la Phase 8.
 
 ### Session 33 — [2026-11-11] — Retour du test sur Android : connexion, page hors-ligne, points ouverts
 **Roadmap :** Phase 7 bis — DA.6 (finition) et Phase 8 — 8.2 · **Statut :** 🟡 Partiel (2 corrections livrées, 3 points en attente) · **Branche :** `feat/phase-7bis-da`
@@ -1535,5 +1563,5 @@
 | Q-012 | Annulation d'un scan : qui, quoi, jusqu'à quand ? | Owner : tout ; staff : ses propres scans < 15 min | **Owner = tout ; staff = ses propres scans < 10 min** ⇒ ADR-010 | Phase 6 | ✅ Session 1 |
 | Q-013 | Modification d'un seuil en cours : que devient la carte ? | Appliquée immédiatement aux cartes en cours | **Oui, application immédiate** aux cartes en cours ⇒ ADR-009 | Phase 5 | ✅ Session 1 |
 | Q-014 | Un employé peut-il créditer son propre compte ? | À trancher | **Oui**, autorisé ; la trace est dans les logs (`staff_id`) | Phase 6 | ✅ Session 23 |
-| Q-015 | Un palier désactivé puis réactivé : que deviennent les cartes qui avaient basculé sur le palier suivant ? | Remettre sur le palier réactivé les cartes placées sur un palier plus loin dont les passages sont inférieurs à son seuil (une carte qui a vraiment consommé ce palier a toujours des passages au moins égaux à son seuil, ADR-009) | **À trancher** | Phase 7 bis | ⏳ Ouvert (Session 33) |
+| Q-015 | Un palier désactivé puis réactivé : que deviennent les cartes qui avaient basculé sur le palier suivant ? | Remettre sur le palier réactivé les cartes placées sur un palier plus loin dont les passages sont inférieurs à son seuil (une carte qui a vraiment consommé ce palier a toujours des passages au moins égaux à son seuil, ADR-009) | **Validée par le porteur** telle que proposée (Session 34) | Phase 7 bis | ✅ Session 34 |
 

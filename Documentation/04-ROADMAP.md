@@ -431,8 +431,8 @@ Parcours complet sur 2 téléphones : inscription client → configuration resta
 ### Étapes
 - [ ] **8.1** `app/manifest.ts` (nom, icônes 192/512 + maskable, `theme_color`, `display: standalone`, `start_url`), icônes Apple et splash screens *(assets issus de la DA, étape DA.7)*.
 - [x] **8.2** Service worker **maison** (ADR-025, à la place de Serwist) : seuls `/offline.html` (QR et code de secours) et `/_next/static/*` sont en cache ; tout le reste passe par le réseau. *Livré avec le lot 8 de la Session 32.*
-- [ ] **8.3** Bannière d'installation : `beforeinstallprompt` sur Android ; instructions illustrées « Partager → Sur l'écran d'accueil » sur iOS ; affichage après un 1er passage réussi, refus mémorisé.
-- [ ] **8.4** Indicateur hors-ligne discret et données de cartes « dernière mise à jour à… ».
+- [x] **8.3** Bannière d'installation : `beforeinstallprompt` sur Android ; instructions illustrées « Partager → Sur l'écran d'accueil » sur iOS ; affichage après un 1er passage réussi, refus mémorisé. *Livré en Session 34 ; à essayer sur téléphone.*
+- [x] **8.4** Indicateur hors-ligne discret et données de cartes « dernière mise à jour à… ». *Livré en Session 34 ; à essayer sur téléphone.*
 
 ### ✅ Tests de validation
 - [ ] Lighthouse : critères PWA installable remplis.
