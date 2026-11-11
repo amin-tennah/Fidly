@@ -34,3 +34,28 @@ export interface LoyaltyCardView {
   readonly restaurantCoverUrl: string | null;
   readonly progress: CardProgress | null;
 }
+
+/** What a celebration overlay needs to know about the card it celebrates. */
+interface CardCelebrationBase {
+  readonly cardId: string;
+  readonly restaurantName: string;
+  readonly restaurantLogoUrl: string | null;
+  /** Card colour index, 1 to 6 (see getCardHue). */
+  readonly hue: number;
+  /** Progression after the change, as confirmed by the server. */
+  readonly progress: CardProgress;
+}
+
+/** One or several stamps were credited: the counter goes from `from` to `to`. */
+export interface StampCelebration extends CardCelebrationBase {
+  readonly kind: "stamp";
+  readonly from: number;
+  readonly to: number;
+}
+
+/** The reward of the current tier just became available. */
+export interface RewardCelebration extends CardCelebrationBase {
+  readonly kind: "reward";
+}
+
+export type CardCelebration = StampCelebration | RewardCelebration;

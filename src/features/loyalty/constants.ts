@@ -39,3 +39,33 @@ export const CARD_DETAIL_PATH = "/cartes";
 
 /** A reward banner mounted later than this after page load was just unlocked: celebrate once. */
 export const FIRST_PAINT_GRACE_MS = 4000;
+
+/**
+ * Scan celebration "carte dévoilée" (06-DA-ITERATION-2 §2): total time on screen, the
+ * moment the counter rolls and the new segment lands (mirrors the `rollIn` delay in
+ * globals.css), and the shorter stay of the reduced-motion fallback.
+ */
+export const SCAN_REVEAL_DURATION_MS = 3400;
+export const SCAN_REVEAL_COUNTER_MS = 900;
+export const SCAN_REVEAL_REDUCED_DURATION_MS = 2200;
+
+/** Confetti thrown from the centre of a celebration: size of the burst and its timing. */
+export const SCAN_REVEAL_CONFETTI = {
+  count: 12,
+  spreadPx: 130,
+  risePx: 30,
+  fallPx: 140,
+  delayMs: 1000,
+} as const;
+export const REWARD_MEDAL_CONFETTI = {
+  count: 24,
+  spreadPx: 230,
+  risePx: 90,
+  fallPx: 420,
+  delayMs: 1500,
+} as const;
+/** Colours a confetti piece cycles through (card light tone, lime, cream, card dark tone). */
+export const CONFETTI_COLOR_COUNT = 4;
+
+/** sessionStorage key listing the rewards whose medal was already shown ("card:tier"). */
+export const REWARD_SEEN_STORAGE_KEY = "rezone.reward-seen.v1";
