@@ -2,12 +2,35 @@
 
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
+import { AppIcon } from "@/features/pwa/components/app-icon";
+import { InstallBenefits } from "@/features/pwa/components/install-benefits";
 import { IosInstallSteps } from "@/features/pwa/components/ios-install-steps";
 import { useInstallBanner } from "@/features/pwa/hooks/use-install-banner";
 
 export interface InstallBannerProps {
   /** True once a first visit was credited (the customer has a card). */
   readonly hasFirstVisit: boolean;
+}
+
+const APP_ICON_SIZE_PX = 56;
+
+function BannerHeading(): ReactNode {
+  return (
+    <div className="flex items-center gap-3">
+      <AppIcon size={APP_ICON_SIZE_PX} className="drop-shadow-app-icon" />
+      <div className="space-y-1">
+        <h2
+          id="install-banner-title"
+          className="font-display text-[19px] leading-[1.1] font-extrabold"
+        >
+          Ajoute Rézone à tes applis
+        </h2>
+        <p className="text-muted-foreground text-[13px] leading-snug">
+          Ton QR et tes cartes s&apos;ouvrent en un geste, comme une vraie appli.
+        </p>
+      </div>
+    </div>
+  );
 }
 
 /** Proposes to add Rézone to the home screen (roadmap 8.3); a refusal is remembered. */
@@ -20,22 +43,23 @@ export function InstallBanner({ hasFirstVisit }: InstallBannerProps): ReactNode 
   return (
     <section
       aria-labelledby="install-banner-title"
-      className="border-primary bg-gain/30 space-y-3 rounded-2xl border-2 p-4"
+      className="bg-card border-border rounded-panel shadow-banner space-y-3 border-2 p-4"
     >
-      <div className="space-y-1">
-        <h2 id="install-banner-title" className="font-display text-lg font-extrabold">
-          Garde Rézone sous la main
-        </h2>
-        <p className="text-sm">Ton QR s&apos;ouvre en un geste, même sans réseau.</p>
-      </div>
+      <BannerHeading />
+      <InstallBenefits />
       {mode === "ios-guide" ? <IosInstallSteps /> : null}
-      <div className="flex gap-2">
+      <div className="flex items-center gap-2.5">
         {mode === "prompt" ? (
-          <Button type="button" onClick={install} className="flex-1">
+          <Button type="button" size="lg" onClick={install} className="flex-[1.5]">
             Installer
           </Button>
         ) : null}
-        <Button type="button" variant="outline" onClick={dismiss} className="flex-1">
+        <Button
+          type="button"
+          variant={mode === "prompt" ? "ghost" : "outline"}
+          onClick={dismiss}
+          className="text-primary min-h-14 flex-1 font-sans text-[15px] font-extrabold"
+        >
           {mode === "prompt" ? "Plus tard" : "J'ai compris"}
         </Button>
       </div>

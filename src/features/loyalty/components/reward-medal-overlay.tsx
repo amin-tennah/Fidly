@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { ConfettiBurst } from "@/features/loyalty/components/confetti-burst";
 import { RewardMedal } from "@/features/loyalty/components/reward-medal";
 import { REWARD_MEDAL_CONFETTI } from "@/features/loyalty/constants";
 import type { RewardCelebration } from "@/features/loyalty/types";
 import { prefersReducedMotion } from "@/lib/prefers-reduced-motion";
+import { useCloseOnEscape } from "@/lib/use-close-on-escape";
 import { cn } from "@/lib/utils";
 
 export interface RewardMedalOverlayProps {
@@ -16,18 +17,6 @@ export interface RewardMedalOverlayProps {
 }
 
 const TITLE_ID = "reward-medal-title";
-
-function useCloseOnEscape(onClose: () => void): void {
-  useEffect(() => {
-    const handleKey = (event: KeyboardEvent): void => {
-      if (event.key === "Escape") {
-        onClose();
-      }
-    };
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [onClose]);
-}
 
 /** Under reduced motion every text fades in at once instead of following the medal. */
 function pickMotion(isReduced: boolean, motion: string): string {
