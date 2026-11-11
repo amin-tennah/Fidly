@@ -22,3 +22,11 @@ export function buildSegmentRows(count: number, threshold: number): Segment[][] 
   }
   return rows;
 }
+
+/**
+ * Columns of the segment grid: every row uses the width of a full first row, so that an
+ * incomplete second row (13 / 15) keeps the same segment width instead of stretching.
+ */
+export function getSegmentColumns(threshold: number): number {
+  return Math.max(1, Math.min(threshold, SEGMENTS_PER_ROW));
+}

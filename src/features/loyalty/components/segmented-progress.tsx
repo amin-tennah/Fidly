@@ -1,7 +1,11 @@
 import { Gift } from "lucide-react";
 import type { CSSProperties, ReactNode } from "react";
-import { SEGMENTS_PER_ROW, SEGMENT_WAVE_STEP_MS } from "@/features/loyalty/constants";
-import { buildSegmentRows, type Segment } from "@/features/loyalty/domain/segment-rows";
+import { SEGMENT_WAVE_STEP_MS } from "@/features/loyalty/constants";
+import {
+  buildSegmentRows,
+  getSegmentColumns,
+  type Segment,
+} from "@/features/loyalty/domain/segment-rows";
 import { cn } from "@/lib/utils";
 
 export type SegmentedProgressTone = "card" | "list";
@@ -23,9 +27,10 @@ const SIZE_CLASSES: Record<SegmentedProgressTone, string> = {
   list: "h-[17px] rounded-[6px]",
 };
 
+/** Column gap, then row gap when a tier needs a second row. */
 const GAP_CLASSES: Record<SegmentedProgressTone, string> = {
-  card: "gap-1",
-  list: "gap-[3px]",
+  card: "gap-x-1 gap-y-1.5",
+  list: "gap-x-[3px] gap-y-1",
 };
 
 const EMPTY_CLASSES: Record<SegmentedProgressTone, string> = {
@@ -50,7 +55,7 @@ function SegmentView({ segment, tone, animation, delayMs }: SegmentViewProps): R
   return (
     <span
       className={cn(
-        "flex flex-1 items-center justify-center border-2",
+        "flex items-center justify-center border-2",
         SIZE_CLASSES[tone],
         colors,
         animation,
@@ -79,40 +84,35 @@ function pickAnimation(input: PickAnimationInput): string | undefined {
   return input.isLastFilled ? "animate-seg-pop" : undefined;
 }
 
-interface SegmentRowViewProps {
-  readonly row: readonly Segment[];
-  readonly firstIndex: number;
-  readonly filledCount: number;
-  readonly isRewardReached: boolean;
+interface SegmentsProps {
+  readonly count: number;
+  readonly threshold: number;
   readonly justAdded: boolean;
   readonly tone: SegmentedProgressTone;
 }
 
-function SegmentRowView(props: SegmentRowViewProps): ReactNode {
-  const { row, firstIndex, filledCount, isRewardReached, justAdded, tone } = props;
-  return (
-    <div className={cn("flex", GAP_CLASSES[tone])}>
-      {row.map((segment, offset) => {
-        const index = firstIndex + offset;
-        const animation = pickAnimation({
-          segment,
-          isLastFilled: index === filledCount - 1,
-          isRewardReached,
-          justAdded,
-        });
-        const isWave = animation === "animate-seg-wave";
-        return (
-          <SegmentView
-            key={index}
-            segment={segment}
-            tone={tone}
-            animation={animation}
-            delayMs={isWave ? index * SEGMENT_WAVE_STEP_MS : 0}
-          />
-        );
-      })}
-    </div>
-  );
+function Segments({ count, threshold, justAdded, tone }: SegmentsProps): ReactNode {
+  const filledCount = Math.min(count, threshold);
+  return buildSegmentRows(count, threshold)
+    .flat()
+    .map((segment, index) => {
+      const animation = pickAnimation({
+        segment,
+        isLastFilled: index === filledCount - 1,
+        isRewardReached: count >= threshold,
+        justAdded,
+      });
+      const isWave = animation === "animate-seg-wave";
+      return (
+        <SegmentView
+          key={index}
+          segment={segment}
+          tone={tone}
+          animation={animation}
+          delayMs={isWave ? index * SEGMENT_WAVE_STEP_MS : 0}
+        />
+      );
+    });
 }
 
 export function SegmentedProgress({
@@ -123,26 +123,20 @@ export function SegmentedProgress({
   tone = "list",
 }: SegmentedProgressProps): ReactNode {
   const toneKey = tone === "card" ? "dark" : "light";
-  const style: SegmentStyle = { "--seg": `var(--hue-${hue}-${toneKey})` };
+  // One grid for every row: an incomplete last row keeps the width of the first one.
+  const style: SegmentStyle = {
+    "--seg": `var(--hue-${hue}-${toneKey})`,
+    gridTemplateColumns: `repeat(${getSegmentColumns(threshold)}, minmax(0, 1fr))`,
+  };
 
   return (
     <div
       role="img"
       aria-label={`${count} / ${threshold} passages`}
-      className={cn("flex flex-col", tone === "card" ? "gap-1.5" : "gap-1")}
+      className={cn("grid", GAP_CLASSES[tone])}
       style={style}
     >
-      {buildSegmentRows(count, threshold).map((row, rowIndex) => (
-        <SegmentRowView
-          key={rowIndex}
-          row={row}
-          firstIndex={rowIndex * SEGMENTS_PER_ROW}
-          filledCount={Math.min(count, threshold)}
-          isRewardReached={count >= threshold}
-          justAdded={justAdded}
-          tone={tone}
-        />
-      ))}
+      <Segments count={count} threshold={threshold} justAdded={justAdded} tone={tone} />
     </div>
   );
 }
