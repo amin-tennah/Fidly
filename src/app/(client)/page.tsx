@@ -16,6 +16,7 @@ import {
 } from "@/features/auth/queries/get-session-context";
 import { PageTransition } from "@/components/shared/page-transition";
 import {
+  CardCelebrations,
   ClientHomeHeader,
   CustomerQrHero,
   HomeReadyMarker,
@@ -75,6 +76,7 @@ export default async function HomePage(): Promise<ReactNode> {
           <CardsUpdatedAt updatedAt={readAt} />
         </div>
         <LoyaltyRealtimeSync userId={user.id} />
+        <CardCelebrations cards={cards} />
       </main>
     </PageTransition>
   );
