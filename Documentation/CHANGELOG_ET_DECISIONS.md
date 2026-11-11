@@ -35,9 +35,9 @@
 
 ## 🧭 État courant (à mettre à jour à chaque session)
 
-- **Phase en cours :** Phases 0 à 7 terminées · jalon M1 validé · Phase 7 bis validée sur téléphone (restent : Lighthouse `/` et temps de scan ; chevalet DA.7 reporté) · Phase 8 : 8.1 à 8.4 faites et validées sur Android (restent : iPhone, mise à jour sur un second déploiement) · `feat/phase-7bis-da` fusionnée dans `main` (Session 37) · prochaine phase : 9
-- **Dernière session :** Session 37 (2026-11-11) — Clôture des Phases 7 bis et 8 après les essais sur Android, fusion dans `main`
-- **Prochaine action :** corriger la régression de performance de `/` (Lighthouse 72–73 < 86, DT-005 : mesurer d'abord sans l'intro, puis le JS inutilisé) ; puis Phase 9 (Découvrir le quartier, DT-009). Plus tard : cookie modifié (DT-003), iPhone, mise à jour sur un second déploiement, barre de navigation Android des onglets pro, chevalet (DA.7)
+- **Phase en cours :** Phases 0 à 7 terminées · jalon M1 validé · Phase 7 bis validée (Lighthouse `/` 89, scan < 3 s ; chevalet DA.7 reporté) · Phase 8 : 8.1 à 8.4 faites et validées sur Android (restent : iPhone, mise à jour sur un second déploiement) · `feat/phase-7bis-da` fusionnée dans `main` (Session 37) · prochaine phase : 9
+- **Dernière session :** Session 38 (2026-11-11) — Icône de la bannière chargée en priorité (élément LCP), Lighthouse `/` à 89 : Phase 7 bis validée
+- **Prochaine action :** Phase 9 (Découvrir le quartier, DT-009) dans une nouvelle session : trancher d'abord avec le porteur de projet la carte géographique (dépendance + ADR), les commerces déjà visités (exclus ou « Visité »), le curseur de rayon et l'onglet « Profil ». Plus tard : cookie modifié (DT-003), iPhone, mise à jour sur un second déploiement, barre de navigation Android des onglets pro, chevalet (DA.7), JS de `/` (DT-005, 11.4)
 - **Bloquants :** Aucun
 
 ---
@@ -72,6 +72,33 @@
 
 **Prochaine étape** : ...
 ==================================================================================== -->
+
+### Session 38 — [2026-11-11] — Icône de la bannière chargée en priorité, Lighthouse `/` à 89
+**Roadmap :** Phase 7 bis — test « aucune régression de performance » · **Statut :** ✅ Terminé · **Branche :** `main`
+
+**Réalisé**
+- perf(pwa) : `AppIcon` (`/brand/icon-rezone.svg`) en `loading="eager"` et `fetchPriority="high"` au lieu du `lazy` par défaut de `next/image`. Le porteur de projet l'a relevée comme élément LCP de `/`. L'icône n'est jamais montée hors de l'écran (bannière, animation après installation), le `lazy` ne servait donc à rien. `priority` est déprécié depuis Next 16 et la doc locale recommande `eager` ou `fetchPriority` plutôt que `preload` ; un preload dans `<head>` n'aiderait pas, la bannière n'étant rendue que côté client
+- Mesure du porteur de projet : `/` à **89** en navigation privée (≥ 86) ; les 72–73 de la Session 37 venaient des extensions du profil Chrome habituel. Case de performance de la Phase 7 bis cochée
+
+**Fichiers clés** : `src/features/pwa/components/app-icon.tsx`.
+
+**Base de données** : aucune migration.
+
+**Bugs rencontrés**
+| Symptôme | Cause racine | Correctif | Prévention |
+|---|---|---|---|
+| Après la modification, e2e verts et mesure inchangée, mais l'icône toujours en `lazy` dans le DOM | Un `next start -p 3100` de la procédure de mesure tournait encore sur l'ancien build ; Playwright le réutilise (`reuseExistingServer`) et ne relance donc ni le build ni le serveur | Serveur arrêté, build et e2e relancés, attributs vérifiés dans le DOM | Arrêter le serveur du port 3100 après une mesure à la main ; en cas de doute, vérifier l'heure de `.next/BUILD_ID` face au dernier changement |
+
+**Décisions** : aucun ADR, aucune dépendance.
+**Dette introduite / remboursée** : DT-005 mise à jour (plus de régression ; reste l'objectif 90 en 11.4, la bannière rendue après le JS étant l'élément LCP).
+
+**Tests de validation**
+- [x] `pnpm lint`, `typecheck`, `test` (221) verts ; `pnpm test:e2e` sans session sur le nouveau build : 25 réussis, 20 ignorés, 0 échec
+- [x] DOM du build de production : icône `loading="eager"`, `fetchpriority="high"` ; requête de l'icône passée de priorité « Low » à « High » (Lighthouse CLI)
+- [x] Lighthouse CLI sur `/login/da-preview` (headless, mobile simulé, 3 passages) : 68–69, accessibilité 100, LCP ~4,1 s, inchangé. Sur cette page, l'élément LCP est le texte du guide Android de la bannière, pas l'icône : le gain ne s'y voit pas. Mesure non comparable aux 89 en DevTools sur `/` (page, outil et mode différents)
+- [ ] Lighthouse `/` en navigation privée après ce correctif : à refaire par le porteur de projet (89 mesuré avant ou pendant)
+
+**Prochaine étape** : Phase 9 dans une nouvelle session.
 
 ### Session 37 — [2026-11-11] — Clôture des Phases 7 bis et 8 après les essais sur Android
 **Roadmap :** Phase 7 bis (validation) · Phase 8 (validation) · restes des Phases 0, 3 et 6 · **Statut :** ✅ Terminé (clôture documentaire et fusion ; restes listés ci-dessous) · **Branche :** `feat/phase-7bis-da` → `main`
@@ -1631,7 +1658,7 @@ Cahier des charges : `Documentation/06-DA-ITERATION-2.md` (décisions validées 
 | DT-002 | La suppression de compte n'est pas encore exposée (pas de Server Action ni d'UI) ; seul le comportement base est en place et testé | Livraison prévue en P11 | 🟠 Obligation RGPD à honorer avant le pilote | Phase 11 | ⏳ Ouverte |
 | DT-003 | Tests de validation Phase 3 non exécutés : parcours par rôle (client/staff/admin) avec une vraie invitation, session persistante, cookie modifié, Google sur iPhone/Android et PWA, E2E de connexion OTP (Inbucket indisponible avec le projet Cloud) | Aucun contenu `/pro` ni PWA à valider avant les Phases 5 et 8 | 🟠 Régression d'accès non détectée | Phases 5 (rôles `/pro`), 8 (PWA) | ⏳ Ouverte — en grande partie remboursée (Session 37) : parcours par rôle, session persistante et Google validés à la main ; e2e OTP non applicable ; **reste le test du cookie/JWT modifié** |
 | DT-004 | Le logo du restaurant n'est pas affiché sur les cartes (initiale seulement) : aucun upload n'existe avant l'étape 5.3, et `next/image` exige la configuration du domaine Storage | Logos inexistants avant la Phase 5 | 🟢 Cosmétique | Phase 5 (5.3) | ✔️ Remboursée (Session 17) |
-| DT-005 | Lighthouse Performance de `/` à 86 sur build de production local (seuil de la roadmap : 90) ; mesure locale, sans CDN ni région Vercel | Écart jugé suffisant à ce stade par le porteur de projet | 🟢 Marge faible vis-à-vis de la contrainte produit n°1 | Phase 11 (11.4) : re-mesure sur Vercel ; analyser le bundle si < 90 | ⏳ Ouverte — **aggravée** (Session 37) : `/` mesurée à 72–73 en DevTools (build local, mobile) après les Sessions 32 à 36 ; LCP 4,0 s, TBT 550 ms, 681 Kio de JS inutilisé ; hypothèse principale : l'intro (1,9 s mini, 4 s maxi) masque l'accueil jusqu'à son plafond |
+| DT-005 | Lighthouse Performance de `/` à 86 sur build de production local (seuil de la roadmap : 90) ; mesure locale, sans CDN ni région Vercel | Écart jugé suffisant à ce stade par le porteur de projet | 🟢 Marge faible vis-à-vis de la contrainte produit n°1 | Phase 11 (11.4) : re-mesure sur Vercel ; analyser le bundle si < 90 | ⏳ Ouverte — Session 38 : `/` à **89** en navigation privée (≥ 86, plus de régression ; les 72–73 venaient des extensions du profil Chrome). Reste pour 11.4 (≥ 90 sur Vercel) : la bannière d'installation, rendue après le chargement du JS, est l'élément LCP ; levier = alléger le JS de `/` (681 Kio inutilisés) |
 | DT-006 | Test chronomètre de la Phase 5 (un testeur non technique configure fiche + 2 paliers en < 5 min) non réalisé : il demande un vrai testeur | Pas de testeur disponible à ce stade | 🟢 L'ergonomie a été revue après retour du porteur de projet (Session 21) | Pilote (Phase 11.6) | ⏳ Ouverte |
 | DT-007 | Aucun test E2E Playwright du scanner : le projet n'a pas de stratégie de comptes de test (connexion par OTP email ou Google) | Décision à prendre (comptes de test, session injectée) avant d'écrire le parcours | 🟠 Parcours critique du scan couvert seulement par pgTAP et tests unitaires | Phase 6 (avant le jalon M1) | ✔️ Remboursée (Session 37) : essais manuels sur appareil réel jugés suffisants par le porteur de projet |
 | DT-008 | Resend est en mode test : les emails (codes de connexion à 6 chiffres) ne partent qu'à l'adresse du compte propriétaire, Supabase répond `500 unexpected_failure` pour toute autre adresse | Environnement de développement ; Google reste disponible pour se connecter | 🔴 Aucun client ni gérant d'une autre adresse ne peut se connecter par code | Phase 11 (avant le pilote) : acheter ou utiliser un nom de domaine, le vérifier dans Resend (SPF, DKIM), mettre l'expéditeur sur ce domaine | ⏳ Ouverte |
