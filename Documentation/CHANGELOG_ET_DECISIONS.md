@@ -35,9 +35,9 @@
 
 ## 🧭 État courant (à mettre à jour à chaque session)
 
-- **Phase en cours :** Phases 0 à 7 terminées et fusionnées dans `main` · jalon M1 (démo interne) validé · Phase 7 bis (direction artistique) : finition PWA terminée sur `feat/phase-7bis-da` (Session 32, lots 1 à 8), en attente de validation sur téléphone avant fusion
-- **Dernière session :** Session 36 (2026-11-11) — Bannière d'installation : « Plus tard » retiré, fermeture pour la session seulement, guide Android (menu ⋮) quand Chrome ne fournit pas l'invite
-- **Prochaine action :** essayer sur téléphone l'itération 2 de la DA (Session 35 : scan réel puis médaille, installation Android et animation, bannière sur iPhone, vibration ; Session 36 : guide Android après désinstallation) et arbitrer le visuel de la bannière ; tester 8.3 et 8.4 sur Android puis iPhone (bannière, pastille, ligne « cartes à jour à »), diagnostic du retour par geste (Session 33, point 3), les 20 e2e connectés avec `E2E_SESSION`, Lighthouse `/login` (≥ 86) et temps de scan ; fusion de `feat/phase-7bis-da` dans `main` ; ensuite fin de la Phase 8 (tests de validation de la roadmap sur appareils) puis Phase 9 ; écrans « carte d'un commerce », « Découvrir » et barre du bas (DT-009)
+- **Phase en cours :** Phases 0 à 7 terminées · jalon M1 validé · Phase 7 bis validée sur téléphone (restent : Lighthouse `/` et temps de scan ; chevalet DA.7 reporté) · Phase 8 : 8.1 à 8.4 faites et validées sur Android (restent : iPhone, mise à jour sur un second déploiement) · `feat/phase-7bis-da` fusionnée dans `main` (Session 37) · prochaine phase : 9
+- **Dernière session :** Session 37 (2026-11-11) — Clôture des Phases 7 bis et 8 après les essais sur Android, fusion dans `main`
+- **Prochaine action :** lancer les 20 e2e connectés (`E2E_SESSION`), mesurer Lighthouse `/` (≥ 86) et rechronométrer le scan (< 3 s) ; test du cookie modifié (DT-003) ; puis Phase 9 (Découvrir le quartier, DT-009). Plus tard : iPhone (bannière, installation), mise à jour de l'app installée sur un second déploiement, barre de navigation Android sur les onglets pro (Session 33, point 2), chevalet (DA.7)
 - **Bloquants :** Aucun
 
 ---
@@ -72,6 +72,31 @@
 
 **Prochaine étape** : ...
 ==================================================================================== -->
+
+### Session 37 — [2026-11-11] — Clôture des Phases 7 bis et 8 après les essais sur Android
+**Roadmap :** Phase 7 bis (validation) · Phase 8 (validation) · restes des Phases 0, 3 et 6 · **Statut :** ✅ Terminé (clôture documentaire et fusion ; restes listés ci-dessous) · **Branche :** `feat/phase-7bis-da` → `main`
+
+**Réalisé** (aucun code applicatif modifié)
+- Résultats des essais du porteur de projet sur Android (Sessions 33 à 36). Validés : installation par l'invite et animation, guide Android après désinstallation, scan réel (« carte dévoilée », vibration, médaille), mode avion (pastille, heure des cartes, QR, sortie de la page hors-ligne), étapes de connexion par code sans superposition
+- Session 33, point 3 (retour par geste chargé deux fois) : **non reproduit**, clos. Point 2 (barre de navigation Android sur les onglets pro) : non revu, reste à surveiller
+- Visuel de la bannière (Session 35) : celui de la planche est conservé (carte blanche, bordure sable)
+- Roadmap cochée : DA.5 (clos sans maquette des logs, réglages et `/admin`, résultat jugé satisfaisant), tests 7 bis (contrastes AA, scanner lisible, QR inchangé, lint/typecheck/test, retours de personnes), 8.1, Lighthouse PWA installable, mode avion ; Phase 3 (parcours par rôle, session persistante, e2e OTP non applicable) ; Phase 6 (E2E remplacé par les essais manuels)
+- DA.7 : chevalet imprimable reporté à plus tard. 0.4 : nom de domaine pas encore acheté (Phase 11)
+- `.gitignore` : les présentations `*.pptx` (récapitulatif personnel) sont ignorées
+- Fusion de `feat/phase-7bis-da` dans `main`, envoi de `main` sur GitHub
+
+**Base de données** : aucune migration. **Bugs rencontrés** : aucun. **Décisions** : aucun ADR.
+**Dette introduite / remboursée** : DT-007 remboursée (essais manuels suffisants) ; DT-010 fermée (limite assumée, ADR-025) ; DT-003 en grande partie remboursée (reste le cookie modifié) ; DT-011 gardée pour le moment ; DT-001, 002, 005, 008, 009 restent prévues comme dans la roadmap.
+
+**Tests de validation**
+- [x] Essais sur Android par le porteur de projet : voir « Réalisé »
+- [ ] iPhone : non testé (pas d'appareil disponible) ; la case « installation iOS Safari » de la Phase 8 reste ouverte
+- [ ] Lighthouse de `/` (≥ 86) et temps de scan (< 3 s) après l'itération 2 : pas encore mesurés
+- [ ] Les 20 e2e connectés (`E2E_SESSION`) : pas encore lancés
+- [ ] Cookie/JWT modifié côté client (Phase 3, DT-003) : pas encore testé
+- [ ] Mise à jour de l'app installée sur un second déploiement (Phase 8) : à tester plus tard
+
+**Prochaine étape** : e2e connectés, Lighthouse `/` et temps de scan, puis Phase 9.
 
 ### Session 36 — [2026-11-11] — Bannière d'installation : retrait du bouton « Plus tard »
 **Roadmap :** Phase 8 — 8.3 · **Statut :** 🟡 Partiel (code et tests automatiques verts ; guide Android à essayer sur téléphone) · **Branche :** `feat/phase-7bis-da`
@@ -1603,14 +1628,14 @@ Cahier des charges : `Documentation/06-DA-ITERATION-2.md` (décisions validées 
 |---|---|---|---|---|---|
 | DT-001 | Suppression du dernier `owner` d'un restaurant : le restaurant reste sans propriétaire (aucun garde-fou) | Cas hors périmètre MVP | 🟠 Restaurant non administrable sans intervention admin | Phase 11 (suppression de compte) | ⏳ Ouverte |
 | DT-002 | La suppression de compte n'est pas encore exposée (pas de Server Action ni d'UI) ; seul le comportement base est en place et testé | Livraison prévue en P11 | 🟠 Obligation RGPD à honorer avant le pilote | Phase 11 | ⏳ Ouverte |
-| DT-003 | Tests de validation Phase 3 non exécutés : parcours par rôle (client/staff/admin) avec une vraie invitation, session persistante, cookie modifié, Google sur iPhone/Android et PWA, E2E de connexion OTP (Inbucket indisponible avec le projet Cloud) | Aucun contenu `/pro` ni PWA à valider avant les Phases 5 et 8 | 🟠 Régression d'accès non détectée | Phases 5 (rôles `/pro`), 8 (PWA) | ⏳ Ouverte |
+| DT-003 | Tests de validation Phase 3 non exécutés : parcours par rôle (client/staff/admin) avec une vraie invitation, session persistante, cookie modifié, Google sur iPhone/Android et PWA, E2E de connexion OTP (Inbucket indisponible avec le projet Cloud) | Aucun contenu `/pro` ni PWA à valider avant les Phases 5 et 8 | 🟠 Régression d'accès non détectée | Phases 5 (rôles `/pro`), 8 (PWA) | ⏳ Ouverte — en grande partie remboursée (Session 37) : parcours par rôle, session persistante et Google validés à la main ; e2e OTP non applicable ; **reste le test du cookie/JWT modifié** |
 | DT-004 | Le logo du restaurant n'est pas affiché sur les cartes (initiale seulement) : aucun upload n'existe avant l'étape 5.3, et `next/image` exige la configuration du domaine Storage | Logos inexistants avant la Phase 5 | 🟢 Cosmétique | Phase 5 (5.3) | ✔️ Remboursée (Session 17) |
 | DT-005 | Lighthouse Performance de `/` à 86 sur build de production local (seuil de la roadmap : 90) ; mesure locale, sans CDN ni région Vercel | Écart jugé suffisant à ce stade par le porteur de projet | 🟢 Marge faible vis-à-vis de la contrainte produit n°1 | Phase 11 (11.4) : re-mesure sur Vercel ; analyser le bundle si < 90 | ⏳ Ouverte |
 | DT-006 | Test chronomètre de la Phase 5 (un testeur non technique configure fiche + 2 paliers en < 5 min) non réalisé : il demande un vrai testeur | Pas de testeur disponible à ce stade | 🟢 L'ergonomie a été revue après retour du porteur de projet (Session 21) | Pilote (Phase 11.6) | ⏳ Ouverte |
-| DT-007 | Aucun test E2E Playwright du scanner : le projet n'a pas de stratégie de comptes de test (connexion par OTP email ou Google) | Décision à prendre (comptes de test, session injectée) avant d'écrire le parcours | 🟠 Parcours critique du scan couvert seulement par pgTAP et tests unitaires | Phase 6 (avant le jalon M1) | ⏳ Ouverte |
+| DT-007 | Aucun test E2E Playwright du scanner : le projet n'a pas de stratégie de comptes de test (connexion par OTP email ou Google) | Décision à prendre (comptes de test, session injectée) avant d'écrire le parcours | 🟠 Parcours critique du scan couvert seulement par pgTAP et tests unitaires | Phase 6 (avant le jalon M1) | ✔️ Remboursée (Session 37) : essais manuels sur appareil réel jugés suffisants par le porteur de projet |
 | DT-008 | Resend est en mode test : les emails (codes de connexion à 6 chiffres) ne partent qu'à l'adresse du compte propriétaire, Supabase répond `500 unexpected_failure` pour toute autre adresse | Environnement de développement ; Google reste disponible pour se connecter | 🔴 Aucun client ni gérant d'une autre adresse ne peut se connecter par code | Phase 11 (avant le pilote) : acheter ou utiliser un nom de domaine, le vérifier dans Resend (SPF, DKIM), mettre l'expéditeur sur ce domaine | ⏳ Ouverte |
 | DT-009 | Écrans « carte d'un commerce » et « Découvrir » et barre du bas absents de l'app (pas de route) : `LoyaltyHeroCard` et `CardBannerHeader` créés mais non montés ; chevalet QR imprimable (DA.7) non refait | Pas d'invention de routes dans une étape d'habillage | 🟢 Code non utilisé jusqu'à la route | Phase 9 (découverte) ou étape dédiée | ⏳ Ouverte |
-| DT-010 | Hors-ligne limité à la page de secours (QR et code) : cartes, caisse et écrans pro ne s'affichent pas sans réseau ; comportement vérifié par Playwright seulement, pas en mode avion sur iPhone ni Android, ni la mise à jour du worker sur un second déploiement | Le besoin produit est le QR (ADR-025) ; pas d'appareil de test ni de second déploiement à ce stade | 🟢 Un client sans réseau voit son QR mais pas ses cartes | Phase 8 (8.4 indicateur hors-ligne et « dernière mise à jour ») | ⏳ Ouverte |
+| DT-010 | Hors-ligne limité à la page de secours (QR et code) : cartes, caisse et écrans pro ne s'affichent pas sans réseau ; comportement vérifié par Playwright seulement, pas en mode avion sur iPhone ni Android, ni la mise à jour du worker sur un second déploiement | Le besoin produit est le QR (ADR-025) ; pas d'appareil de test ni de second déploiement à ce stade | 🟢 Un client sans réseau voit son QR mais pas ses cartes | Phase 8 (8.4 indicateur hors-ligne et « dernière mise à jour ») | ✔️ Fermée (Session 37) : limite assumée (ADR-025), mode avion validé sur Android |
 | DT-011 | Page d'aperçu `/login/da-preview` (cartes fictives, bannière et célébrations) livrée dans le build ; elle répond 404 sans `DA_PREVIEW=1` | L'accueil exige une session : sans elle, aucune animation ne pouvait être mesurée en navigateur (06-DA-ITERATION-2 §8) | 🟢 Un peu de code de test dans l'app, aucune donnée réelle, aucune garde de route modifiée | À retirer ou à garder quand les e2e connectés tourneront (DT-007) | ⏳ Ouverte |
 
 ---

@@ -44,3 +44,5 @@ Thumbs.db
 .claude/
 
 certificates
+# personal presentations, not project source
+*.pptx
