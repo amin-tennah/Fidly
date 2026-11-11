@@ -28,7 +28,7 @@ export function YudielQrReader({
   };
 
   return (
-    <div className="bg-ink-soft relative h-[270px] w-full overflow-hidden rounded-[22px]">
+    <div className="bg-ink-soft rounded-panel relative h-[270px] w-full overflow-hidden">
       <Scanner
         onScan={handleScan}
         onError={handleError}

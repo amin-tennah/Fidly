@@ -37,7 +37,7 @@ export function CashierView({
           </div>
         </header>
         <div className="mt-4 px-5">{camera}</div>
-        <div className="bg-cream text-foreground pb-safe-8 mt-auto space-y-3 rounded-t-[28px] px-5 pt-5">
+        <div className="bg-cream text-foreground pb-safe-8 rounded-t-screen mt-auto space-y-3 px-5 pt-5">
           {sheet}
         </div>
       </div>

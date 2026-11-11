@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
+import { Pill } from "@/components/shared/pill";
+import { ScreenTitle } from "@/components/shared/screen-title";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -37,7 +39,7 @@ function InvitationList({ invitations }: InvitationListProps): ReactNode {
             Aucune invitation en attente pour cette adresse email. Vérifiez que vous êtes
             connecté avec l&apos;email communiqué à l&apos;équipe Rézone.
           </p>
-          <Button asChild variant="outline" className="w-full">
+          <Button asChild variant="outline" size="lg" className="w-full">
             <Link href={CLIENT_HOME_PATH}>Retour à mon espace client</Link>
           </Button>
         </CardContent>
@@ -68,15 +70,11 @@ export default async function InvitationPage(): Promise<ReactNode> {
   const invitations = await listMyPendingInvitations();
 
   return (
-    <main className="pt-safe-8 pb-safe-8 mx-auto flex min-h-dvh w-full max-w-md flex-col justify-between px-4">
+    <main className="pt-safe-8 pb-safe-8 mx-auto flex min-h-dvh w-full max-w-md flex-col justify-between px-5">
       <div className="space-y-6">
-        <header className="space-y-1">
-          <span className="bg-gain text-gain-foreground inline-flex items-center rounded-full px-3 py-1 text-sm font-bold">
-            Espace Restaurateur Rézone
-          </span>
-          <h1 className="font-display text-foreground text-2xl font-bold tracking-tight">
-            Vos invitations en attente
-          </h1>
+        <header className="space-y-3">
+          <Pill>Espace Restaurateur Rézone</Pill>
+          <ScreenTitle>Vos invitations en attente</ScreenTitle>
           <p className="text-muted-foreground text-sm">
             Compte connecté : <span className="font-medium">{user.email}</span>
           </p>

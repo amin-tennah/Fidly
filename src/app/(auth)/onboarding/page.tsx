@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Pill } from "@/components/shared/pill";
+import { ScreenTitle } from "@/components/shared/screen-title";
 import {
   buildLoginPath,
   NEXT_PARAM,
@@ -27,14 +28,10 @@ interface OnboardingPageProps {
 
 function OnboardingHeader(): ReactNode {
   return (
-    <header className="space-y-1">
-      <span className="bg-gain text-gain-foreground inline-flex items-center rounded-full px-3 py-1 text-sm font-bold">
-        Étape finale · 5 secondes
-      </span>
-      <h1 className="font-display text-foreground text-2xl font-bold tracking-tight">
-        Comment t&apos;appelles-tu ?
-      </h1>
-      <p className="text-muted-foreground text-sm">
+    <header className="space-y-3">
+      <Pill>Dernière étape · 5 secondes</Pill>
+      <ScreenTitle>Comment t&apos;appelles-tu ?</ScreenTitle>
+      <p className="text-muted-foreground text-base">
         Ton prénom (ou pseudo) permet au commerçant de te reconnaître en caisse. Aucun nom
         de famille n&apos;est demandé.
       </p>
@@ -60,17 +57,10 @@ export default async function OnboardingPage({
   const currentName = profile?.displayName?.trim() ?? "";
 
   return (
-    <main className="pt-safe-8 pb-safe-8 mx-auto flex min-h-dvh w-full max-w-md flex-col justify-between px-4">
+    <main className="pt-safe-8 pb-safe-8 mx-auto flex min-h-dvh w-full max-w-md flex-col justify-between px-5">
       <div className="space-y-6">
         <OnboardingHeader />
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base">Votre prénom en caisse</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <OnboardingNameForm initialDisplayName={currentName} nextPath={nextPath} />
-          </CardContent>
-        </Card>
+        <OnboardingNameForm initialDisplayName={currentName} nextPath={nextPath} />
       </div>
       <footer className="flex justify-center pt-4">
         <SignOutButton variant="ghost" />

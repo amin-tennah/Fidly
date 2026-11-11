@@ -5,8 +5,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 export default function ProLoading(): ReactNode {
   return (
     <div aria-busy="true" className="space-y-4">
-      <Skeleton className="bg-primary/85 h-[150px] w-full rounded-[28px]" />
-      <Skeleton className="h-[120px] w-full rounded-[20px]" />
+      <Skeleton className="bg-primary/85 rounded-screen h-[150px] w-full" />
+      <Skeleton className="rounded-card h-[120px] w-full" />
     </div>
   );
 }

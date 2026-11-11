@@ -12,7 +12,7 @@ export function NextTierBlock({ progress }: NextTierBlockProps): ReactNode {
     return null;
   }
   return (
-    <div className="border-border flex items-center justify-between gap-3 rounded-[18px] border-2 px-4 py-3">
+    <div className="border-border rounded-block flex items-center justify-between gap-3 border-2 px-4 py-3">
       <div className="min-w-0">
         <p className="text-muted-foreground text-sm">Ensuite</p>
         <p className="text-base font-extrabold">

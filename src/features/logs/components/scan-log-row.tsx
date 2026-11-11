@@ -34,16 +34,16 @@ export function ScanLogRow({ entry }: ScanLogRowProps): ReactNode {
   return (
     <li
       className={cn(
-        "bg-card border-border space-y-1.5 rounded-xl border p-3",
+        "bg-card border-border rounded-block space-y-1.5 border-2 p-3.5",
         entry.isReversed && "text-muted-foreground",
       )}
     >
-      <p className={cn("font-semibold", entry.isReversed && "line-through")}>
+      <p className={cn("font-extrabold", entry.isReversed && "line-through")}>
         {describeLogType(entry.type)} · {customer}
       </p>
       <p
         className={cn(
-          "text-muted-foreground text-xs",
+          "text-muted-foreground text-[13px]",
           entry.isReversed && "line-through",
         )}
       >

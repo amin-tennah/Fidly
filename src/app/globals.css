@@ -28,6 +28,7 @@
   --ink-soft: #1b2f25;
   --gain: #c8f25a;
   --gain-foreground: #0a5c3a;
+  --disabled: #cfe0d6; /* background of a disabled primary action */
 
   /* card hues: -light = dark tone on white, -dark = light tone on forest */
   --hue-1-light: #0a5c3a;
@@ -90,6 +91,7 @@
   --color-ink-soft: var(--ink-soft);
   --color-gain: var(--gain);
   --color-gain-foreground: var(--gain-foreground);
+  --color-disabled: var(--disabled);
   --color-hue-1-light: var(--hue-1-light);
   --color-hue-1-dark: var(--hue-1-dark);
   --color-hue-2-light: var(--hue-2-light);
@@ -108,6 +110,13 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  /* 05b-ECRANS-SPEC §1: screen-sized card 28, panel 22, list card 20, info block 18. */
+  --radius-screen: 28px;
+  --radius-panel: 22px;
+  --radius-card: 20px;
+  --radius-block: 18px;
+  --shadow-hero: 0 10px 24px rgb(10 92 58 / 0.22);
+  --shadow-intro: 12px 0 32px rgb(14 31 23 / 0.3);
 }
 
 @theme inline {

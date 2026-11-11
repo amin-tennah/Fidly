@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { BrandLogo } from "@/components/shared/brand-logo";
+import { ScreenTitle } from "@/components/shared/screen-title";
 import {
   GoogleSignInButton,
   LOGIN_ERROR_PARAM,
@@ -37,9 +38,7 @@ export default async function LoginPage({
       <main className="pt-safe-14 pb-safe-7 mx-auto flex min-h-dvh w-full max-w-md flex-col gap-[22px] px-6">
         <BrandLogo tone="forest" width={230} className="mx-auto" />
         <LoginStepsBand />
-        <h1 className="font-display text-[28px] leading-[1.05] font-extrabold tracking-[-0.02em]">
-          Connecte-toi pour retrouver ta carte
-        </h1>
+        <ScreenTitle>Connecte-toi pour retrouver ta carte</ScreenTitle>
         {hasError ? (
           <p role="alert" className="text-destructive text-sm font-medium">
             La connexion a échoué ou a été annulée. Réessaie.

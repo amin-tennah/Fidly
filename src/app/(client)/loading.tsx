@@ -10,12 +10,12 @@ export default function ClientLoading(): ReactNode {
         aria-busy="true"
         className="bg-background pb-safe-8 mx-auto flex min-h-dvh w-full max-w-md flex-col gap-6"
       >
-        <div className="bg-primary pt-safe-5.5 h-[198px] rounded-b-[28px]" />
+        <div className="bg-primary pt-safe-5.5 rounded-b-screen h-[198px]" />
         <div className="-mt-14 space-y-5 px-5">
-          <Skeleton className="bg-card h-[400px] w-full rounded-[22px] shadow-lg" />
+          <Skeleton className="bg-card rounded-panel h-[400px] w-full shadow-lg" />
           <div className="space-y-3">
             <Skeleton className="h-8 w-36" />
-            <Skeleton className="h-[98px] w-full rounded-[20px]" />
+            <Skeleton className="rounded-card h-[98px] w-full" />
           </div>
         </div>
       </main>

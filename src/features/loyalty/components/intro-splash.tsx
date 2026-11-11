@@ -29,7 +29,7 @@ export function IntroSplash(): ReactNode {
       role="status"
       aria-label="Bienvenue sur Rézone"
       className={cn(
-        "bg-primary fixed inset-0 z-50 flex flex-col items-center justify-center gap-5 px-6 shadow-[12px_0_32px_rgb(14_31_23/0.3)]",
+        "bg-primary shadow-intro fixed inset-0 z-50 flex flex-col items-center justify-center gap-5 px-6",
         phase === "leaving" && "animate-slide-out",
       )}
     >

@@ -97,7 +97,7 @@ export function LoyaltyHeroCard({ card, progress }: LoyaltyHeroCardProps): React
   return (
     <section
       aria-label={`Ta carte ${card.restaurantName}`}
-      className="bg-primary text-primary-foreground relative space-y-3.5 rounded-[28px] p-5 shadow-[0_10px_24px_rgb(10_92_58/0.22)]"
+      className="bg-primary text-primary-foreground rounded-screen shadow-hero relative space-y-3.5 p-5"
     >
       <HeroTitle card={card} progress={progress} />
       <HeroCounter

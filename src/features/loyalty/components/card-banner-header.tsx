@@ -50,7 +50,7 @@ export function CardBannerHeader({
   }
   return (
     <div>
-      <div className="relative h-[150px] overflow-hidden rounded-b-[28px]">
+      <div className="rounded-b-screen relative h-[150px] overflow-hidden">
         <Image
           src={bannerUrl}
           alt=""

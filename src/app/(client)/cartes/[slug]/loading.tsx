@@ -13,10 +13,10 @@ export default function CardLoading(): ReactNode {
         className="bg-background pb-safe-8 mx-auto flex min-h-dvh w-full max-w-md flex-col gap-4"
       >
         <CardBannerHeader bannerUrl={null} backHref={CLIENT_HOME_PATH}>
-          <Skeleton className="bg-primary/85 h-[330px] w-full rounded-[28px]" />
+          <Skeleton className="bg-primary/85 rounded-screen h-[330px] w-full" />
         </CardBannerHeader>
         <div className="px-5">
-          <Skeleton className="h-[72px] w-full rounded-[18px]" />
+          <Skeleton className="rounded-block h-[72px] w-full" />
         </div>
       </main>
     </PageTransition>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { BrandLogo } from "@/components/shared/brand-logo";
+import { ScreenTitle } from "@/components/shared/screen-title";
 import { Button } from "@/components/ui/button";
 import { CLIENT_HOME_PATH } from "@/features/auth";
 
@@ -15,9 +16,7 @@ export default function NotFound(): ReactNode {
     <div className="bg-cream">
       <main className="pt-safe-14 pb-safe-7 mx-auto flex min-h-dvh w-full max-w-md flex-col items-center justify-center gap-6 px-6 text-center">
         <BrandLogo tone="forest" width={160} />
-        <h1 className="font-display text-[28px] leading-[1.05] font-extrabold tracking-[-0.02em]">
-          Cette page n&apos;existe pas
-        </h1>
+        <ScreenTitle>Cette page n&apos;existe pas</ScreenTitle>
         <p className="text-muted-foreground text-base">
           Le lien est peut-être ancien, ou la carte n&apos;est plus disponible.
         </p>

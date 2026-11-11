@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
+import { Pill } from "@/components/shared/pill";
 import { RestaurantAvatar } from "@/components/shared/restaurant-avatar";
+import { ScreenTitle } from "@/components/shared/screen-title";
 import { SignOutButton, type RestaurantMembershipSummary } from "@/features/auth";
 import { RestaurantSwitcher } from "./restaurant-switcher";
 
@@ -15,9 +17,7 @@ export function ProHeader({ memberships, active, logoUrl }: ProHeaderProps): Rea
   return (
     <header className="space-y-3">
       <div className="flex items-center justify-between gap-2">
-        <span className="bg-gain text-gain-foreground inline-flex items-center rounded-full px-3 py-1 text-sm font-bold">
-          Espace Pro · {roleLabel}
-        </span>
+        <Pill>Espace Pro · {roleLabel}</Pill>
         <SignOutButton
           variant="ghost"
           size="sm"
@@ -32,9 +32,7 @@ export function ProHeader({ memberships, active, logoUrl }: ProHeaderProps): Rea
             activeRestaurantId={active.restaurantId}
           />
         ) : (
-          <h1 className="font-display text-foreground text-[28px] leading-[1.05] font-extrabold tracking-[-0.02em]">
-            {active.restaurantName}
-          </h1>
+          <ScreenTitle>{active.restaurantName}</ScreenTitle>
         )}
       </div>
     </header>

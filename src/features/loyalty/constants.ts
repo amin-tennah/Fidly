@@ -36,3 +36,6 @@ export const STAMP_VIBRATION_MS = 30;
 
 /** Route of a restaurant card (detail screen): "/cartes/<restaurant slug>". */
 export const CARD_DETAIL_PATH = "/cartes";
+
+/** A reward banner mounted later than this after page load was just unlocked: celebrate once. */
+export const FIRST_PAINT_GRACE_MS = 4000;

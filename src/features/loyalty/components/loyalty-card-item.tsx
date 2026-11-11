@@ -78,11 +78,11 @@ export function LoyaltyCardItem({ card }: LoyaltyCardItemProps): ReactNode {
     <ForwardLink
       href={`${CARD_DETAIL_PATH}/${card.restaurantSlug}`}
       aria-label={`Ouvrir la carte ${card.restaurantName}`}
-      className="focus-visible:ring-ring block rounded-[20px] outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+      className="focus-visible:ring-ring rounded-card block outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
     >
       <Card
         className={cn(
-          "gap-2.5 rounded-[20px] p-3.5",
+          "rounded-card gap-2.5 p-3.5",
           isUnlocked && "border-primary bg-gain/20",
         )}
       >

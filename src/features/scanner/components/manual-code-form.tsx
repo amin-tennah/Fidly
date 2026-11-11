@@ -24,7 +24,7 @@ export function ManualCodeForm({ isDisabled, onSubmit }: ManualCodeFormProps): R
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-secondary space-y-2 rounded-[20px] p-4">
+    <form onSubmit={handleSubmit} className="bg-secondary rounded-card space-y-2 p-4">
       <Label htmlFor="manual-code" className="text-sm font-extrabold">
         Code du client
       </Label>
@@ -43,7 +43,7 @@ export function ManualCodeForm({ isDisabled, onSubmit }: ManualCodeFormProps): R
         <Button
           type="submit"
           size="lg"
-          className="disabled:text-muted-foreground disabled:bg-[#cfe0d6] disabled:opacity-100"
+          className="disabled:text-muted-foreground disabled:bg-disabled disabled:opacity-100"
           disabled={isDisabled || !code.trim()}
         >
           Chercher

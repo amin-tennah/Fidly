@@ -1,5 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 import {
+  RIPPLE_OFFSET_MS,
   WORDMARK_GLYPHS,
   WORDMARK_STAMP,
   WORDMARK_VIEWBOX,
@@ -12,7 +13,6 @@ export interface WordmarkProps {
 }
 
 const { x, y, width, height } = WORDMARK_VIEWBOX;
-const RIPPLE_OFFSET_MS = 230;
 
 function percent(value: number, total: number): string {
   return `${(value / total) * 100}%`;

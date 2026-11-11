@@ -52,7 +52,7 @@ export function DrawerContent({
       <DrawerPrimitive.Content
         data-slot="drawer-content"
         className={cn(
-          "bg-background border-border fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col rounded-t-[28px] border-t-2",
+          "bg-background border-border rounded-t-screen fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col border-t-2",
           className,
         )}
         {...props}

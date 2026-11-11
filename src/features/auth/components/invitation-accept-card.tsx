@@ -14,12 +14,13 @@ export interface InvitationAcceptCardProps {
 }
 
 function InvitationHeader({ invitation }: InvitationAcceptCardProps): ReactNode {
-  const roleLabel =
-    invitation.memberRole === "owner" ? "Gérant (owner)" : "Équipier (staff)";
+  const roleLabel = invitation.memberRole === "owner" ? "Gérant" : "Équipier";
   return (
     <CardHeader className="space-y-1">
-      <CardTitle className="text-base">{invitation.restaurantName}</CardTitle>
-      <p className="text-muted-foreground text-xs">Rôle attribué : {roleLabel}</p>
+      <CardTitle className="text-xl font-extrabold">
+        {invitation.restaurantName}
+      </CardTitle>
+      <p className="text-muted-foreground text-sm">Rôle attribué : {roleLabel}</p>
     </CardHeader>
   );
 }
@@ -38,7 +39,7 @@ function AcceptActionBody({
   return (
     <CardContent className="space-y-3">
       {errorMessage ? (
-        <p role="alert" className="text-destructive text-xs font-medium">
+        <p role="alert" className="text-destructive text-sm font-medium">
           {errorMessage}
         </p>
       ) : null}

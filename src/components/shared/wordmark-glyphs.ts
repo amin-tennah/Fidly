@@ -51,3 +51,6 @@ export const WORDMARK_GLYPHS: readonly WordmarkGlyph[] = [
 
 /** The stamp replacing the "o": 40 x 40 art scaled by 15, top-left at (1306, 240). */
 export const WORDMARK_STAMP = { x: 1306, y: 240, size: 600, delayMs: 720 } as const;
+
+/** The lime ripple starts this long after the stamp begins to land. */
+export const RIPPLE_OFFSET_MS = 230;
