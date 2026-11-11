@@ -8,6 +8,7 @@ export function Toaster({ ...props }: ToasterProps): ReactNode {
     <Sonner
       theme="light"
       position="top-center"
+      mobileOffset={{ top: "calc(16px + var(--safe-top))" }}
       className="toaster group"
       toastOptions={{
         classNames: {

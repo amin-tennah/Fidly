@@ -1,6 +1,8 @@
 "use client";
 
+import { ScrollText } from "lucide-react";
 import type { ReactNode } from "react";
+import { EmptyState } from "@/components/shared/empty-state";
 import { ScanLogRow } from "@/features/logs/components/scan-log-row";
 import { ScanLogsFooter } from "@/features/logs/components/scan-logs-footer";
 import { useScanLogs } from "@/features/logs/hooks/use-scan-logs";
@@ -19,9 +21,11 @@ export function ScanLogsLive({
 
   if (logs.entries.length === 0) {
     return (
-      <p role="status" className="text-muted-foreground text-sm">
-        Aucun scan pour le moment. Les passages validés apparaîtront ici en direct.
-      </p>
+      <EmptyState
+        icon={ScrollText}
+        title="Aucun scan pour le moment"
+        description="Les passages validés apparaîtront ici en direct."
+      />
     );
   }
 

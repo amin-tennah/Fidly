@@ -33,13 +33,14 @@ function EmailField({ form, isPending }: EmailFieldProps): ReactNode {
       name="email"
       render={({ field }) => (
         <FormItem>
-          <FormLabel>Adresse email</FormLabel>
+          <FormLabel className="font-display text-[15px] font-bold">Ton email</FormLabel>
           <FormControl>
             <Input
               type="email"
               inputMode="email"
               autoComplete="email"
-              placeholder="vous@exemple.fr"
+              placeholder="prenom@email.fr"
+              className="min-h-14 rounded-2xl bg-white"
               disabled={isPending}
               {...field}
             />
@@ -72,7 +73,7 @@ export function OtpEmailStepForm({
       >
         <EmailField form={form} isPending={isPending} />
         <Button type="submit" size="lg" className="w-full" disabled={isPending}>
-          {isPending ? "Envoi du code…" : "Recevoir un code à 6 chiffres"}
+          {isPending ? "Envoi du code…" : "Recevoir mon code"}
         </Button>
       </form>
     </Form>

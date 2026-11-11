@@ -1,11 +1,9 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { FIRST_PAINT_GRACE_MS } from "@/features/loyalty/constants";
 import { useIsLateMount } from "@/features/loyalty/hooks/use-is-late-mount";
 import { cn } from "@/lib/utils";
-
-/** Mounted after first paint means the reward was just unlocked: celebrate once. */
-const FIRST_PAINT_GRACE_MS = 4000;
 
 export function RewardUnlockedBanner(): ReactNode {
   const isJustUnlocked = useIsLateMount(FIRST_PAINT_GRACE_MS);
@@ -14,7 +12,7 @@ export function RewardUnlockedBanner(): ReactNode {
     <p
       role="status"
       className={cn(
-        "text-accent rounded-lg text-sm font-bold",
+        "text-primary rounded-lg text-sm font-bold",
         isJustUnlocked && "motion-safe:animate-reward-pop",
       )}
     >

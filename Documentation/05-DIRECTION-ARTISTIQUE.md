@@ -26,6 +26,8 @@
 
 ## 2. Couleurs (tokens)
 
+> **Itération 2 (Session 35, `06-DA-ITERATION-2.md`) :** le fond est passé au crème léger. Valeurs en vigueur dans `globals.css` : `--background #fbf6ec`, `--border #e7e0cf`, `--secondary` / `--muted` / `--accent` `#f3eedf`, `--track #e9e2d0`. Les cartes et le QR restent blancs. Le bloc ci-dessous garde les valeurs d'origine pour mémoire.
+
 À reporter dans `src/app/globals.css` (noms shadcn conservés pour ne pas casser les composants `ui/`). **Attention :** dans shadcn, `accent` sert aux survols et sélections discrets. Le lime est donc un token à part, `gain`, et `accent` reste une teinte douce. Vérifier les usages de `accent` avant de changer sa valeur.
 
 ```css
@@ -95,7 +97,7 @@
 
 ### 5.3 `IntroSplash` (intro animée)
 - **Quand :** juste après la validation du code, **pendant que l'accueil charge** ; aussi à l'ouverture de l'app avec session existante. Pas à chaque retour sur l'accueil. Fond forêt plein écran, bouton « Passer » (44 px).
-- **Durée :** au moins ~1,4 s (le temps que le tampon claque), puis jusqu'à ce que les cartes soient prêtes, plafond ~4 s. Ne jamais retarder le chargement réel. Sortie : glissement vers l'accueil (voir 5.4).
+- **Durée :** au moins ~1,9 s (le temps que le tampon claque et que son onde s'efface), puis jusqu'à ce que les cartes soient prêtes, plafond ~4 s. Ne jamais retarder le chargement réel. Sortie : glissement vers l'accueil (voir 5.4).
 - **Séquence (délais depuis le montage) :** « Bienvenue sur » en fondu (0,2 s, 0,35 s) ; lettres de « rézone » écrites de gauche à droite par balayage (`clip-path`) à 0,30 / 0,42 / 0,54 s ; tampon qui claque à 0,72 s (échelle 2,6 → 1, rotation −35° → −12°, 0,4 s) avec onde lime à 0,95 s ; « n » à 1,05 s, « e » à 1,17 s ; chaque lettre dure 0,26 s.
 - L'écran de démarrage natif de la PWA (P8) reste une image fixe : cette intro est un calque de l'app.
 

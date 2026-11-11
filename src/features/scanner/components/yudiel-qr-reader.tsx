@@ -2,6 +2,8 @@
 
 import { Scanner, type IDetectedBarcode } from "@yudiel/react-qr-scanner";
 import type { ReactNode } from "react";
+import { ScannerCorners } from "@/features/scanner/components/scanner-corners";
+import { describeCameraError } from "@/features/scanner/domain/describe-camera-error";
 
 interface YudielQrReaderProps {
   readonly isPaused: boolean;
@@ -22,20 +24,20 @@ export function YudielQrReader({
   };
 
   const handleError = (error: unknown): void => {
-    const message = error instanceof Error ? error.message : "Erreur d'accès à la caméra";
-    onErrorMessage(message);
+    onErrorMessage(describeCameraError(error));
   };
 
   return (
-    <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-zinc-900">
+    <div className="bg-ink-soft rounded-panel relative h-[270px] w-full overflow-hidden">
       <Scanner
         onScan={handleScan}
         onError={handleError}
         paused={isPaused}
         formats={["qr_code"]}
         constraints={{ facingMode: "environment" }}
-        components={{ finder: true }}
+        components={{ finder: false }}
       />
+      <ScannerCorners />
     </div>
   );
 }

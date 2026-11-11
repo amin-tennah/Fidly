@@ -12,7 +12,8 @@ const YudielQrReader = dynamic(
     ),
   {
     ssr: false,
-    loading: () => <Skeleton className="aspect-square w-full rounded-2xl" />,
+    // Same box as the viewfinder (yudiel-qr-reader.tsx): nothing moves when the camera starts.
+    loading: () => <Skeleton className="bg-ink-soft rounded-panel h-[270px] w-full" />,
   },
 );
 

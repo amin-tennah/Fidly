@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Pill } from "@/components/shared/pill";
+import { ScreenTitle } from "@/components/shared/screen-title";
 import {
   buildLoginPath,
   NEXT_PARAM,
@@ -27,16 +28,12 @@ interface OnboardingPageProps {
 
 function OnboardingHeader(): ReactNode {
   return (
-    <header className="space-y-1">
-      <span className="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
-        Étape finale · 5 secondes
-      </span>
-      <h1 className="text-foreground text-2xl font-bold tracking-tight">
-        Comment vous appelez-vous ?
-      </h1>
-      <p className="text-muted-foreground text-sm">
-        Votre prénom (ou pseudonyme) permet au commerçant de vous reconnaître en caisse.
-        Aucun nom de famille n&apos;est demandé.
+    <header className="space-y-3">
+      <Pill>Dernière étape · 5 secondes</Pill>
+      <ScreenTitle>Comment t&apos;appelles-tu ?</ScreenTitle>
+      <p className="text-muted-foreground text-base">
+        Ton prénom (ou pseudo) permet au commerçant de te reconnaître en caisse. Aucun nom
+        de famille n&apos;est demandé.
       </p>
     </header>
   );
@@ -60,17 +57,10 @@ export default async function OnboardingPage({
   const currentName = profile?.displayName?.trim() ?? "";
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-between px-4 py-8">
+    <main className="pt-safe-8 pb-safe-8 mx-auto flex min-h-dvh w-full max-w-md flex-col justify-between px-5">
       <div className="space-y-6">
         <OnboardingHeader />
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base">Votre prénom en caisse</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <OnboardingNameForm initialDisplayName={currentName} nextPath={nextPath} />
-          </CardContent>
-        </Card>
+        <OnboardingNameForm initialDisplayName={currentName} nextPath={nextPath} />
       </div>
       <footer className="flex justify-center pt-4">
         <SignOutButton variant="ghost" />

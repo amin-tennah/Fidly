@@ -35,9 +35,9 @@
 
 ## 🧭 État courant (à mettre à jour à chaque session)
 
-- **Phase en cours :** Phases 0 à 7 terminées et fusionnées dans `main` · jalon M1 (démo interne) validé · **nouvelle Phase 7 bis (direction artistique et design system) à faire avant la Phase 8**
-- **Dernière session :** Session 29 (2026-11-02) — Direction artistique : identité retenue, assets de marque dans `public/brand/`, document de passage `05-DIRECTION-ARTISTIQUE.md`
-- **Prochaine action :** commiter d'abord les changements non commités de la Session 28 (renommage) sur `main`, puis Phase 7 bis étape DA.3 (tokens et polices) sur `feat/phase-7bis-da`, en suivant `Documentation/05-DIRECTION-ARTISTIQUE.md` ; ensuite DA.4, DA.6, DA.7, puis Phase 8 (PWA) ; dette à régler avant le pilote : test E2E du scanner (DT-007), domaine vérifié dans Resend (DT-008)
+- **Phase en cours :** Phases 0 à 7 terminées · jalon M1 validé · Phase 7 bis validée sur téléphone (restent : Lighthouse `/` et temps de scan ; chevalet DA.7 reporté) · Phase 8 : 8.1 à 8.4 faites et validées sur Android (restent : iPhone, mise à jour sur un second déploiement) · `feat/phase-7bis-da` fusionnée dans `main` (Session 37) · prochaine phase : 9
+- **Dernière session :** Session 37 (2026-11-11) — Clôture des Phases 7 bis et 8 après les essais sur Android, fusion dans `main`
+- **Prochaine action :** lancer les 20 e2e connectés (`E2E_SESSION`), mesurer Lighthouse `/` (≥ 86) et rechronométrer le scan (< 3 s) ; test du cookie modifié (DT-003) ; puis Phase 9 (Découvrir le quartier, DT-009). Plus tard : iPhone (bannière, installation), mise à jour de l'app installée sur un second déploiement, barre de navigation Android sur les onglets pro (Session 33, point 2), chevalet (DA.7)
 - **Bloquants :** Aucun
 
 ---
@@ -72,6 +72,278 @@
 
 **Prochaine étape** : ...
 ==================================================================================== -->
+
+### Session 37 — [2026-11-11] — Clôture des Phases 7 bis et 8 après les essais sur Android
+**Roadmap :** Phase 7 bis (validation) · Phase 8 (validation) · restes des Phases 0, 3 et 6 · **Statut :** ✅ Terminé (clôture documentaire et fusion ; restes listés ci-dessous) · **Branche :** `feat/phase-7bis-da` → `main`
+
+**Réalisé** (aucun code applicatif modifié)
+- Résultats des essais du porteur de projet sur Android (Sessions 33 à 36). Validés : installation par l'invite et animation, guide Android après désinstallation, scan réel (« carte dévoilée », vibration, médaille), mode avion (pastille, heure des cartes, QR, sortie de la page hors-ligne), étapes de connexion par code sans superposition
+- Session 33, point 3 (retour par geste chargé deux fois) : **non reproduit**, clos. Point 2 (barre de navigation Android sur les onglets pro) : non revu, reste à surveiller
+- Visuel de la bannière (Session 35) : celui de la planche est conservé (carte blanche, bordure sable)
+- Roadmap cochée : DA.5 (clos sans maquette des logs, réglages et `/admin`, résultat jugé satisfaisant), tests 7 bis (contrastes AA, scanner lisible, QR inchangé, lint/typecheck/test, retours de personnes), 8.1, Lighthouse PWA installable, mode avion ; Phase 3 (parcours par rôle, session persistante, e2e OTP non applicable) ; Phase 6 (E2E remplacé par les essais manuels)
+- DA.7 : chevalet imprimable reporté à plus tard. 0.4 : nom de domaine pas encore acheté (Phase 11)
+- `.gitignore` : les présentations `*.pptx` (récapitulatif personnel) sont ignorées
+- Fusion de `feat/phase-7bis-da` dans `main`, envoi de `main` sur GitHub
+
+**Base de données** : aucune migration. **Bugs rencontrés** : aucun. **Décisions** : aucun ADR.
+**Dette introduite / remboursée** : DT-007 remboursée (essais manuels suffisants) ; DT-010 fermée (limite assumée, ADR-025) ; DT-003 en grande partie remboursée (reste le cookie modifié) ; DT-011 gardée pour le moment ; DT-001, 002, 005, 008, 009 restent prévues comme dans la roadmap.
+
+**Tests de validation**
+- [x] Essais sur Android par le porteur de projet : voir « Réalisé »
+- [ ] iPhone : non testé (pas d'appareil disponible) ; la case « installation iOS Safari » de la Phase 8 reste ouverte
+- [ ] Lighthouse de `/` (≥ 86) et temps de scan (< 3 s) après l'itération 2 : pas encore mesurés
+- [ ] Les 20 e2e connectés (`E2E_SESSION`) : pas encore lancés
+- [ ] Cookie/JWT modifié côté client (Phase 3, DT-003) : pas encore testé
+- [ ] Mise à jour de l'app installée sur un second déploiement (Phase 8) : à tester plus tard
+
+**Prochaine étape** : e2e connectés, Lighthouse `/` et temps de scan, puis Phase 9.
+
+### Session 36 — [2026-11-11] — Bannière d'installation : retrait du bouton « Plus tard »
+**Roadmap :** Phase 8 — 8.3 · **Statut :** 🟡 Partiel (code et tests automatiques verts ; guide Android à essayer sur téléphone) · **Branche :** `feat/phase-7bis-da`
+
+**Réalisé** : en mode invite (Android/Chrome), la bannière n'a plus que « Installer » ; « Plus tard » est supprimé (`install-banner.tsx`). Le mode guide iOS garde « J'ai compris » (seul moyen de fermer la bannière). `e2e/install.spec.ts` vérifie l'absence du bouton.
+**Conséquence à noter** : en mode invite, la bannière ne peut plus être refusée ; `dismiss` n'est plus appelé dans ce mode, donc le refus mémorisé ne se déclenche plus (elle disparaît à l'installation).
+**Suite — réinstallation** : le refus n'est plus mémorisé pour toujours. `install-storage.ts` utilise `sessionStorage` (l'ancienne clé `localStorage` est ignorée) : « J'ai compris » (iOS) ne masque la bannière que pour la session de navigateur ; un refus de l'invite native ne se mémorise plus (l'événement Chrome est à usage unique, la bannière revient à la visite suivante). L'état « installé » n'a jamais été persisté : une app désinstallée, rouverte dans le navigateur, revoit la bannière dès que Chrome renvoie `beforeinstallprompt`.
+**Suite — essai sur téléphone** : installé puis désinstallé sur Android, Chrome n'a pas renvoyé `beforeinstallprompt` et la bannière ne revenait pas. Ajout d'un mode `android-guide` (`decide-install-banner.ts`, `isAndroidDevice`, `android-install-steps.tsx`) : sur Android sans invite native, la bannière montre les étapes du menu ⋮ de Chrome (« Installer l'appli » / « Ajouter à l'écran d'accueil ») avec « J'ai compris » (fermeture pour la session). L'invite native reste prioritaire quand Chrome la fournit.
+**Limite** : Chrome décide quand renvoyer `beforeinstallprompt`. Si l'app est installée mais que la personne ouvre le site dans un onglet Chrome, la page ne peut pas le savoir (pas de `getInstalledRelatedApps` configuré) : le guide Android s'y affiche aussi.
+**Fichiers clés** : `src/features/pwa/domain/decide-install-banner.ts` et `detect-platform.ts` (mode `android-guide`), `components/android-install-steps.tsx`, `install-banner.tsx`, `install-storage.ts` (`sessionStorage`), `install-environment-store.ts`, `hooks/use-install-banner.ts` ; `e2e/install.spec.ts`.
+**Base de données** : aucune migration. **Bugs rencontrés** : aucun. **Décisions** : aucun ADR, aucune dépendance. **Dette** : aucune nouvelle ligne (limite « app installée ouverte dans un onglet » notée ci-dessus).
+**Roadmap** : libellé de 8.3 mis à jour (« fermeture pour la session » au lieu de « refus mémorisé », guide Android ajouté).
+
+**Tests de validation**
+- [x] `pnpm lint`, `typecheck`, `test` (221, soit 219 + 2), `build` verts ; `pnpm test:e2e` sans session : 25 réussis, 20 ignorés, 0 échec
+- [x] e2e : le premier test de la bannière attendait l'absence de bannière avant l'invite ; le profil Playwright (Pixel 5) est Android, donc le guide s'affiche désormais : test scindé en deux (guide Android sans invite puis « J'ai compris » qui ferme jusqu'au rechargement ; invite native avec « Installer » seul)
+- [ ] À essayer sur téléphone : Android après désinstallation (guide visible, étapes justes dans le menu ⋮ de Chrome), Android avec invite native (« Installer » seul), iPhone (« J'ai compris » ne masque que pour la session)
+
+**Prochaine étape** : essai sur téléphone de la bannière (Android désinstallé puis réinstallé, iPhone), puis les essais restants de la Session 35 et la fusion de `feat/phase-7bis-da`.
+
+### Session 35 — [2026-11-11] — DA, itération 2 : fond crème, célébrations de scan et de récompense, installation
+**Roadmap :** Phase 7 bis — DA.6 (itération 2) · Phase 8 — 8.3 (nouveau visuel) · **Statut :** 🟡 Partiel (code, tests et mesures en navigateur verts ; rien essayé sur téléphone ni avec une session réelle) · **Branche :** `feat/phase-7bis-da`
+
+Cahier des charges : `Documentation/06-DA-ITERATION-2.md` (décisions validées par le porteur de projet le 2026-11-11). Aucune logique métier, aucune base de données, aucun service worker modifié.
+
+**Réalisé**
+- feat(da) (`df56c90`) : fond crème léger (option A). Tokens seulement : `--background #fbf6ec`, `--border #e7e0cf`, fonds doux `#f3eedf`, trait vide `#e9e2d0` ; cartes et QR toujours blancs ; `background_color` du manifest aligné. `--input` inchangé
+- feat(loyalty) (`5d1d7a8`) : domaine pur `detect-card-celebrations` (compare deux lectures serveur des cartes : événement `stamp` avec `from`/`to`, événement `reward`), confettis déterministes `confetti-pieces`, constantes des célébrations
+- fix(loyalty) (`0f6f245`) : traits au-delà de 10 (`13/15`) : une seule grille calée sur une première rangée pleine, la rangée incomplète garde la même largeur de trait, alignée à gauche
+- feat(loyalty) (`a957a79`) : animation de scan « carte dévoilée » puis médaille « Récompense disponible », montées une fois sur l'accueil client (`CardCelebrations`), jouées l'une après l'autre (file d'attente), uniquement quand les nouvelles props serveur arrivent. Le « +1 » existant reste. Médaille mémorisée par carte et palier en `sessionStorage` (`rezone.reward-seen.v1`, repli en mémoire)
+- feat(pwa) (`1b77d57`) : bannière d'installation redessinée (icône de l'app, « Ajoute Rézone à tes applis », trois repères avec les icônes validées) ; `decide-install-banner`, le refus mémorisé et le flux d'installation sont inchangés
+- feat(pwa) (`88e9e8f`) : animation « Rézone est sur ton écran d'accueil », état indépendant de la bannière (`useInstallSuccess`), déclenchée par `appinstalled` seulement, jamais sur iOS ; fermée une fois pour toutes par « Compris » (`rezone.install-celebrated.v1`)
+- test(da) (`46cdbc3`) : page d'aperçu `/login/da-preview` (cartes fictives, 404 sans `DA_PREVIEW=1`) et 10 tests navigateur qui échantillonnent les valeurs peintes pendant les animations ; écran de connexion passé sur le fond crème léger (maquette 1)
+
+**Fichiers clés**
+- `src/features/loyalty/domain/detect-card-celebrations.ts`, `confetti-pieces.ts`, `segment-rows.ts` — logique pure testée
+- `src/features/loyalty/hooks/use-card-celebrations.ts` (file d'attente), `use-scan-reveal.ts` (horloge, vibration, fermeture au toucher) ; `components/card-celebrations.tsx`, `scan-reveal-overlay.tsx`, `reward-medal-overlay.tsx`, `reward-medal.tsx`, `confetti-burst.tsx` ; `reward-seen-storage.ts`
+- `src/features/pwa/components/install-banner.tsx`, `install-benefits.tsx`, `benefit-icon.tsx`, `app-icon.tsx`, `install-success-overlay.tsx`, `home-screen-drop.tsx` ; `hooks/use-install-success.ts`
+- `src/app/globals.css` — tokens du fond, keyframes des trois animations (transform et opacité seulement), repli `.reduced-fade`
+- `src/lib/prefers-reduced-motion.ts`, `src/lib/use-close-on-escape.ts` — partagés par les deux features
+- `e2e/celebrations.spec.ts`, `celebrations-fallbacks.spec.ts`, `install.spec.ts`, `da-preview.ts`
+
+**Base de données** : aucune migration ; types non concernés.
+
+**Bugs rencontrés** : aucun.
+
+**Décisions** (pas de nouvel ADR, aucune dépendance)
+- Bannière : le §4 du cahier des charges (fond crème, bordure forêt, icônes dans un cercle) et la planche validée (`Installer.dc.html`, `global.png` : carte blanche, bordure sable, repères séparés par un filet, sans pastille) se contredisent. Textes repris du cahier des charges, visuel repris de la planche. À confirmer par le porteur de projet
+- Compteur de l'animation de scan : teinte claire de la carte = token `--hue-N-dark` (le cahier des charges écrit `-light`, mais dans `globals.css` `-light` est le ton foncé sur blanc)
+- Phrase de l'animation de scan : `describeCardMessage` existant (« … avant ta récompense »), comme la grosse carte ; « ton menu offert » de la maquette ne s'accorde pas avec tous les libellés
+- Animation de scan : elle laisse passer les touchers (`pointer-events: none`) et se ferme au premier toucher, qui atteint aussi l'écran dessous
+- Médaille : 24 confettis (36 dans la planche) ; tout toucher la ferme ; « Le montrer en caisse » remonte au QR (la médaille n'existe que sur l'accueil)
+- Animation d'installation : fermée par « Compris » ou Échap seulement, pas par un toucher ailleurs (le bouton n'apparaît qu'à 2,6 s : un toucher involontaire l'aurait fermée pour toujours)
+- Une carte vue pour la première fois ne joue pas l'animation de scan (pas de chiffre « avant ») ; les célébrations ne sont montées que sur l'accueil, pas sur l'écran d'une carte (qui garde son « +1 »)
+- Scan et médaille livrés dans un même commit : la file d'attente les relie, un commit intermédiaire aurait laissé une récompense sans affichage
+
+**Dette introduite / remboursée** : DT-011 (page d'aperçu livrée dans le build). Limite connue : la clé « médaille déjà vue » est par carte et palier ; un second cycle complet du même palier dans la même session de navigateur ne rejoue pas la médaille.
+
+**Tests de validation**
+- [x] `pnpm lint`, `typecheck`, `test` (219, soit 199 + 20), `build` verts ; `pnpm test:e2e` sans session : 24 réussis (14 + 10 nouveaux), 20 ignorés, 0 échec
+- [x] Sur le build de production, valeurs calculées échantillonnées pendant chaque animation : scan (carte à l'échelle < 1 puis 1, nouveau chiffre opacité 0 puis 1, disparition seule en 3,4 s, fermeture au toucher), médaille (après le scan, pièce à l'échelle < 1 puis 1, titre opacité 0 puis 1, bouton focalisé, Échap, une seule fois par récompense), installation (icône au-dessus puis posée, bouton opacité 0 puis 1, pas de rejeu après « Compris », rien sur la seule acceptation de l'invite)
+- [x] `prefers-reduced-motion` : scan en fondu sans roulement ni confettis, parti en ~2,2 s ; installation avec icône déjà posée. Médaille réduite : même code de repli, non mesurée séparément
+- [x] Captures à 375 px comparées à `da-mockups/v2/global.png` : bannière, scan D, médaille, après installation, cartes `13/15`, connexion
+- [x] Lighthouse mobile sur le build local : `/login` performance 95, accessibilité 100 ; `/login/da-preview` (bannière, cartes, célébrations chargées) 95 et 100
+- [ ] Lighthouse de `/` et taille du JS de la route : non mesurés (l'accueil exige une session ; pas de mesure avant/après)
+- [ ] Non vérifié, à essayer sur téléphone : scan réel avec session (temps réel de bout en bout, enchaînement scan puis médaille), installation réelle sur Android (`appinstalled`, animation, bannière disparue), iPhone (étapes de la bannière, aucune animation), vibration, fluidité sur un appareil modeste
+- [ ] Les 20 e2e connectés (`E2E_SESSION`) : non relancés
+
+**Prochaine étape** : essai sur téléphone des cinq changements, arbitrage du visuel de la bannière, puis fusion de `feat/phase-7bis-da`.
+
+### Session 34 — [2026-11-11] — Phase 8 : bannière d'installation, indicateur hors-ligne, Q-015
+**Roadmap :** Phase 8 — 8.3 et 8.4 · **Statut :** 🟡 Partiel (code et tests automatiques verts, pas encore essayé sur téléphone) · **Branche :** `feat/phase-7bis-da`
+
+**Réalisé**
+- db (`338feb6`) : Q-015 appliquée, un palier réactivé reprend les cartes que sa désactivation avait avancées quand leurs passages sont inférieurs à son seuil ; les passages ne changent jamais. Migration `20261111100001_reactivated_program_takes_cards_back.sql`, trois cas ajoutés à `loyalty_programs.test.sql`. Appliquée et testée par le porteur de projet (je n'ai pas pu joindre la base depuis cet environnement)
+- feat(pwa) 8.3 (`b3ee7a4`) : bannière d'installation sur l'accueil client, affichée dès que le client a une carte (premier passage crédité). Android Chrome : bouton « Installer » (événement `beforeinstallprompt`) ; iPhone et iPad : étapes « Partager » puis « Sur l'écran d'accueil » ; masquée si l'app est installée ou ouverte en plein écran, ou si le client a refusé (refus mémorisé dans `localStorage`, une seule fois). Un refus du message natif compte comme un refus
+- feat(pwa) 8.4 (`b3ee7a4`) : pastille « Hors ligne » discrète sur tous les écrans (état du navigateur) ; sur l'accueil, ligne « Hors ligne · cartes à jour à HH:MM » (heure de lecture côté serveur, affichée seulement hors-ligne)
+- test : 9 tests unitaires (décision de la bannière, détection iOS), 1 test e2e de la pastille
+
+**Fichiers clés**
+- `src/features/pwa/` — nouvelle feature : `domain/decide-install-banner.ts` et `detect-platform.ts` (logique pure), `install-environment-store.ts` (état du navigateur pour `useSyncExternalStore`), `hooks/`, `components/`
+- `src/app/layout.tsx` — pastille ; `src/app/(client)/page.tsx` — bannière et heure de lecture
+
+**Base de données** : migration Q-015 ci-dessus ; types non concernés (signature inchangée).
+
+**Bugs rencontrés** : aucun.
+
+**Décisions** : aucune dépendance, pas de nouvel ADR. Choix : « premier passage réussi » = le client a au moins une carte ; l'état « en ligne » vient de `navigator.onLine` (un indice, pas une preuve : un Wi-Fi sans internet se lit « en ligne »), suffisant pour une pastille discrète. L'API `useOffline` de Next est expérimentale et n'a pas été activée.
+**Dette introduite / remboursée** : DT-010 reste ouverte (hors-ligne limité au QR) ; l'heure de mise à jour ne couvre que la page déjà chargée, pas un rechargement hors-ligne (la page de secours n'affiche pas les cartes).
+
+**Tests de validation**
+- [x] `pnpm lint`, `typecheck`, `test` (199), `build` verts ; e2e sans session : 14 réussis, 20 ignorés, 0 échec
+- [ ] Non exécuté : parcours de la bannière dans un navigateur (l'accueil exige une session) ; seule sa logique de décision est testée
+- [ ] À faire sur téléphone : Android (installation réelle, bannière disparue ensuite, refus mémorisé), iPhone (étapes lisibles, bannière absente dans l'app installée), pastille en mode avion, heure affichée sur l'accueil hors-ligne
+- [ ] Roadmap Phase 8, tests de validation : Lighthouse PWA installable, mode avion et mise à jour d'un second déploiement, toujours à faire
+
+**Prochaine étape** : essai sur téléphone de 8.3 et 8.4, puis validation de la Phase 8.
+
+### Session 33 — [2026-11-11] — Retour du test sur Android : connexion, page hors-ligne, points ouverts
+**Roadmap :** Phase 7 bis — DA.6 (finition) et Phase 8 — 8.2 · **Statut :** 🟡 Partiel (2 corrections livrées, 3 points en attente) · **Branche :** `feat/phase-7bis-da`
+
+**Contexte** : première série de tests sur téléphone réel (Android, Galaxy S26 Ultra, build de production par tunnel) des lots 1 à 8 de la Session 32. Parcours 1 à 17 : 14 sans remarque, 3 écarts, plus 4 remarques libres.
+
+**Réalisé**
+- fix(pwa) (`12072f6`) : connexion par code, les deux étapes se lisaient l'une sur l'autre pendant le balayage ; l'étape qui part s'efface en 160 ms et celle qui arrive apparaît ensuite (`step-transition.tsx`, jeton `--dur-step-fade`)
+- fix(pwa) (`12072f6`) : la page hors-ligne se rechargeait au retour du réseau mais restait sur elle-même ; elle teste maintenant le réseau (`/manifest.webmanifest`) à l'événement `online`, au retour au premier plan et toutes les 3 s, et ne recharge qu'en cas de réponse
+- test : `offline.spec.ts` (sortie automatique de la page hors-ligne), `motion.spec.ts` (une seule étape visible)
+
+**Base de données** : aucune migration.
+
+**Bugs rencontrés**
+| Symptôme | Cause racine | Correctif | Prévention |
+|---|---|---|---|
+| Étapes de connexion superposées pendant le balayage | Les deux étapes sont empilées dans la même cellule ; celle qui part ne recule que de 28 % alors que l'autre arrive de 100 % : 500 ms de chevauchement lisible. Mon audit n'avait mesuré que les positions, pas la lisibilité | Fondu des deux étapes | Test de rendu sur l'opacité ; à regarder sur téléphone à chaque changement d'animation |
+| Page hors-ligne rechargée mais toujours affichée (retour du mode avion) | `online` se déclenche avant que la connexion transporte des données : le rechargement échoue et le worker resert la page hors-ligne. Playwright ne le reproduit pas (réseau rétabli instantanément) | Sonde réseau avant rechargement | Test e2e de sortie automatique ; vérification réelle en mode avion |
+
+**Points ouverts**
+1. **Palier réactivé non repris par les cartes** (Q-015) : `set_loyalty_program_active` déplace les cartes vers le palier actif suivant à la désactivation (Q-013), mais ne fait rien à la réactivation, donc les cartes restent sur le palier B. Le réordonnancement « corrige » en apparence : les seuils restent attachés aux places, donc B reprend le seuil de 10 ; ce n'est pas un vrai retour sur A. Correction = migration + tests pgTAP, après décision du porteur.
+2. **Barre de navigation Android sur les onglets pro** : vue une fois, non reproduite au second essai. Hypothèse : hauteur de la fenêtre au moment où la barre du navigateur se replie. À surveiller, aucune modification faite.
+3. **Retour par geste de gauche à droite : double chargement** (écran d'accueil) ; le geste de droite à gauche est fluide. Non reproductible sur ordinateur. Hypothèse : le geste du navigateur et notre glissement de retour (`NavDirectionListener`) se jouent tous les deux. Pas de correction à l'aveugle : enregistrement d'écran et contexte (onglet Chrome ou app installée) demandés.
+4. **Idée** : animation de récompense plus visible côté client (à planifier avec la DA, hors périmètre des lots 1 à 8).
+
+**Décisions** : aucune dépendance, pas de nouvel ADR. **Dette introduite / remboursée** : aucune.
+
+**Tests de validation**
+- [x] `pnpm lint`, `typecheck`, `test` (190) verts ; e2e hors connexion : offline et motion verts
+- [x] Android (Galaxy S26 Ultra), parcours 1 à 15 et 17 : conformes sauf points 1 à 3 ci-dessus ; parcours 10 fait en 4G (la 3G n'est pas ciblée)
+- [ ] Non revérifié sur téléphone : les deux corrections (à retester : connexion par code, retour du mode avion)
+- [ ] Non vérifiés : iPhone (Safari, app installée), les 20 e2e connectés, Lighthouse
+
+**Prochaine étape** : décision Q-015 puis migration ; retest des deux corrections sur Android ; diagnostic du retour par geste ; test iPhone.
+
+### Session 32 — [2026-11-11] — Finition PWA : audit mesuré, socle d'app installée, animations, états, accessibilité et hors-ligne
+**Roadmap :** Phase 7 bis — DA.6 (finition) et Phase 8 — 8.2 (service worker) · **Statut :** ✅ Terminé (lots 1 à 8 ; validation sur appareil physique à faire) · **Branche :** `feat/phase-7bis-da`
+
+**Contexte** : mission « zéro friction » en lots validés un par un, chaque changement mesuré sur build de production (Playwright, 375 px). Lot 0 = audit, lots 1 à 8 = corrections. Le lot 9 initialement prévu était cette clôture.
+
+**Réalisé**
+- fix(da) (commits `193042d`, `a9b1ef2`, `8526f52`, antérieurs, non consignés jusqu'ici) : lettres de l'intro bloquées à `opacity: 0` ; liseré visible avant le balayage de chaque lettre ; glissement des étapes inerte (propriété animée `translate`, pas `transform`)
+- audit mesuré, lot 0 (aucun fichier modifié) : relevés dans le tableau des tests ci-dessous
+- feat(da) lot 1 (`0d00ad8`) : `viewport-fit=cover`, balises Apple (`statusBarStyle: "default"`), tokens `--safe-top` / `--safe-bottom` appliqués à tous les bords d'écran ; `overscroll-behavior: none`, pas de surbrillance au toucher, `touch-action: manipulation`, sélection de texte réservée aux champs et au code de secours ; manifest `id` et `scope` ; `playwright.config.ts` lance un build de production sur le port 3100
+- feat(da) lot 2 (`b9e0f63`) : glissement vers une carte et retour par les view transitions de React (plus de `transform` sur `<main>`), « ‹ Mes cartes » dépile l'historique, squelette propre au détail d'une carte ; Chromium seulement (voir bugs)
+- feat(da) lot 3 (`7533ed3`) : l'intro vit dans le layout racine, couvre le squelette, dure 1,9 s minimum et 4 s au plus, minuteries alignées sur l'animation rendue
+- feat(da) lot 4 (`9608678`) : un squelette par écran (onglets pro, connexion, invitation, onboarding, admin), `retry` à la place de `reset` dans les `error.tsx`, 404 en français, `global-error`
+- fix(da) lot 5 (`99a9467`) : le faux écran de caméra prend la boîte du viseur (plus de saut de 65 px), tiroir client en segments, erreurs de caméra expliquées en français, rouge d'erreur assombri (`#b42318`)
+- fix(da) lot 6 (`421cfdf`) : `prefers-reduced-motion` annule aussi les délais de transition, seuls `transform` et `opacity` sont animés (deux exceptions documentées), cibles de 48 px partout, focus clavier visible
+- feat(da) lot 7 (`43ae173`) : écrans pro, admin, invitation et onboarding alignés sur la grammaire des écrans ; composants `Pill`, `ScreenTitle`, `SectionTitle` à la place de copies
+- feat(pwa) lot 8 (`ac5fe8d`) : service worker maison `public/sw.js` (79 lignes, aucune dépendance) qui ne met en cache que `/offline.html` et `/_next/static/*` ; page autonome `public/offline.html` qui redessine le QR et le code de secours lus dans `localStorage` ; cache nommé d'après l'identifiant de build (`/sw.js?v=<id>`) et purgé à l'activation ; `sw.js` servi en `no-store` ; `/sw.js` et `/offline.html` exclus du proxy d'auth ; enregistrement en production seulement (ADR-025)
+- test(e2e) : `app-shell`, `card-navigation`, `intro-splash`, `loading-and-errors`, `cashier`, `motion`, `touch-targets`, `offline` (3 tests de rendu dans `offline.spec.ts`)
+
+**Fichiers clés (lot 8)**
+- `public/sw.js`, `public/offline.html` — le worker et la page hors-ligne
+- `src/components/shared/service-worker-registrar.tsx`, `src/lib/offline.ts` — enregistrement (production seulement) et URL versionnée
+- `src/features/auth/identity-storage.ts`, `src/features/auth/qr-snapshot.ts`, `src/features/auth/hooks/use-persist-identity.ts` — copie locale du tracé du QR, effacée à la déconnexion
+- `next.config.ts` — identifiant de build commun (`generateBuildId` et `NEXT_PUBLIC_BUILD_ID`), en-têtes de `/sw.js` ; `src/proxy.ts` — exclusion du matcher
+- `src/lib/offline-assets.test.ts`, `e2e/offline.spec.ts` — garde-fous (clés partagées, aucun script externe, aucun `innerHTML`, cache purgé, repli hors-ligne)
+
+**Base de données** : aucune migration.
+
+**Bugs rencontrés**
+| Symptôme | Cause racine | Correctif | Prévention |
+|---|---|---|---|
+| Lettres de l'intro invisibles ; étapes de connexion sans glissement (commits antérieurs) | Code relu mais rendu jamais regardé : `opacity: 0` jamais levée, `transform` animé alors que Tailwind 4 écrit `translate` | Corrigés dans les 3 commits cités | Toute animation est relevée avec Playwright à plusieurs instants sur build de production |
+| Relevé de `top` faux juste après l'injection d'une feuille de style | Lecture faite avant le recalcul des styles | Attente de 200 ms avant lecture | Les tests utilisent `toHaveCSS` (qui réessaie) |
+| Après un glissement, un retour arrière plante la page sur WebKit (3 essais sur 3) | Les view transitions de React ne sont pas fiables sur le WebKit de test | Glissement joué sur Chromium seulement, échange instantané ailleurs (4 essais sur 4 sans plantage) | Test de glissement limité à Chromium ; à revérifier sur iPhone réel |
+| 3 tests e2e connectés échouaient sur l'écran de connexion quand `E2E_SESSION` est absent | `signedInTest.skip(...)` appelé au niveau du module de `e2e/signed-in.ts` : il ne protège que le premier fichier de test qui l'importe | Fixture automatique `requireSession` qui ignore chaque test sans session | Sans session : 11 réussis, 20 ignorés, 0 échec |
+
+**Décisions** : ADR-025 (service worker maison, page hors-ligne autonome). Aucune dépendance ajoutée. Choix consignés : zoom par pincement conservé (accessibilité), seul le double-tap est neutralisé ; barre de statut iOS en `default` ; `background_color` du manifest laissé crème (document 05) malgré l'intro forêt, écart connu ; `overscroll-behavior: none` supprime le tirer-pour-rafraîchir (les cartes se resynchronisent par Realtime et au retour au premier plan).
+**Dette introduite / remboursée** : DT-010 introduite (hors-ligne limité au QR, non vérifié sur appareil). DT-007 toujours ouverte : les parcours connectés exigent une session enregistrée à la main, hors dépôt.
+
+**Tests de validation**
+- [x] Lot 8 : `pnpm lint`, `pnpm typecheck`, `pnpm test` (190, dont 6 nouveaux), `pnpm format:check`, `pnpm build` verts
+- [x] Lot 8, e2e sans session : 11 réussis (dont 3 de `offline.spec.ts`), 20 ignorés, 0 échec. Hors-ligne simulé par Playwright sur `/login` : titre « Tu es hors ligne », QR redessiné depuis le tracé stocké, code « 7DN WSA » ; sans identité stockée : message « après ta première visite avec du réseau » ; seuls `/offline.html` et des fichiers `/_next/static/` sont en cache ; un cache d'ancien build planté avant l'installation est purgé ; `/sw.js` répond 200 sans redirection, `cache-control: no-store` ; `.next/BUILD_ID` égal à l'identifiant inliné dans le bundle client
+- [x] Lots 1 à 7 : relevés détaillés dans les messages de commit (`0d00ad8` à `43ae173`), mesurés sur build de production à 375 px
+- [x] Audit initial (lot 0) : `/login` CLS 0, LCP 516 ms ; accueil CLS 0, LCP 1 080 ms ; ouverture à froid : squelette 0,6 à 1,1 s puis intro 1,1 à 2,6 s ; « ‹ Mes cartes » empilait l'historique (2 → 4) ; 404 en anglais ; caisse : squelette de 335 px puis viseur de 270 px ; cibles de 36 px dans réglages, invitation, onboarding, admin ; `--destructive` 4,45:1 sur crème
+- [ ] Non exécutés ici : les 20 tests e2e connectés (pas de fichier de session dans cet environnement) ; les 28 réussis annoncés avant le lot 8 l'étaient avec `E2E_SESSION`, à relancer
+- [ ] Non vérifiés : appareil physique (encoche, barre de statut iOS, rebond, mode avion réel sur Android et iPhone), caméra réelle, mise à jour du worker sur un second déploiement, Lighthouse
+
+**Prochaine étape** : validation sur téléphone par 2 à 3 personnes, relance de `pnpm test:e2e` avec `E2E_SESSION`, Lighthouse, puis fusion dans `main` ; ensuite 8.3 et 8.4.
+
+### Session 31 — [2026-11-02] — Refonte de la structure des écrans d'après les maquettes
+**Roadmap :** Phase 7 bis — DA.6 (reprise) · **Statut :** 🟡 Partiel (mesures sur téléphone à faire) · **Branche :** `feat/phase-7bis-da`
+
+**Contexte** : la Session 30 avait changé couleurs et polices sans refaire l'agencement ; le porteur de projet l'a refusée. Lecture de `05b-ECRANS-SPEC.md` et de `da-mockups/LISEZ-MOI.md`, audit écran par écran, puis un commit par écran.
+
+**Réalisé**
+- Accueil client : en-tête forêt (logo SVG officiel, avatar lime 44 px, « Salut » 30 px), bloc QR qui chevauche l'en-tête (QR, taille et marge inchangés), lien pro sous le QR, titre « Mes cartes » + « N commerces »
+- Connexion : bloc forêt de 150 px avec 3 disques reliés, formulaire à plat sur fond crème, champ et boutons à 56 px, mention de bas de page
+- Cartes de la liste : logo tuile 44 px, nom, récompense, compteur Bricolage 22 px, traits de 16 px ; couleur par carte `HUES[hash(restaurant.id) % 6]` (ton light) ; carte cliquable vers `/cartes/<slug>`
+- Détail d'une carte (nouvelle route `/cartes/[slug]`, lecture seule, requête existante + `cover_path`) : bannière optionnelle de 150 px ou lien « ‹ Mes cartes », carte forêt, compteur de 92 px, traits de 22 px (ton dark), « C'est gagné ! », bloc « Ensuite »
+- Caisse : fond encre plein écran, viseur de 270 px avec coins lime, feuille crème (« Validé » 38 px, « Annuler », « Scanner suivant »)
+- Espace pro : bloc héros « Scanner un client », bloc « Code du client », marges de 20 px (débordement droit corrigé par `min-w-0` sur le champ), barre d'onglets de 72 px
+
+**Fichiers clés** : `src/features/loyalty/components/` (`client-home-header`, `customer-qr-hero`, `loyalty-card-item`, `loyalty-hero-card`, `next-tier-block`, `card-banner-header`), `src/app/(client)/cartes/[slug]/page.tsx`, `src/features/scanner/components/` (`cashier-view`, `scan-start-hero`, `scan-success`, `scanner-screen`), `src/features/auth/components/login-steps-band.tsx`
+
+**Base de données** : aucune migration (lecture de `cover_path`, colonne existante). Aucun hook métier, action serveur ni test fonctionnel modifié ; le texte du message de carte (`describeCardMessage`, test créé en Session 30) a changé.
+
+**Écarts assumés** (sans logique derrière, cf. LISEZ-MOI) : « Dans la même rue », « Découvrir les voisins », « Annuler (9 min) », bloc « Aujourd'hui », barre d'onglets client (pas de route Découvrir ni Profil). QR empilé au-dessus du titre (taille imposée). Message de carte « avant ta récompense » (le libellé du palier n'est pas garanti grammaticalement).
+
+**Bugs rencontrés**
+| Symptôme | Cause racine | Correctif | Prévention |
+|---|---|---|---|
+| Le serveur de dev servait un module périmé | Cache Turbopack d'un serveur déjà lancé | Captures via build de production sur un port à part | Prévisualiser avec `pnpm build` |
+| Commande bash rejetée entière | Quote non fermée dans une longue commande | Fichiers écrits avec l'outil Write | Commandes courtes |
+
+**Décisions** : aucune (ADR-024 appliqué). **Dette** : DT-009 mise à jour (la route détail existe ; restent « Découvrir », « Profil », voisins).
+
+**Tests de validation**
+- [x] `pnpm lint`, `pnpm typecheck`, `pnpm test` verts (167 tests), `pnpm build` OK ; captures à 375 px dans `Documentation/da-captures/`
+- [ ] Non réalisés : Lighthouse `/login` ≥ 86, scan < 3 s, contraste mesuré, caméra réelle, session connectée (les captures utilisaient une page de prévisualisation temporaire, supprimée), logs, stats, réglages et admin non revus
+
+**Prochaine étape** : valider sur téléphone, mesurer, fusionner dans `main`, puis Phase 8.
+
+### Session 30 — [2026-11-02] — Phase 7 bis : tokens, composants, écrans, email et manifest
+**Roadmap :** Phase 7 bis — DA.3, DA.4, DA.6, DA.7 · **Statut :** 🟡 Partiel (mesures Lighthouse et scan non faites) · **Branche :** `feat/phase-7bis-da`
+
+**Réalisé**
+- chore(git): changements de la Session 28 commités sur `main` (renommage Rézone), puis commit docs distinct (document 05, `public/brand/`, roadmap, changelog) ; secrets de `data.txt` et le .pptx laissés non suivis
+- feat(da) DA.3: tokens de la DA dans `globals.css` (noms shadcn gardés, `accent` devenu teinte douce, `gain` lime, teintes de carte, mouvements) ; polices Bricolage Grotesque (axe `opsz`) et Plus Jakarta Sans via `next/font` ; `getCardHue` (hash FNV-1a, testé) ; usages de `accent` migrés vers `primary`
+- feat(da) DA.4: `ui/` re-thémé (boutons ≥ 48 px, bordures `--input`, variante `gain`) ; `SegmentedProgress`, `LoyaltyHeroCard`, `CardBannerHeader`, `PlusOneBurst`, `IntroSplash` + `Wordmark` animé, `StepTransition`, `ErrorState`, `EmptyState`, `BrandLogo`, animations CSS de la section 5.5
+- feat(da) DA.6: connexion (étapes glissantes, bandeau Scanne·Cumule·Profite), accueil (en-tête forêt, intro une fois par ouverture, +1 via Realtime), caisse (coins lime, résultats icône + texte, sans animation), onboarding, invitation, `/pro`, `/admin`, pages d'erreur
+- feat(da) DA.7: template email OTP (en-tête forêt, code sur lime), `manifest.ts` (couleurs `#0a5c3a` / `#fff4e6`, icônes 192, 512, maskable), icônes d'onglet et Apple
+
+**Fichiers clés**
+- `src/app/globals.css` — tokens et keyframes ; `src/app/layout.tsx` — polices et icônes
+- `src/features/loyalty/components/` — `segmented-progress`, `loyalty-hero-card`, `intro-splash`, `plus-one-burst` ; `domain/` — `card-hue`, `segment-rows`, `card-message`
+- `src/components/shared/` — `step-transition`, `wordmark`, `brand-logo`, `error-state`, `empty-state`
+
+**Base de données** : aucune migration. `restaurantId` ajouté à `LoyaltyCardView` (lecture déjà sélectionnée).
+
+**Bugs rencontrés**
+| Symptôme | Cause racine | Correctif | Prévention |
+|---|---|---|---|
+| Build : « Axes can only be defined for variable fonts » | `weight` fixé avec l'axe `opsz` | `weight` retiré pour Bricolage | `pnpm build` après chaque changement de police |
+| Commit refusé par lint-staged | Prettier allonge une fonction au-delà de 40 lignes après `pnpm lint` | Sous-composants extraits | Lancer prettier avant lint |
+
+**Décisions** : ADR-024 appliqué ; aucun nouvel ADR (aucune dépendance ajoutée).
+**Dette introduite** : DT-009 (voir registre).
+
+**Tests de validation**
+- [x] `pnpm lint`, `pnpm typecheck`, `pnpm test` verts (167 tests, +11 nouveaux, aucun test de logique modifié) ; `pnpm build` OK ; e2e smoke OK
+- [x] Capture de `/login` à 375 px contrôlée
+- [ ] Lighthouse `/login` ≥ 86, scan < 3 s, contraste mesuré, retour de 2 à 3 personnes : non réalisés (à faire sur téléphone)
+
+**Écarts à signaler** : les textes du e2e smoke (titre et bouton de connexion) suivent la nouvelle copie ; l'intro sort par glissement du calque vers la gauche (pas d'accueil entrant au-dessus) ; messages de `lib/errors.ts` encore au vouvoiement.
+
+**Prochaine étape** : validation sur téléphone, mesures, fusion, puis Phase 8.
 
 ### Session 29 — [2026-11-02] — Direction artistique : identité retenue et document de passage
 **Roadmap :** Phase 7 bis (DA.1 et DA.2 terminées, DA.5 partielle) · **Statut :** ✅ Terminé · **Branche :** `main` (fichiers non commités)
@@ -1073,6 +1345,7 @@
 | ADR-022 | Scan : RPC appelées directement depuis le navigateur plutôt que par Server Actions | ✅ Accepté | 2026-11-01 |
 | ADR-023 | Direction artistique en Phase 7 bis, avant la PWA (P8) | ✅ Accepté | 2026-11-01 |
 | ADR-024 | Identité visuelle : vert forêt, logotype « tampon », couleur par carte | ✅ Accepté | 2026-11-02 |
+| ADR-025 | Hors-ligne : service worker maison et page autonome plutôt que Serwist | ✅ Accepté | 2026-11-11 |
 
 <!-- ============ TEMPLATE ADR ============
 ### ADR-NNN — Titre
@@ -1335,6 +1608,18 @@
 - **Conséquences :** `globals.css` à réécrire (source unique) ; deux familles de polices via `next/font` ; assets de marque dans `public/brand/` ; trois composants à créer ; aucune règle métier ni schéma modifié.
 - **Réversibilité :** facile pour les couleurs et composants (tokens centralisés) ; moyenne pour le logotype une fois les supports imprimés.
 
+### ADR-025 — Hors-ligne : service worker maison et page autonome plutôt que Serwist
+- **Date :** 2026-11-11 · **Statut :** ✅ Accepté · **Phase :** 7 bis (lot 8), avance l'étape 8.2 · **Déroge à :** `04-ROADMAP.md` 8.2 (Serwist)
+- **Contexte :** le QR client doit rester affichable sans réseau (`.cursorrules` §10). Tout le reste de l'app dépend du serveur (session Supabase, Server Components, Realtime) : mettre des pages en cache servirait des données périmées ou d'un autre compte, et une page de caisse hors-ligne n'a pas de sens. Contraintes : aucune dépendance de plus (§0), aucun cache périmé après un déploiement.
+- **Options envisagées :**
+  1. Serwist (prévu à la roadmap) — ✅ stratégies de cache toutes faites, précache généré ; ❌ dépendance et plugin de build, configuration à vérifier avec Next 16 (Turbopack), précache du shell que le produit ne veut pas.
+  2. Cache complet du shell et des pages en *network-first* — ❌ risque de servir une page d'un autre compte sur un appareil partagé, complexité de l'invalidation des charges RSC.
+  3. Worker maison de 79 lignes, deux entrées en cache seulement — ✅ aucune dépendance, surface minimale, tout le reste va au réseau sans passer par le worker ; ❌ pas de page hors-ligne pour les cartes ni les écrans pro.
+- **Décision :** option 3. `public/sw.js` met en cache `/offline.html` (à l'installation) et les fichiers hachés `/_next/static/*` (cache d'abord), répond à une navigation en échec réseau par `/offline.html`, et ne s'occupe de rien d'autre. `public/offline.html` est autonome (styles et script en ligne) et lit `localStorage` : identité (`rezone.identity.v1`) et tracé du QR (`rezone.identity-qr.v1`, ajouté car aucune librairie QR n'est disponible dans la page). Versionnement : l'identifiant de build est passé en `?v=` sur l'URL du script, donc chaque déploiement installe un nouveau worker, un cache `rezone-<id>` neuf, et l'activation supprime les anciens. `/sw.js` est servi en `no-cache, no-store, must-revalidate` ; le proxy d'auth l'exclut, ainsi que `/offline.html` ; l'enregistrement se fait en production seulement.
+- **Pourquoi :** le besoin produit est un QR affichable, pas une app hors-ligne ; deux entrées en cache l'obtiennent sans risque de donnée périmée ni dépendance.
+- **Conséquences :** hors-ligne, seule la page de secours s'affiche (QR et code, bouton « Réessayer », rechargement au retour du réseau) ; la page ne contient aucun `innerHTML` (le tracé est validé par expression régulière puis posé en attribut) ; si une CSP est ajoutée un jour, le script en ligne de `offline.html` devra recevoir un hachage ou un nonce ; le tracé du QR est un jeton équivalent à celui déjà stocké, effacé à la déconnexion. À surveiller : durée de vie de `localStorage` sur iOS quand l'app n'est pas installée (à mesurer sur appareil), mise à jour du worker sur un second déploiement (non testée ici).
+- **Réversibilité :** facile : supprimer `public/sw.js`, `public/offline.html` et le registrar ; un worker déjà installé se désinstalle en servant un `sw.js` qui appelle `registration.unregister()`.
+
 ---
 
 ## 🧾 Dette technique
@@ -1343,12 +1628,15 @@
 |---|---|---|---|---|---|
 | DT-001 | Suppression du dernier `owner` d'un restaurant : le restaurant reste sans propriétaire (aucun garde-fou) | Cas hors périmètre MVP | 🟠 Restaurant non administrable sans intervention admin | Phase 11 (suppression de compte) | ⏳ Ouverte |
 | DT-002 | La suppression de compte n'est pas encore exposée (pas de Server Action ni d'UI) ; seul le comportement base est en place et testé | Livraison prévue en P11 | 🟠 Obligation RGPD à honorer avant le pilote | Phase 11 | ⏳ Ouverte |
-| DT-003 | Tests de validation Phase 3 non exécutés : parcours par rôle (client/staff/admin) avec une vraie invitation, session persistante, cookie modifié, Google sur iPhone/Android et PWA, E2E de connexion OTP (Inbucket indisponible avec le projet Cloud) | Aucun contenu `/pro` ni PWA à valider avant les Phases 5 et 8 | 🟠 Régression d'accès non détectée | Phases 5 (rôles `/pro`), 8 (PWA) | ⏳ Ouverte |
+| DT-003 | Tests de validation Phase 3 non exécutés : parcours par rôle (client/staff/admin) avec une vraie invitation, session persistante, cookie modifié, Google sur iPhone/Android et PWA, E2E de connexion OTP (Inbucket indisponible avec le projet Cloud) | Aucun contenu `/pro` ni PWA à valider avant les Phases 5 et 8 | 🟠 Régression d'accès non détectée | Phases 5 (rôles `/pro`), 8 (PWA) | ⏳ Ouverte — en grande partie remboursée (Session 37) : parcours par rôle, session persistante et Google validés à la main ; e2e OTP non applicable ; **reste le test du cookie/JWT modifié** |
 | DT-004 | Le logo du restaurant n'est pas affiché sur les cartes (initiale seulement) : aucun upload n'existe avant l'étape 5.3, et `next/image` exige la configuration du domaine Storage | Logos inexistants avant la Phase 5 | 🟢 Cosmétique | Phase 5 (5.3) | ✔️ Remboursée (Session 17) |
 | DT-005 | Lighthouse Performance de `/` à 86 sur build de production local (seuil de la roadmap : 90) ; mesure locale, sans CDN ni région Vercel | Écart jugé suffisant à ce stade par le porteur de projet | 🟢 Marge faible vis-à-vis de la contrainte produit n°1 | Phase 11 (11.4) : re-mesure sur Vercel ; analyser le bundle si < 90 | ⏳ Ouverte |
 | DT-006 | Test chronomètre de la Phase 5 (un testeur non technique configure fiche + 2 paliers en < 5 min) non réalisé : il demande un vrai testeur | Pas de testeur disponible à ce stade | 🟢 L'ergonomie a été revue après retour du porteur de projet (Session 21) | Pilote (Phase 11.6) | ⏳ Ouverte |
-| DT-007 | Aucun test E2E Playwright du scanner : le projet n'a pas de stratégie de comptes de test (connexion par OTP email ou Google) | Décision à prendre (comptes de test, session injectée) avant d'écrire le parcours | 🟠 Parcours critique du scan couvert seulement par pgTAP et tests unitaires | Phase 6 (avant le jalon M1) | ⏳ Ouverte |
+| DT-007 | Aucun test E2E Playwright du scanner : le projet n'a pas de stratégie de comptes de test (connexion par OTP email ou Google) | Décision à prendre (comptes de test, session injectée) avant d'écrire le parcours | 🟠 Parcours critique du scan couvert seulement par pgTAP et tests unitaires | Phase 6 (avant le jalon M1) | ✔️ Remboursée (Session 37) : essais manuels sur appareil réel jugés suffisants par le porteur de projet |
 | DT-008 | Resend est en mode test : les emails (codes de connexion à 6 chiffres) ne partent qu'à l'adresse du compte propriétaire, Supabase répond `500 unexpected_failure` pour toute autre adresse | Environnement de développement ; Google reste disponible pour se connecter | 🔴 Aucun client ni gérant d'une autre adresse ne peut se connecter par code | Phase 11 (avant le pilote) : acheter ou utiliser un nom de domaine, le vérifier dans Resend (SPF, DKIM), mettre l'expéditeur sur ce domaine | ⏳ Ouverte |
+| DT-009 | Écrans « carte d'un commerce » et « Découvrir » et barre du bas absents de l'app (pas de route) : `LoyaltyHeroCard` et `CardBannerHeader` créés mais non montés ; chevalet QR imprimable (DA.7) non refait | Pas d'invention de routes dans une étape d'habillage | 🟢 Code non utilisé jusqu'à la route | Phase 9 (découverte) ou étape dédiée | ⏳ Ouverte |
+| DT-010 | Hors-ligne limité à la page de secours (QR et code) : cartes, caisse et écrans pro ne s'affichent pas sans réseau ; comportement vérifié par Playwright seulement, pas en mode avion sur iPhone ni Android, ni la mise à jour du worker sur un second déploiement | Le besoin produit est le QR (ADR-025) ; pas d'appareil de test ni de second déploiement à ce stade | 🟢 Un client sans réseau voit son QR mais pas ses cartes | Phase 8 (8.4 indicateur hors-ligne et « dernière mise à jour ») | ✔️ Fermée (Session 37) : limite assumée (ADR-025), mode avion validé sur Android |
+| DT-011 | Page d'aperçu `/login/da-preview` (cartes fictives, bannière et célébrations) livrée dans le build ; elle répond 404 sans `DA_PREVIEW=1` | L'accueil exige une session : sans elle, aucune animation ne pouvait être mesurée en navigateur (06-DA-ITERATION-2 §8) | 🟢 Un peu de code de test dans l'app, aucune donnée réelle, aucune garde de route modifiée | À retirer ou à garder quand les e2e connectés tourneront (DT-007) | ⏳ Ouverte |
 
 ---
 
@@ -1370,4 +1658,5 @@
 | Q-012 | Annulation d'un scan : qui, quoi, jusqu'à quand ? | Owner : tout ; staff : ses propres scans < 15 min | **Owner = tout ; staff = ses propres scans < 10 min** ⇒ ADR-010 | Phase 6 | ✅ Session 1 |
 | Q-013 | Modification d'un seuil en cours : que devient la carte ? | Appliquée immédiatement aux cartes en cours | **Oui, application immédiate** aux cartes en cours ⇒ ADR-009 | Phase 5 | ✅ Session 1 |
 | Q-014 | Un employé peut-il créditer son propre compte ? | À trancher | **Oui**, autorisé ; la trace est dans les logs (`staff_id`) | Phase 6 | ✅ Session 23 |
+| Q-015 | Un palier désactivé puis réactivé : que deviennent les cartes qui avaient basculé sur le palier suivant ? | Remettre sur le palier réactivé les cartes placées sur un palier plus loin dont les passages sont inférieurs à son seuil (une carte qui a vraiment consommé ce palier a toujours des passages au moins égaux à son seuil, ADR-009) | **Validée par le porteur** telle que proposée (Session 34) | Phase 7 bis | ✅ Session 34 |
 

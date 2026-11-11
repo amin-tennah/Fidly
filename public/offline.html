@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#0a5c3a" />
+    <meta name="robots" content="noindex" />
+    <title>Hors ligne | Rézone</title>
+    <!-- Standalone on purpose: served by the service worker with no network, so it may not
+         depend on the Next.js bundle. Storage keys mirror IDENTITY_STORAGE_KEY and
+         IDENTITY_QR_STORAGE_KEY in src/features/auth/constants.ts (checked by a unit test). -->
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        background: #0a5c3a;
+      }
+      body {
+        margin: 0;
+        min-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        padding: calc(24px + env(safe-area-inset-top)) 16px
+          calc(24px + env(safe-area-inset-bottom));
+        font-family:
+          system-ui,
+          -apple-system,
+          "Segoe UI",
+          Roboto,
+          sans-serif;
+        color: #fff4e6;
+        text-align: center;
+        -webkit-tap-highlight-color: transparent;
+        overscroll-behavior: none;
+      }
+      h1 {
+        margin: 0;
+        font-size: 1.75rem;
+        font-weight: 800;
+        letter-spacing: -0.01em;
+      }
+      p {
+        margin: 0;
+        line-height: 1.45;
+      }
+      .brand {
+        font-size: 1.125rem;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+      }
+      .panel {
+        width: 100%;
+        max-width: 22rem;
+        padding: 20px;
+        border-radius: 28px;
+        background: #ffffff;
+        color: #0e1f17;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+      }
+      .qr {
+        width: 232px;
+        height: 232px;
+      }
+      .hint {
+        font-size: 0.875rem;
+        color: #4a5a52;
+      }
+      .code {
+        font-family: ui-monospace, "Cascadia Mono", Menlo, monospace;
+        font-size: 1.5rem;
+        font-weight: 700;
+        letter-spacing: 0.15em;
+        user-select: text;
+      }
+      .status {
+        max-width: 22rem;
+        font-size: 0.9375rem;
+      }
+      button {
+        min-height: 48px;
+        padding: 0 28px;
+        border: 0;
+        border-radius: 999px;
+        background: #fff4e6;
+        color: #0a5c3a;
+        font: inherit;
+        font-weight: 800;
+        touch-action: manipulation;
+      }
+      button:active {
+        transform: scale(0.97);
+      }
+      button:focus-visible {
+        outline: 3px solid #c8f25a;
+        outline-offset: 3px;
+      }
+      [hidden] {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <p class="brand">Rézone</p>
+    <h1 id="title">Tu es hors ligne</h1>
+    <section id="card" class="panel" aria-label="Ton QR code personnel" hidden>
+      <svg
+        id="qr"
+        class="qr"
+        role="img"
+        aria-label="QR code personnel à présenter en caisse"
+      ></svg>
+      <p class="hint">Code de secours si le QR est illisible</p>
+      <p id="code" class="code"></p>
+    </section>
+    <p id="empty" class="status" hidden>
+      Ton QR code s'affichera ici après ta première visite avec du réseau.
+    </p>
+    <p class="status" role="status">
+      Tes cartes se mettront à jour dès que le réseau reviendra.
+    </p>
+    <button id="retry" type="button">Réessayer</button>
+    <script>
+      (function () {
+        var IDENTITY_KEY = "rezone.identity.v1";
+        var QR_KEY = "rezone.identity-qr.v1";
+        var SVG_NS = "http://www.w3.org/2000/svg";
+        var VIEW_BOX = /^0 0 \d{1,3} \d{1,3}$/;
+        var PATH_DATA = /^[MmLlHhVvZz0-9 ,.\-]+$/;
+
+        function read(key) {
+          try {
+            return JSON.parse(window.localStorage.getItem(key));
+          } catch (e) {
+            return null;
+          }
+        }
+
+        function groupCode(code) {
+          return code.length === 6 ? code.slice(0, 3) + " " + code.slice(3) : code;
+        }
+
+        function drawQr(qr) {
+          var svg = document.getElementById("qr");
+          var back = document.createElementNS(SVG_NS, "rect");
+          var path = document.createElementNS(SVG_NS, "path");
+          svg.setAttribute("viewBox", qr.viewBox);
+          back.setAttribute("width", "100%");
+          back.setAttribute("height", "100%");
+          back.setAttribute("fill", "#ffffff");
+          path.setAttribute("d", qr.path);
+          path.setAttribute("fill", "#000000");
+          path.setAttribute("shape-rendering", "crispEdges");
+          svg.append(back, path);
+        }
+
+        var identity = read(IDENTITY_KEY);
+        var qr = read(QR_KEY);
+        var hasCode = identity && typeof identity.shortCode === "string";
+        var hasQr =
+          qr && VIEW_BOX.test(String(qr.viewBox)) && PATH_DATA.test(String(qr.path));
+
+        if (hasQr && hasCode) {
+          drawQr(qr);
+          document.getElementById("code").textContent = groupCode(identity.shortCode);
+          document.getElementById("card").hidden = false;
+        } else {
+          document.getElementById("empty").hidden = false;
+        }
+
+        function retry() {
+          if (window.location.pathname === "/offline.html") {
+            window.location.replace("/");
+          } else {
+            window.location.reload();
+          }
+        }
+        // The "online" event can fire before the connection really carries data, and a
+        // reload then lands on this page again. So the network is probed first (this request
+        // is not a navigation: the worker leaves it alone) and the page reloads on success.
+        var PROBE_URL = "/manifest.webmanifest";
+        var PROBE_INTERVAL_MS = 3000;
+        function probe() {
+          fetch(PROBE_URL, { cache: "no-store" })
+            .then(function (response) {
+              if (response.ok) {
+                retry();
+              }
+            })
+            .catch(function () {});
+        }
+        document.getElementById("retry").addEventListener("click", retry);
+        window.addEventListener("online", probe);
+        document.addEventListener("visibilitychange", function () {
+          if (!document.hidden) {
+            probe();
+          }
+        });
+        window.setInterval(probe, PROBE_INTERVAL_MS);
+      })();
+    </script>
+  </body>
+</html>

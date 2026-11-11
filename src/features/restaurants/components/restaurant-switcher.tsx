@@ -33,7 +33,7 @@ export function RestaurantSwitcher({
       value={activeRestaurantId}
       disabled={isPending}
       onChange={handleChange}
-      className="border-input bg-background h-12 w-full rounded-lg border px-3 text-base font-bold"
+      className="border-input bg-background font-display min-h-14 w-full min-w-0 rounded-2xl border-2 px-3 text-xl font-extrabold"
     >
       {memberships.map((m) => (
         <option key={m.restaurantId} value={m.restaurantId}>

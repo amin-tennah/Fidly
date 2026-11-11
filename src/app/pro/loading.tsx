@@ -1,11 +1,12 @@
 import type { ReactNode } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 
+/** Scanner tab, inside the pro layout (header and tab bar stay): hero action and code block. */
 export default function ProLoading(): ReactNode {
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-4 px-4 py-6">
-      <Skeleton className="h-8 w-56" />
-      <Skeleton className="h-44 w-full rounded-xl" />
+    <div aria-busy="true" className="space-y-4">
+      <Skeleton className="bg-primary/85 rounded-screen h-[150px] w-full" />
+      <Skeleton className="rounded-card h-[120px] w-full" />
     </div>
   );
 }

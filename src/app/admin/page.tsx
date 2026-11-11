@@ -4,6 +4,9 @@ import type { ReactNode } from "react";
 import { AdminRestaurantList, CreateRestaurantForm } from "@/features/admin";
 import { listAdminRestaurants } from "@/features/admin/queries/list-admin-restaurants";
 import { CLIENT_HOME_PATH, SignOutButton } from "@/features/auth";
+import { Pill } from "@/components/shared/pill";
+import { ScreenTitle } from "@/components/shared/screen-title";
+import { SectionTitle } from "@/components/shared/section-title";
 import { Card } from "@/components/ui/card";
 import { getPublicEnv } from "@/lib/env";
 
@@ -17,29 +20,25 @@ export default async function AdminHomePage(): Promise<ReactNode> {
   const { NEXT_PUBLIC_APP_URL } = getPublicEnv();
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-6 px-4 py-8">
+    <main className="pt-safe-8 pb-safe-8 mx-auto flex min-h-dvh w-full max-w-md flex-col gap-6 px-5">
       <header className="space-y-2">
         <div className="flex items-center justify-between gap-2">
-          <span className="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
-            Super-Admin · Rézone
-          </span>
+          <Pill>Super-Admin · Rézone</Pill>
           <SignOutButton variant="ghost" size="sm" />
         </div>
-        <h1 className="text-foreground text-2xl font-bold tracking-tight">
-          Back-office Rézone
-        </h1>
+        <ScreenTitle>Back-office Rézone</ScreenTitle>
       </header>
       <Card>
-        <h2 className="text-base font-semibold">Nouveau restaurant</h2>
+        <h2 className="font-display text-lg font-extrabold">Nouveau restaurant</h2>
         <CreateRestaurantForm />
       </Card>
       <section aria-label="Restaurants" className="space-y-3">
-        <h2 className="text-base font-semibold">Restaurants ({restaurants.length})</h2>
+        <SectionTitle>Restaurants ({restaurants.length})</SectionTitle>
         <AdminRestaurantList restaurants={restaurants} appUrl={NEXT_PUBLIC_APP_URL} />
       </section>
       <Link
         href={CLIENT_HOME_PATH}
-        className="text-accent text-xs font-semibold underline-offset-4 hover:underline"
+        className="text-primary inline-flex min-h-12 items-center text-sm font-semibold underline-offset-4 hover:underline"
       >
         ← Retour à l&apos;accueil client
       </Link>

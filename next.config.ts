@@ -16,8 +16,16 @@ function supabaseImagePatterns(): NonNullable<NextConfig["images"]>["remotePatte
   ];
 }
 
+/**
+ * One id per build: it names the build (`.next/BUILD_ID`) and, through `NEXT_PUBLIC_BUILD_ID`,
+ * the service worker cache, so a deployment never reads a previous build's cache (ADR-025).
+ */
+const BUILD_ID = process.env.VERCEL_GIT_COMMIT_SHA ?? Date.now().toString(36);
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  generateBuildId: () => Promise.resolve(BUILD_ID),
+  env: { NEXT_PUBLIC_BUILD_ID: BUILD_ID },
   poweredByHeader: false,
   // Dev only: lets a phone load `/_next/*` (hydration, HMR) through a Cloudflare quick
   // tunnel (`pnpm tunnel`) or the machine's LAN address.
@@ -46,6 +54,14 @@ const nextConfig: NextConfig = {
             key: "Permissions-Policy",
             value: "camera=(self), geolocation=(self), microphone=()",
           },
+        ],
+      },
+      {
+        // The browser must always re-check the worker, or a stale one could outlive a deployment.
+        source: "/sw.js",
+        headers: [
+          { key: "Cache-Control", value: "no-cache, no-store, must-revalidate" },
+          { key: "Content-Type", value: "text/javascript; charset=utf-8" },
         ],
       },
     ]);

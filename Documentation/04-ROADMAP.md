@@ -160,7 +160,7 @@ erDiagram
 - [x] **0.1** Rédaction des règles (`.cursorrules`), du CHANGELOG et de la roadmap.
 - [x] **0.2** Répondre aux questions ouvertes **Q-001 → Q-010** et valider/rejeter les ADR « Proposé ».
 - [x] **0.3** **Spike scanner** (code jetable, hors dépôt principal) : page Next.js minimale déployée sur Vercel (HTTPS obligatoire pour la caméra), comparant `@yudiel/react-qr-scanner` et `html5-qrcode`.
-- [ ] **0.4** Création des comptes : GitHub (✅), Vercel, Supabase (région UE — idéalement la même zone que Vercel), Google Cloud (OAuth), Resend (SMTP), nom de domaine.
+- [ ] **0.4** Création des comptes : GitHub (✅), Vercel, Supabase (région UE — idéalement la même zone que Vercel), Google Cloud (OAuth), Resend (SMTP), nom de domaine. *(tous les comptes créés ; reste le **nom de domaine**, pas encore acheté : à faire en Phase 11, 11.2 bis)*
 
 ### ✅ Tests de validation
 - [x] Spike testé : décodage instantané dès l'entrée du QR dans le champ, excellente réactivité.
@@ -259,10 +259,10 @@ erDiagram
 ### ✅ Tests de validation
 - [x] Connexion Google OK (navigateur ; le test iPhone/Android et PWA installée est reporté — DT-003).
 - [x] Connexion OTP OK ; code expiré ou erroné ⇒ message clair ; renvoi limité dans le temps.
-- [ ] Un client accédant à `/pro` est redirigé ; un staff accède à `/pro` ; seul un admin accède à `/admin`. *(redirection des visiteurs anonymes vérifiée par E2E ; parcours par rôle reporté — DT-003)*
-- [ ] Session conservée après fermeture/réouverture du navigateur. *(reporté — DT-003)*
-- [ ] Modification manuelle du cookie/JWT côté client ⇒ aucun accès supplémentaire (RLS fait foi). *(reporté — DT-003)*
-- [ ] E2E Playwright : connexion OTP (via boîte mail locale Inbucket/Mailpit de Supabase en dev). *(non applicable avec le projet Cloud Dev, ADR-011 — DT-003)*
+- [x] Un client accédant à `/pro` est redirigé ; un staff accède à `/pro` ; seul un admin accède à `/admin`. *(redirection des visiteurs anonymes vérifiée par E2E ; parcours par rôle validé par le porteur de projet le 2026-11-11)*
+- [x] Session conservée après fermeture/réouverture du navigateur. *(validé par le porteur de projet le 2026-11-11)*
+- [ ] Modification manuelle du cookie/JWT côté client ⇒ aucun accès supplémentaire (RLS fait foi). *(seul test de la Phase 3 encore à faire — DT-003)*
+- [x] ~~E2E Playwright : connexion OTP (via boîte mail locale Inbucket/Mailpit de Supabase en dev).~~ *(non applicable avec le projet Cloud Dev, ADR-011 ; clos le 2026-11-11)*
 
 ### ⚠️ Points de vigilance
 - **Magic Link en PWA iOS** : le lien s'ouvre dans Safari, pas dans la PWA installée ⇒ session dans le mauvais contexte (raison de l'ADR-003).
@@ -346,7 +346,7 @@ erDiagram
 - [x] QR forgé (token inconnu, chaîne aléatoire, URL malveillante, très longue chaîne) ⇒ message « Client introuvable », aucune erreur 500.
 - [x] Un staff du restaurant A ne peut pas créditer une carte au nom du restaurant B (test SQL fait ; E2E à faire).
 - [x] Code court de secours fonctionnel.
-- [ ] Tests pgTAP des RPC (`lookup_customer`, `record_visit`, `redeem_reward`, `reverse_scan`) + test E2E Playwright du parcours complet. *(pgTAP fait : 31 assertions ; E2E à faire, voir DT-007)*
+- [x] Tests pgTAP des RPC (`lookup_customer`, `record_visit`, `redeem_reward`, `reverse_scan`) + test E2E Playwright du parcours complet. *(pgTAP : 31 assertions ; l'E2E automatisé est remplacé par les essais manuels sur appareil réel, jugés suffisants par le porteur de projet le 2026-11-11 — DT-007 remboursée)*
 
 ### ⚠️ Points de vigilance
 - **Latence caméra** : l'initialisation de `getUserMedia` coûte 300 ms à 1 s+ ; ne la payer qu'une fois par session de service. Libérer la caméra quand l'onglet passe en arrière-plan (batterie, confidentialité).
@@ -402,19 +402,19 @@ Parcours complet sur 2 téléphones : inscription client → configuration resta
 ### Étapes
 - [x] **DA.1** Brief : idées de DA du porteur de projet, références (moodboard), personnalité de marque, ton des textes ; deux usages à servir : client (plaisir, simplicité) et restaurateur (lisibilité en caisse, rapidité). *(Session 29 : références Snoonu, Klook, Angi ; 5 itérations validées avec le porteur)*
 - [x] **DA.2** Identité : logo (version complète + icône carrée de l'app, variante maskable), palette avec contrastes AA, typographies (via `next/font`), style d'illustration et d'icônes, décision sur le mode sombre. *(Session 29 : ADR-024 ; assets dans `public/brand/` ; Bricolage Grotesque + Plus Jakarta Sans ; pas d'illustrations, icônes en trait arrondi ; mode sombre reporté ; détail dans `05-DIRECTION-ARTISTIQUE.md`)*
-- [ ] **DA.3** Design tokens dans `src/app/globals.css` (couleurs, rayons, ombres, échelle typographique, mouvements) : source unique de la DA.
-- [ ] **DA.4** Composants `ui/` (shadcn) re-thémés et composants `shared/` (états vide, chargement, erreur, en-têtes).
-- [ ] **DA.5** Maquettes haute fidélité à 375 px des écrans clés : connexion, accueil client (QR + cartes), scanner et tiroir, logs, réglages, `/admin`. Validation par le porteur de projet **avant** de coder. *(Session 29 : connexion, accueil, carte d'un commerce, caisse et découvrir maquettés et validés ; logs, réglages et `/admin` non maquettés, à valider sur téléphone après DA.6)*
-- [ ] **DA.6** Application aux écrans existants (aucun changement de logique), animations de jauge et de célébration alignées sur la DA.
-- [ ] **DA.7** Supports : template d'email OTP, chevalet QR imprimable, assets prêts pour la P8 (icônes, splash, couleurs du manifest).
+- [x] **DA.3** Design tokens dans `src/app/globals.css` (couleurs, rayons, ombres, échelle typographique, mouvements) : source unique de la DA.
+- [x] **DA.4** Composants `ui/` (shadcn) re-thémés et composants `shared/` (états vide, chargement, erreur, en-têtes).
+- [x] **DA.5** Maquettes haute fidélité à 375 px des écrans clés : connexion, accueil client (QR + cartes), scanner et tiroir, logs, réglages, `/admin`. Validation par le porteur de projet **avant** de coder. *(Session 29 : connexion, accueil, carte d'un commerce, caisse et découvrir maquettés et validés ; logs, réglages et `/admin` non maquettés : résultat sur téléphone jugé satisfaisant par le porteur de projet le 2026-11-11, clos sans maquette)*
+- [x] **DA.6** Application aux écrans existants (aucun changement de logique), animations de jauge et de célébration alignées sur la DA. *(Session 35, itération 2 : fond crème léger, animation de scan « carte dévoilée », médaille « Récompense disponible », traits au-delà de 10 ; `06-DA-ITERATION-2.md` ; à essayer sur téléphone)*
+- [ ] **DA.7** *(Session 30 : email OTP et manifest faits ; chevalet imprimable **reporté à plus tard**, non nécessaire pour l'instant — 2026-11-11)* Supports : template d'email OTP, chevalet QR imprimable, assets prêts pour la P8 (icônes, splash, couleurs du manifest).
 
 ### ✅ Tests de validation
-- [ ] Contrastes AA vérifiés sur les couleurs de texte, de boutons et d'états.
-- [ ] Écran scanner et tiroir lisibles en plein jour et d'une main ; boutons ≥ 48 px.
-- [ ] Le QR client reste sur fond blanc pur, quiet zone et taille inchangées (cf. P4).
+- [x] Contrastes AA vérifiés sur les couleurs de texte, de boutons et d'états.
+- [x] Écran scanner et tiroir lisibles en plein jour et d'une main ; boutons ≥ 48 px.
+- [x] Le QR client reste sur fond blanc pur, quiet zone et taille inchangées (cf. P4).
 - [ ] Aucune régression de performance : Lighthouse `/` ≥ 86 (DT-005) et budget de scan inchangé (< 3 s).
-- [ ] `pnpm lint && pnpm typecheck && pnpm test` verts ; aucun test de logique modifié pour passer.
-- [ ] Retour de 2–3 personnes (client et restaurateur) sur la première impression.
+- [x] `pnpm lint && pnpm typecheck && pnpm test` verts ; aucun test de logique modifié pour passer. *(Session 36 : 221 tests)*
+- [x] Retour de 2–3 personnes (client et restaurateur) sur la première impression.
 
 ### ⚠️ Points de vigilance
 - **Habillage uniquement** : pas de changement de règle métier ni de schéma dans cette phase.
@@ -429,16 +429,16 @@ Parcours complet sur 2 téléphones : inscription client → configuration resta
 **🎯 Objectif :** Rézone s'installe sur l'écran d'accueil en 1 clic et le QR client s'affiche **même sans réseau**.
 
 ### Étapes
-- [ ] **8.1** `app/manifest.ts` (nom, icônes 192/512 + maskable, `theme_color`, `display: standalone`, `start_url`), icônes Apple et splash screens *(assets issus de la DA, étape DA.7)*.
-- [ ] **8.2** Service worker (Serwist, successeur de next-pwa) : mise en cache du shell de l'app et de l'écran QR ; stratégie *network-first* pour les données.
-- [ ] **8.3** Bannière d'installation : `beforeinstallprompt` sur Android ; instructions illustrées « Partager → Sur l'écran d'accueil » sur iOS ; affichage après un 1er passage réussi, refus mémorisé.
-- [ ] **8.4** Indicateur hors-ligne discret et données de cartes « dernière mise à jour à… ».
+- [x] **8.1** `app/manifest.ts` (nom, icônes 192/512 + maskable, `theme_color`, `display: standalone`, `start_url`), icônes Apple et splash screens *(assets issus de la DA, étape DA.7)*.
+- [x] **8.2** Service worker **maison** (ADR-025, à la place de Serwist) : seuls `/offline.html` (QR et code de secours) et `/_next/static/*` sont en cache ; tout le reste passe par le réseau. *Livré avec le lot 8 de la Session 32.*
+- [x] **8.3** Bannière d'installation : `beforeinstallprompt` sur Android ; instructions illustrées « Partager → Sur l'écran d'accueil » sur iOS ; étapes du menu ⋮ de Chrome sur Android quand l'invite n'est pas fournie ; affichage après un 1er passage réussi, fermeture pour la session de navigateur seulement (une app désinstallée se voit proposer à nouveau l'installation). *Livré en Sessions 34 et 36 ; à essayer sur téléphone.*
+- [x] **8.4** Indicateur hors-ligne discret et données de cartes « dernière mise à jour à… ». *Livré en Session 34 ; à essayer sur téléphone.*
 
 ### ✅ Tests de validation
-- [ ] Lighthouse : critères PWA installable remplis.
-- [ ] Mode avion après une 1re visite ⇒ le QR s'affiche instantanément et reste scannable.
-- [ ] Installation testée sur iOS Safari et Android Chrome ; ouverture en plein écran.
-- [ ] Nouvelle version déployée ⇒ l'app installée se met à jour sans bloquer l'utilisateur sur une ancienne version.
+- [x] Lighthouse : critères PWA installable remplis. *(validé par le porteur de projet le 2026-11-11)*
+- [x] Mode avion après une 1re visite ⇒ le QR s'affiche instantanément et reste scannable. *(validé par le porteur de projet le 2026-11-11, Android)*
+- [ ] Installation testée sur iOS Safari et Android Chrome ; ouverture en plein écran. *(Android Chrome validé le 2026-11-11 ; iOS Safari à faire : pas d'iPhone disponible)*
+- [ ] Nouvelle version déployée ⇒ l'app installée se met à jour sans bloquer l'utilisateur sur une ancienne version. *(à tester plus tard : demande deux déploiements successifs)*
 
 ### ⚠️ Points de vigilance
 - **Cache de service worker obsolète** = bugs fantômes après déploiement : versionner, prévoir un mécanisme de mise à jour.

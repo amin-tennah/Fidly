@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { BrandLogo } from "@/components/shared/brand-logo";
+import { ScreenTitle } from "@/components/shared/screen-title";
 import {
   GoogleSignInButton,
   LOGIN_ERROR_PARAM,
+  LoginStepsBand,
   NEXT_PARAM,
   OtpLoginForm,
   sanitizeNextPath,
@@ -24,22 +26,6 @@ function firstParam(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
 }
 
-function LoginHero(): ReactNode {
-  return (
-    <div className="mb-6 space-y-1 text-center">
-      <span className="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
-        Rézone · Zéro Friction
-      </span>
-      <h1 className="text-foreground text-2xl font-bold tracking-tight">
-        Accédez à vos cartes de fidélité
-      </h1>
-      <p className="text-muted-foreground text-sm">
-        Connectez-vous en 1 tap avec Google ou avec un code reçu par email.
-      </p>
-    </div>
-  );
-}
-
 export default async function LoginPage({
   searchParams,
 }: LoginPageProps): Promise<ReactNode> {
@@ -48,28 +34,22 @@ export default async function LoginPage({
   const hasError = Boolean(firstParam(params[LOGIN_ERROR_PARAM]));
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center px-4 py-8">
-      <LoginHero />
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base">Connexion rapide</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-5">
-          {hasError ? (
-            <p role="alert" className="text-destructive text-xs font-medium">
-              La connexion a échoué ou a été annulée. Veuillez réessayer.
-            </p>
-          ) : null}
-          <GoogleSignInButton nextPath={nextPath} />
-          <div className="relative flex items-center justify-center">
-            <span className="border-border w-full border-t" />
-            <span className="bg-card text-muted-foreground relative px-3 text-xs uppercase">
-              ou par email
-            </span>
-          </div>
-          <OtpLoginForm nextPath={nextPath} />
-        </CardContent>
-      </Card>
-    </main>
+    <div className="bg-background">
+      <main className="pt-safe-14 pb-safe-7 mx-auto flex min-h-dvh w-full max-w-md flex-col gap-[22px] px-6">
+        <BrandLogo tone="forest" width={230} className="mx-auto" />
+        <LoginStepsBand />
+        <ScreenTitle>Connecte-toi pour retrouver ta carte</ScreenTitle>
+        {hasError ? (
+          <p role="alert" className="text-destructive text-sm font-medium">
+            La connexion a échoué ou a été annulée. Réessaie.
+          </p>
+        ) : null}
+        <GoogleSignInButton nextPath={nextPath} />
+        <OtpLoginForm nextPath={nextPath} />
+        <p className="text-muted-foreground mt-auto pt-4 text-center text-[13px]">
+          Pas de mot de passe, pas d&apos;appli à télécharger.
+        </p>
+      </main>
+    </div>
   );
 }

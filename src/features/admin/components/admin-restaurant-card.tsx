@@ -31,7 +31,7 @@ function OwnershipLines({
       {pendingInvitations.map((invitation) => (
         <p
           key={`${invitation.email}-${invitation.expiresAt}`}
-          className="text-muted-foreground text-xs"
+          className="text-muted-foreground text-[13px]"
         >
           Invitation en attente : {invitation.email} (jusqu&apos;au{" "}
           {formatShortDate(invitation.expiresAt)})
@@ -50,8 +50,8 @@ export function AdminRestaurantCard({
   return (
     <Card>
       <div className="space-y-0.5">
-        <h3 className="text-base font-semibold">{restaurant.name}</h3>
-        <p className="text-muted-foreground text-xs">
+        <h3 className="text-base font-extrabold">{restaurant.name}</h3>
+        <p className="text-muted-foreground text-[13px]">
           {restaurant.categoryLabel} ·{" "}
           <span className="font-mono">{restaurant.slug}</span>
         </p>

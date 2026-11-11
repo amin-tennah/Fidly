@@ -1,7 +1,7 @@
 "use client";
 
 import { QRCodeSVG } from "qrcode.react";
-import type { ReactNode } from "react";
+import { type ReactNode, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { type StoredIdentity, usePersistIdentity } from "@/features/auth";
 import {
@@ -18,12 +18,18 @@ export interface CustomerQrHeroProps {
 
 /** Personal QR (opaque `qr_token`, ADR-005/013) with the backup short code below. */
 export function CustomerQrHero({ identity }: CustomerQrHeroProps): ReactNode {
-  usePersistIdentity(identity);
+  const qrRef = useRef<HTMLDivElement>(null);
+  usePersistIdentity(identity, qrRef);
 
   return (
-    <Card aria-label="Votre QR code personnel" className="items-center">
+    <Card
+      aria-label="Ton QR code personnel"
+      className="rounded-panel items-center border-0 shadow-lg"
+    >
       <CardContent className="flex w-full flex-col items-center gap-4">
+        <p className="font-display text-xl font-extrabold">Montre-le en caisse</p>
         <div
+          ref={qrRef}
           role="img"
           aria-label="QR code personnel à présenter en caisse"
           className="rounded-xl bg-white p-1 shadow-xs ring-1 ring-black/5"
@@ -38,10 +44,10 @@ export function CustomerQrHero({ identity }: CustomerQrHeroProps): ReactNode {
           />
         </div>
         <div className="space-y-1 text-center">
-          <p className="text-muted-foreground text-xs">
+          <p className="text-muted-foreground text-sm">
             Code de secours si le QR est illisible
           </p>
-          <p className="text-foreground font-mono text-xl font-bold tracking-widest">
+          <p className="text-foreground font-mono text-xl font-bold tracking-widest select-text">
             {formatShortCode(identity.shortCode)}
           </p>
         </div>

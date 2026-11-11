@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Rézone — animation de récompense</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&amp;family=Plus+Jakarta+Sans:wght@400;600;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+@keyframes ovl{0%{opacity:0}9%{opacity:1}84%{opacity:1}100%{opacity:0}}
+@keyframes ovlStay{0%{opacity:0}9%{opacity:1}100%{opacity:1}}
+@keyframes thump{0%{transform:scale(2.6) rotate(-35deg);opacity:0}45%{opacity:1}100%{transform:scale(1) rotate(-12deg);opacity:1}}
+@keyframes ripple{0%{transform:scale(.7);opacity:.9}100%{transform:scale(2.4);opacity:0}}
+@keyframes fadeup{0%{transform:translateY(14px);opacity:0}100%{transform:translateY(0);opacity:1}}
+@keyframes winIn{0%{transform:scale(.4);opacity:0}100%{transform:scale(1);opacity:1}}
+@keyframes tickPop{0%{opacity:0;transform:scaleY(.15) translateY(16px);filter:brightness(1.6)}1%{opacity:1}55%{transform:scaleY(1.4) translateY(-5px);filter:brightness(1.5)}100%{opacity:1;transform:none;filter:none}}
+@keyframes outAt{to{opacity:0;transform:translateY(-14px)}}
+@keyframes inAt{0%{opacity:0;transform:scale(.6)}60%{opacity:1;transform:scale(1.28)}100%{opacity:1;transform:scale(1)}}
+@keyframes plusUp{0%{transform:translateY(12px) scale(.6) rotate(6deg);opacity:0}25%{transform:translateY(-6px) scale(1.2) rotate(6deg);opacity:1}100%{transform:translateY(-50px) scale(1) rotate(6deg);opacity:0}}
+@keyframes fall{0%{transform:translateY(-30px) rotate(0)}100%{transform:translateY(840px) rotate(var(--r))}}
+@keyframes pieceBurst{0%{transform:translate(0,0) rotate(0) scale(.4);opacity:0}8%{opacity:1}45%{transform:translate(var(--dx),var(--dy)) rotate(var(--r)) scale(1)}100%{transform:translate(calc(var(--dx) * 1.15),calc(var(--dy) + var(--fall))) rotate(calc(var(--r) * 2)) scale(.9);opacity:0}}
+@keyframes flyTick{0%{transform:scale(.2);opacity:0}22%{transform:scale(1.15);opacity:1}36%{transform:scale(1)}58%{transform:translate(0,0) scale(1)}100%{transform:translate(15.5px,110px) scale(.233,.229);opacity:1}}
+@keyframes glow{0%,100%{box-shadow:0 0 0 0 rgba(180,169,255,.0)}40%{box-shadow:0 0 70px 24px rgba(180,169,255,.55)}}
+@keyframes cardIn{0%{transform:scale(.6) rotate(-4deg);opacity:0}20%{transform:scale(1.04) rotate(0);opacity:1}28%{transform:scale(1)}80%{transform:scale(1);opacity:1}100%{transform:scale(.92) translateY(40px);opacity:0}}
+@keyframes rollOut{to{transform:translateY(-100%);opacity:0}}
+@keyframes rollIn{0%{transform:translateY(100%);opacity:0}100%{transform:translateY(0);opacity:1}}
+@keyframes giftDrop{0%{transform:translateY(-420px) rotate(-8deg);opacity:0}30%{opacity:1}55%{transform:translateY(0) rotate(0)}68%{transform:translateY(-26px)}80%{transform:translateY(0)}100%{transform:translateY(0)}}
+@keyframes shake{0%,100%{transform:rotate(0)}20%{transform:rotate(-7deg)}40%{transform:rotate(7deg)}60%{transform:rotate(-5deg)}80%{transform:rotate(4deg)}}
+@keyframes lidOff{0%{transform:translateY(0) rotate(0)}100%{transform:translateY(-84px) rotate(-22deg)}}
+@keyframes rays{0%{opacity:0;transform:rotate(0) scale(.5)}20%{opacity:.55}100%{opacity:.4;transform:rotate(60deg) scale(1.1)}}
+.phone{position:relative;width:375px;height:780px;background:#FFFFFF;border-radius:28px;box-shadow:0 0 0 2px #D8D2C4;overflow:hidden}
+@media (prefers-reduced-motion: reduce){*{animation-duration:.01ms !important;animation-delay:0s !important}}
+</style>
+</helmet>
+<div style="width: 2120px; height: 1180px; box-sizing: border-box; padding: 28px 40px; background: #F3F1EC; font-family: 'Plus Jakarta Sans', sans-serif; color: #0E1F17; display: flex; flex-direction: column; gap: 14px">
+
+  <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap">
+    <button type="button" onClick="{{rAll}}" style="height: 52px; padding: 0 22px; border: 0; border-radius: 14px; background: #0A5C3A; color: #FFF4E6; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 18px; cursor: pointer">Tout rejouer</button>
+    <button type="button" onClick="{{rA}}" style="height: 52px; padding: 0 18px; border: 2px solid #0A5C3A; border-radius: 14px; background: #FFFFFF; color: #0A5C3A; font-weight: 800; font-size: 15px; cursor: pointer">Rejouer A</button>
+    <button type="button" onClick="{{rB}}" style="height: 52px; padding: 0 18px; border: 2px solid #0A5C3A; border-radius: 14px; background: #FFFFFF; color: #0A5C3A; font-weight: 800; font-size: 15px; cursor: pointer">Rejouer B</button>
+    <button type="button" onClick="{{rC}}" style="height: 52px; padding: 0 18px; border: 2px solid #0A5C3A; border-radius: 14px; background: #FFFFFF; color: #0A5C3A; font-weight: 800; font-size: 15px; cursor: pointer">Rejouer C</button>
+    <button type="button" onClick="{{rD}}" style="height: 52px; padding: 0 18px; border: 2px solid #0A5C3A; border-radius: 14px; background: #FFFFFF; color: #0A5C3A; font-weight: 800; font-size: 15px; cursor: pointer">Rejouer D</button>
+    <button type="button" onClick="{{rE}}" style="height: 52px; padding: 0 18px; border: 2px solid #0A5C3A; border-radius: 14px; background: #FFFFFF; color: #0A5C3A; font-weight: 800; font-size: 15px; cursor: pointer">Rejouer E (récompense)</button>
+    <div style="font-size: 14px; color: #3D3D3D">Le client est sur son QR, le commerçant le scanne : le téléphone du client reçoit le passage et joue l'animation. A à D : un passage ordinaire (5 → 6 sur 10). E : le palier est atteint (9 → 10 sur 10).</div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(5, 375px); gap: 40px; align-items: start">
+    <sc-for list="{{phones}}" as="p" hint-placeholder-count="5">
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <div style="font-size: 16px; font-weight: 800">{{p.label}}</div>
+        <div style="font-size: 13px; color: #4A5A52; line-height: 1.45; min-height: 56px">{{p.desc}}</div>
+
+        <div class="phone">
+          <!-- fond : accueil client -->
+          <div style="position: absolute; left: 0; right: 0; top: 0; height: 150px; background: #0A5C3A; border-radius: 0 0 28px 28px; box-sizing: border-box; padding: 22px 20px; color: #FFF4E6">
+            <div style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 24px; letter-spacing: -0.04em">rézone</div>
+            <div style="margin-top: 10px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 30px; letter-spacing: -0.02em">Salut Client</div>
+          </div>
+          <div style="position: absolute; left: 20px; right: 20px; top: 110px; height: 250px; background: #FFFFFF; border-radius: 24px; box-shadow: 0 10px 24px rgba(14,31,23,0.12); display: flex; flex-direction: column; align-items: center; gap: 12px; padding-top: 18px; box-sizing: border-box">
+            <div style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 20px">Montre-le en caisse</div>
+            <div style="width: 124px; height: 124px; position: relative; border: 1px solid #E3ECE7; border-radius: 14px; box-sizing: border-box">
+              <div style="position: absolute; left: 12px; top: 12px; width: 30px; height: 30px; border: 6px solid #000; box-sizing: border-box"></div>
+              <div style="position: absolute; right: 12px; top: 12px; width: 30px; height: 30px; border: 6px solid #000; box-sizing: border-box"></div>
+              <div style="position: absolute; left: 12px; bottom: 12px; width: 30px; height: 30px; border: 6px solid #000; box-sizing: border-box"></div>
+              <div style="position: absolute; right: 16px; bottom: 16px; width: 34px; height: 34px; background: repeating-linear-gradient(90deg, #000 0 6px, #fff 6px 12px)"></div>
+            </div>
+            <div style="font-size: 12px; color: #4A5A52">Code de secours si le QR est illisible</div>
+            <div style="font-family: monospace; font-weight: 700; font-size: 18px; letter-spacing: 0.12em">BKR HPH</div>
+          </div>
+          <div style="position: absolute; left: 20px; right: 20px; top: 384px; display: flex; justify-content: space-between; align-items: baseline">
+            <div style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 21px">Mes cartes</div>
+            <div style="font-size: 13px; font-weight: 800; color: #0A5C3A">2 commerces</div>
+          </div>
+          <div style="position: absolute; left: 20px; right: 20px; top: 424px; height: 112px; border: 2px solid #D5E2DA; border-radius: 20px; box-sizing: border-box; padding: 12px; background: #FFFFFF">
+            <div style="display: flex; align-items: center; gap: 12px; height: 44px">
+              <div style="width: 44px; height: 44px; border-radius: 12px; background: #EEF4F0; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 18px">N</div>
+              <div style="flex-grow: 1; display: flex; flex-direction: column"><div style="font-size: 16px; font-weight: 800">NouilleAtomique</div><div style="font-size: 13px; color: #4A5A52">Nouilles</div></div>
+              <div style="display: flex; align-items: baseline; gap: 4px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800">
+                <div style="position: relative; width: 26px; height: 28px; font-size: 22px; text-align: right">
+                  <sc-if value="{{p.idle}}" hint-placeholder-val="{{ true }}"><span style="position: absolute; right: 0; top: 0">{{p.c0}}</span></sc-if>
+                  <sc-if value="{{p.done}}" hint-placeholder-val="{{ false }}"><span style="position: absolute; right: 0; top: 0">{{p.c1}}</span></sc-if>
+                  <sc-if value="{{p.playing}}" hint-placeholder-val="{{ false }}">
+                    <span style="position: absolute; right: 0; top: 0; animation: outAt .2s ease forwards; animation-delay: {{p.td}}">{{p.c0}}</span>
+                    <span style="position: absolute; right: 0; top: 0; animation: inAt .45s cubic-bezier(.2,1.7,.4,1) both; animation-delay: {{p.td}}">{{p.c1}}</span>
+                  </sc-if>
+                </div>
+                <div style="font-size: 14px; color: #4A5A52">/ 10</div>
+              </div>
+            </div>
+            <div style="display: flex; gap: 3px; margin-top: 10px">
+              <sc-for list="{{p.ticks}}" as="s" hint-placeholder-count="10">
+                <div style="width: 28px; height: 16px; border-radius: 5px; box-sizing: border-box; background: {{s.bg}}; display: flex; align-items: center; justify-content: center; animation: {{s.anim}}">
+                  <sc-if value="{{s.gift}}" hint-placeholder-val="{{ false }}">
+                    <svg aria-hidden="true" viewBox="0 0 24 24" style="width: 12px; height: 12px"><rect x="3.5" y="9" width="17" height="11" rx="2" fill="none" stroke="{{s.giftInk}}" stroke-width="2.6"></rect><path d="M12 9v11M3.5 13h17M12 9c-3 0-5-4-2-4 2 0 2 4 2 4zm0 0c3 0 5-4 2-4-2 0-2 4-2 4z" fill="none" stroke="{{s.giftInk}}" stroke-width="2.4" stroke-linejoin="round"></path></svg>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <sc-if value="{{p.showPlus}}" hint-placeholder-val="{{ false }}">
+            <div style="position: absolute; right: 78px; top: 432px; background: #B4A9FF; color: #0E1F17; border-radius: 999px; padding: 3px 10px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 18px; animation: plusUp 1s ease-out both; animation-delay: {{p.td}}">+1</div>
+          </sc-if>
+          <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 64px; background: #FFFFFF; border-top: 2px solid #E3ECE7; display: grid; grid-template-columns: repeat(3, 1fr); align-items: center; text-align: center; font-size: 12px; font-weight: 800; color: #4A5A52"><div style="color: #0A5C3A">Mes cartes</div><div>Découvrir</div><div>Profil</div></div>
+
+          <!-- A · tampon géant -->
+          <sc-if value="{{p.showA}}" hint-placeholder-val="{{ false }}">
+            <div style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; background: rgba(14,31,23,0.66); animation: ovl 3.1s ease both; pointer-events: none">
+              <div style="position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-58%); display: flex; flex-direction: column; align-items: center; gap: 14px">
+                <div style="position: relative; width: 200px; height: 200px">
+                  <div style="position: absolute; left: 0; top: 0; width: 200px; height: 200px; border-radius: 999px; border: 5px solid #C8F25A; animation: ripple .7s ease-out .5s both"></div>
+                  <svg aria-hidden="true" viewBox="0 0 40 40" style="position: absolute; left: 0; top: 0; width: 200px; height: 200px; animation: thump .5s cubic-bezier(.2,1.7,.4,1) .15s both"><circle cx="20" cy="20" r="19.5" fill="#C8F25A"></circle><circle cx="20" cy="20" r="15" fill="none" stroke="#0A5C3A" stroke-width="1.8" stroke-dasharray="3 2.4"></circle><path d="M12.5 20.5l5.2 5.2 9.8-10.5" fill="none" stroke="#0A5C3A" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                </div>
+                <div style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 34px; color: #FFF4E6; animation: fadeup .45s ease-out .75s both">Tampon ajouté !</div>
+                <div style="font-size: 17px; font-weight: 600; color: #FFF4E6; animation: fadeup .45s ease-out .9s both">NouilleAtomique · 6 sur 10</div>
+              </div>
+            </div>
+          </sc-if>
+
+          <!-- B · bulle +1 et confettis -->
+          <sc-if value="{{p.showB}}" hint-placeholder-val="{{ false }}">
+            <div style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; background: rgba(14,31,23,0.4); animation: ovl 3.1s ease both; pointer-events: none; overflow: hidden">
+              <sc-for list="{{p.pieces}}" as="q" hint-placeholder-count="30"><div style="position: absolute; {{q.style}}"></div></sc-for>
+              <div style="position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-58%); display: flex; flex-direction: column; align-items: center; gap: 16px">
+                <div style="width: 190px; height: 190px; border-radius: 999px; background: #B4A9FF; color: #0E1F17; display: flex; align-items: center; justify-content: center; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 96px; letter-spacing: -0.04em; animation: winIn .55s cubic-bezier(.2,1.7,.4,1) .2s both, glow 1.4s ease-out .5s both">+1</div>
+                <div style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 30px; color: #FFF4E6; animation: fadeup .45s ease-out .8s both">6 / 10</div>
+                <div style="font-size: 17px; font-weight: 600; color: #FFF4E6; animation: fadeup .45s ease-out .95s both">NouilleAtomique</div>
+              </div>
+            </div>
+          </sc-if>
+
+          <!-- C · le trait voyage -->
+          <sc-if value="{{p.showC}}" hint-placeholder-val="{{ false }}">
+            <div style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; background: rgba(14,31,23,0.6); animation: ovl 2.2s ease both; pointer-events: none">
+              <div style="position: absolute; left: calc(50% - 60px); top: calc(50% - 35px); width: 120px; height: 70px; border-radius: 22px; background: #5B47FF; border: 4px solid #B4A9FF; box-sizing: border-box; animation: flyTick 1.5s cubic-bezier(.5,.1,.3,1) .1s both, glow 1s ease-out .3s both"></div>
+              <div style="position: absolute; left: 0; right: 0; top: calc(50% + 62px); text-align: center; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 30px; color: #FFF4E6; animation: fadeup .4s ease-out .3s both, outAt .25s ease 1.0s forwards">Un passage de plus</div>
+            </div>
+          </sc-if>
+
+          <!-- D · carte dévoilée -->
+          <sc-if value="{{p.showD}}" hint-placeholder-val="{{ false }}">
+            <div style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; background: rgba(14,31,23,0.62); animation: ovl 3.4s ease both; pointer-events: none">
+              <div style="position: absolute; left: 37px; right: 37px; top: calc(50% - 150px); background: #0A5C3A; color: #FFF4E6; border-radius: 28px; padding: 22px 20px; box-sizing: border-box; box-shadow: 0 24px 48px rgba(0,0,0,0.35); animation: cardIn 3.2s ease both">
+                <div style="display: flex; align-items: center; gap: 12px">
+                  <div style="width: 48px; height: 48px; border-radius: 14px; background: #FFF4E6; color: #0E1F17; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 20px">N</div>
+                  <div style="display: flex; flex-direction: column"><div style="font-size: 17px; font-weight: 800">NouilleAtomique</div><div style="font-size: 13px; opacity: 0.92">Palier 1 · menu offert à 10</div></div>
+                </div>
+                <div style="position: relative; display: flex; align-items: baseline; gap: 8px; margin-top: 14px; height: 92px; overflow: hidden">
+                  <div style="position: relative; width: 62px; height: 92px">
+                    <div style="position: absolute; left: 0; top: 0; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 92px; line-height: 0.95; letter-spacing: -0.04em; color: #B4A9FF; animation: rollOut .3s ease .85s forwards">5</div>
+                    <div style="position: absolute; left: 0; top: 0; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 92px; line-height: 0.95; letter-spacing: -0.04em; color: #B4A9FF; animation: rollIn .4s cubic-bezier(.2,1.5,.4,1) .9s both">6</div>
+                  </div>
+                  <div style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 32px; opacity: 0.8">/ 10</div>
+                </div>
+                <div style="display: flex; gap: 4px; margin-top: 14px">
+                  <sc-for list="{{p.bigTicks}}" as="s" hint-placeholder-count="10"><div style="flex: 1; height: 22px; border-radius: 7px; box-sizing: border-box; background: {{s.bg}}; border: 2px solid {{s.border}}; animation: {{s.anim}}"></div></sc-for>
+                </div>
+                <div style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 20px; line-height: 1.15; margin-top: 14px">Plus que 4 passages avant ton menu offert</div>
+              </div>
+              <div style="position: absolute; left: 50%; top: calc(50% - 30px); width: 0; height: 0">
+                <sc-for list="{{p.pieces}}" as="q" hint-placeholder-count="12"><div style="position: absolute; {{q.style}}"></div></sc-for>
+              </div>
+            </div>
+          </sc-if>
+
+          <!-- E · récompense gagnée -->
+          <sc-if value="{{p.showE}}" hint-placeholder-val="{{ false }}">
+            <div style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; background: rgba(14,31,23,0.78); animation: ovlStay .4s ease both; pointer-events: none; overflow: hidden">
+              <div style="position: absolute; left: calc(50% - 260px); top: calc(40% - 260px); width: 520px; height: 520px; border-radius: 999px; background: repeating-conic-gradient(from 0deg, rgba(200,242,90,0.55) 0 8deg, rgba(200,242,90,0) 8deg 24deg); -webkit-mask-image: radial-gradient(circle, #000 20%, transparent 68%); mask-image: radial-gradient(circle, #000 20%, transparent 68%); animation: rays 3s ease-out 1.1s both"></div>
+              <div style="position: absolute; left: 50%; top: 40%; width: 0; height: 0">
+                <sc-for list="{{p.pieces}}" as="q" hint-placeholder-count="36"><div style="position: absolute; {{q.style}}"></div></sc-for>
+              </div>
+              <div style="position: absolute; left: calc(50% - 90px); top: calc(40% - 90px); width: 180px; height: 180px; animation: giftDrop 1.1s cubic-bezier(.3,.1,.3,1) .1s both">
+                <div style="width: 180px; height: 180px; animation: shake .7s ease .9s both">
+                  <svg aria-hidden="true" viewBox="0 0 120 120" style="width: 180px; height: 180px; overflow: visible">
+                    <rect x="20" y="58" width="80" height="48" rx="8" fill="#C8F25A"></rect>
+                    <rect x="54" y="58" width="12" height="48" fill="#0A5C3A"></rect>
+                    <g style="animation: lidOff .55s cubic-bezier(.2,1.2,.4,1) 1.5s both; transform-origin: 60px 48px">
+                      <rect x="14" y="40" width="92" height="20" rx="6" fill="#DDF98E"></rect>
+                      <rect x="54" y="40" width="12" height="20" fill="#0A5C3A"></rect>
+                      <path d="M60 40C48 40 38 30 44 24C50 18 60 30 60 40ZM60 40C72 40 82 30 76 24C70 18 60 30 60 40Z" fill="none" stroke="#0A5C3A" stroke-width="5" stroke-linejoin="round"></path>
+                    </g>
+                  </svg>
+                </div>
+              </div>
+              <div style="position: absolute; left: 0; right: 0; top: calc(40% + 110px); display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; padding: 0 24px; box-sizing: border-box">
+                <div style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 44px; line-height: 1; color: #C8F25A; animation: winIn .5s cubic-bezier(.2,1.7,.4,1) 1.7s both">C'est gagné !</div>
+                <div style="font-size: 18px; font-weight: 600; color: #FFF4E6; animation: fadeup .45s ease-out 1.95s both">Menu offert chez NouilleAtomique</div>
+                <div style="margin-top: 10px; height: 56px; padding: 0 26px; border-radius: 16px; background: #C8F25A; color: #0A5C3A; display: flex; align-items: center; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 19px; animation: fadeup .45s ease-out 2.3s both">Le montrer en caisse</div>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":2120,"height":1180}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { st: { A: 0, B: 0, C: 0, D: 0, E: 0 } };
+    this.timers = {};
+  }
+  componentWillUnmount() { var t = this.timers; Object.keys(t).forEach(function (k) { clearTimeout(t[k]); }); }
+  play(k) {
+    var self = this;
+    var ms = { A: 3300, B: 3300, C: 2400, D: 3500 }[k];
+    clearTimeout(this.timers[k]);
+    var s0 = Object.assign({}, this.state.st); s0[k] = 0;
+    this.setState({ st: s0 }, function () {
+      var s1 = Object.assign({}, self.state.st); s1[k] = 1;
+      self.setState({ st: s1 });
+      if (ms) {
+        self.timers[k] = setTimeout(function () {
+          var s2 = Object.assign({}, self.state.st); s2[k] = 2;
+          self.setState({ st: s2 });
+        }, ms);
+      }
+    });
+  }
+  renderVals() {
+    var self = this;
+    var st = this.state.st;
+    function rnd(i) { var x = Math.sin(i * 12.9898 + 7.233) * 43758.5453; return x - Math.floor(x); }
+    var HUE = '#5B47FF', EMPTY = '#E1ECE5';
+    var cols = ['#B4A9FF', '#C8F25A', '#FFF4E6', '#5B47FF', '#FFD23F'];
+
+    function rain(n) {
+      var out = [];
+      for (var i = 0; i < n; i++) {
+        var w = 8 + Math.round(rnd(i + 1) * 6), h = 10 + Math.round(rnd(i + 40) * 10);
+        out.push({ style: 'left:' + Math.round(rnd(i + 80) * 100) + '%;top:-16px;width:' + w + 'px;height:' + h + 'px;background:' + cols[i % cols.length] + ';border-radius:' + (i % 3 === 0 ? '999px' : '2px') + ';--r:' + Math.round(300 + rnd(i + 120) * 700) + 'deg;animation:fall ' + (1.7 + rnd(i + 160) * 1.1).toFixed(2) + 's ease-in ' + (0.35 + rnd(i + 200) * 0.7).toFixed(2) + 's both' });
+      }
+      return out;
+    }
+    function burst(n, spread, rise, delay, fall) {
+      var out = [];
+      for (var i = 0; i < n; i++) {
+        var a = (i / n) * Math.PI * 2 + rnd(i + 3) * 0.5;
+        var d = spread * (0.6 + rnd(i + 9) * 0.5);
+        out.push({ style: 'left:0;top:0;width:' + (9 + (i % 3) * 3) + 'px;height:' + (9 + (i % 2) * 5) + 'px;background:' + cols[i % cols.length] + ';border-radius:' + (i % 3 === 0 ? '999px' : '3px') + ';--dx:' + Math.round(Math.cos(a) * d) + 'px;--dy:' + Math.round(Math.sin(a) * d - rise) + 'px;--r:' + Math.round(200 + rnd(i + 30) * 400) + 'deg;--fall:' + fall + 'px;animation:pieceBurst ' + (1.5 + rnd(i + 50) * 0.5).toFixed(2) + 's ease-out ' + (delay + rnd(i + 70) * 0.15).toFixed(2) + 's both' });
+      }
+      return out;
+    }
+    function ticks(base, newIdx, state, td) {
+      var out = [];
+      for (var i = 0; i < 10; i++) {
+        var filled = i < base || (state === 2 && i <= newIdx);
+        var isNew = state === 1 && i === newIdx;
+        var gift = i === 9;
+        var bg = filled || isNew ? HUE : EMPTY;
+        out.push({ bg: bg, anim: isNew ? 'tickPop .65s cubic-bezier(.2,1.7,.4,1) ' + td + ' both' : 'none', gift: gift, giftInk: (filled || isNew) ? '#FFF4E6' : HUE });
+      }
+      return out;
+    }
+    function bigTicks(td) {
+      var out = [];
+      for (var i = 0; i < 10; i++) {
+        var on = i < 5, isNew = i === 5;
+        out.push({ bg: (on || isNew) ? '#B4A9FF' : 'transparent', border: (on || isNew) ? '#B4A9FF' : 'rgba(255,244,230,0.45)', anim: isNew ? 'tickPop .65s cubic-bezier(.2,1.7,.4,1) 0.9s both' : 'none' });
+      }
+      return out;
+    }
+    var defs = [
+      { k: 'A', label: 'A · Tampon géant', desc: 'Le tampon de la marque claque au centre avec une onde. Le plus « Rézone » : on vient littéralement d\'être tamponné. Environ 2,2 s.', td: '2.1s', newIdx: 5, plus: true, pieces: [] },
+      { k: 'B', label: 'B · Bulle +1 et confettis', desc: 'Grosse bulle « +1 » qui rebondit sous une pluie de confettis aux couleurs de la carte. Le plus festif, un peu chargé si on scanne souvent.', td: '2.1s', newIdx: 5, plus: true, pieces: rain(30) },
+      { k: 'C', label: 'C · Le trait voyage', desc: 'Un trait géant apparaît puis vole se loger dans sa case de la carte. Le plus lisible : on voit exactement ce qu\'on gagne. Le plus technique à coder.', td: '1.5s', newIdx: 5, plus: true, pieces: [] },
+      { k: 'D', label: 'D · Carte dévoilée', desc: 'La carte du commerce s\'affiche au centre, le chiffre passe de 5 à 6 en roulant, le trait se remplit. Le plus informatif, un peu plus long.', td: '2.4s', newIdx: 5, plus: true, pieces: burst(12, 130, 30, 1.0, 140) },
+      { k: 'E', label: 'E · Palier atteint (récompense)', desc: 'Le cadeau tombe, tremble, s\'ouvre. « C\'est gagné ! » reste affiché jusqu\'au toucher, avec le bouton pour le montrer en caisse.', td: '9s', newIdx: 9, plus: false, pieces: burst(36, 230, 90, 1.5, 420) }
+    ];
+    var phones = defs.map(function (d) {
+      var s = st[d.k];
+      var base = d.newIdx;
+      return {
+        label: d.label, desc: d.desc,
+        idle: s === 0, playing: s === 1, done: s === 2,
+        c0: base, c1: base + 1, td: d.td,
+        ticks: ticks(base, d.newIdx, s, d.td),
+        bigTicks: d.k === 'D' ? bigTicks() : [],
+        pieces: d.pieces,
+        showPlus: s === 1 && d.plus,
+        showA: s === 1 && d.k === 'A', showB: s === 1 && d.k === 'B', showC: s === 1 && d.k === 'C', showD: s === 1 && d.k === 'D', showE: s === 1 && d.k === 'E'
+      };
+    });
+    return {
+      phones: phones,
+      rA: function () { self.play('A'); }, rB: function () { self.play('B'); }, rC: function () { self.play('C'); }, rD: function () { self.play('D'); }, rE: function () { self.play('E'); },
+      rAll: function () { ['A', 'B', 'C', 'D', 'E'].forEach(function (k) { self.play(k); }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

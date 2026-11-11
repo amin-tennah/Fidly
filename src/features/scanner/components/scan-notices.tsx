@@ -1,3 +1,4 @@
+import { CircleX } from "lucide-react";
 import type { ReactNode } from "react";
 import type { ScanFlowState } from "@/features/scanner/domain/scan-flow-reducer";
 
@@ -24,7 +25,11 @@ export function ScanNotices({ state, cameraError }: ScanNoticesProps): ReactNode
   }
   if (state.step === "idle" && state.notice) {
     return (
-      <p role="status" className="bg-secondary rounded-lg p-3 text-sm font-medium">
+      <p
+        role="status"
+        className="bg-foreground text-background flex items-center gap-2 rounded-xl p-3 text-sm font-semibold"
+      >
+        <CircleX className="size-5 shrink-0" aria-hidden="true" />
         {state.notice}
       </p>
     );

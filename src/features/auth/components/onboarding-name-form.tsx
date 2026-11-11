@@ -46,13 +46,16 @@ function DisplayNameField({
         name="displayName"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Prénom ou pseudonyme</FormLabel>
+            <FormLabel className="font-display text-[15px] font-bold">
+              Ton prénom ou pseudo
+            </FormLabel>
             <FormControl>
               <Input
                 type="text"
                 autoComplete="given-name"
                 maxLength={DISPLAY_NAME_MAX_LENGTH}
                 placeholder="Ex. Camille"
+                className="min-h-14 rounded-2xl bg-white"
                 disabled={isPending}
                 {...field}
               />
@@ -62,7 +65,7 @@ function DisplayNameField({
         )}
       />
       {errorMessage ? (
-        <p role="alert" className="text-destructive text-xs font-medium">
+        <p role="alert" className="text-destructive text-sm font-medium">
           {errorMessage}
         </p>
       ) : null}

@@ -1,11 +1,11 @@
+import { Check } from "lucide-react";
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
-import { CustomerProgress } from "@/features/scanner/components/customer-progress";
 import type { DoneKind, ScanOutcome } from "@/features/scanner/types";
 
 const SUCCESS_TITLES: Record<DoneKind, string> = {
-  visit: "Passage validé",
-  redeem: "Récompense validée",
+  visit: "Validé",
+  redeem: "Récompense remise",
   reverse: "Scan annulé",
 };
 
@@ -16,6 +16,36 @@ interface ScanSuccessProps {
   readonly error: string | null;
   readonly isReversing: boolean;
   readonly onCancel: () => void;
+  readonly onNext: () => void;
+}
+
+interface SuccessActionsProps {
+  readonly isReversing: boolean;
+  readonly onCancel: () => void;
+  readonly onNext: () => void;
+}
+
+function SuccessActions({
+  isReversing,
+  onCancel,
+  onNext,
+}: SuccessActionsProps): ReactNode {
+  return (
+    <div className="grid grid-cols-2 gap-3">
+      <Button
+        variant="outline"
+        size="lg"
+        className="border-primary text-base"
+        disabled={isReversing}
+        onClick={onCancel}
+      >
+        {isReversing ? "Annulation…" : "Annuler"}
+      </Button>
+      <Button size="lg" className="text-base" disabled={isReversing} onClick={onNext}>
+        Scanner suivant
+      </Button>
+    </div>
+  );
 }
 
 export function ScanSuccess({
@@ -25,28 +55,29 @@ export function ScanSuccess({
   error,
   isReversing,
   onCancel,
+  onNext,
 }: ScanSuccessProps): ReactNode {
   return (
-    <div className="space-y-4 p-4 pb-6">
-      <div role="status" className="space-y-1 text-center">
-        <p className="text-accent text-2xl font-bold">{SUCCESS_TITLES[kind]}</p>
-        <p className="text-muted-foreground text-sm">{customerName}</p>
+    <div className="pb-safe-8 space-y-4 px-5">
+      <div role="status" className="flex items-center gap-4">
+        <span className="bg-primary text-gain flex size-[72px] shrink-0 items-center justify-center rounded-full">
+          <Check className="size-10" strokeWidth={4} aria-hidden="true" />
+        </span>
+        <div className="min-w-0">
+          <p className="font-display text-[38px] leading-none font-extrabold tracking-[-0.02em]">
+            {SUCCESS_TITLES[kind]}
+          </p>
+          <p className="mt-1 text-base font-semibold">
+            {customerName} · passage {outcome.stamps} sur {outcome.threshold}
+          </p>
+        </div>
       </div>
-      <CustomerProgress card={outcome} />
       {error ? (
         <p role="alert" className="text-destructive text-sm">
           {error}
         </p>
       ) : null}
-      <Button
-        variant="outline"
-        size="lg"
-        className="w-full"
-        disabled={isReversing}
-        onClick={onCancel}
-      >
-        {isReversing ? "Annulation…" : "Annuler ce scan"}
-      </Button>
+      <SuccessActions isReversing={isReversing} onCancel={onCancel} onNext={onNext} />
     </div>
   );
 }

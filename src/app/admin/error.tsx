@@ -1,19 +1,18 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Button } from "@/components/ui/button";
+import { ErrorState } from "@/components/shared/error-state";
 
 interface AdminErrorProps {
-  readonly reset: () => void;
+  readonly retry: () => void;
 }
 
-export default function AdminError({ reset }: AdminErrorProps): ReactNode {
+export default function AdminError({ retry }: AdminErrorProps): ReactNode {
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col items-center justify-center gap-4 px-4 py-8 text-center">
-      <h1 className="text-lg font-semibold">Impossible de charger le back-office</h1>
-      <Button type="button" onClick={reset}>
-        Réessayer
-      </Button>
-    </main>
+    <ErrorState
+      title="Impossible de charger le back-office"
+      description="Un souci est survenu de notre côté. Réessayez dans un instant."
+      onRetry={retry}
+    />
   );
 }

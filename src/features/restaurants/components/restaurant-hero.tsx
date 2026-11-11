@@ -13,7 +13,7 @@ export interface RestaurantHeroProps {
 
 function Banner({ profile, canEdit }: RestaurantHeroProps): ReactNode {
   return (
-    <div className="relative aspect-video w-full bg-gradient-to-br from-emerald-100 to-emerald-50">
+    <div className="bg-secondary relative aspect-video w-full">
       {profile.coverUrl ? (
         <Image
           src={profile.coverUrl}
@@ -46,7 +46,7 @@ function Logo({ profile, canEdit }: RestaurantHeroProps): ReactNode {
           restaurantId={profile.id}
           kind="logo"
           label="Changer le logo"
-          className="absolute -right-1 -bottom-1 size-9"
+          className="absolute -right-1 -bottom-1 size-9 after:absolute after:-inset-1.5 after:content-['']"
         />
       ) : null}
     </div>

@@ -52,7 +52,7 @@ export function DrawerContent({
       <DrawerPrimitive.Content
         data-slot="drawer-content"
         className={cn(
-          "bg-background border-border fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col rounded-t-2xl border-t",
+          "bg-background border-border rounded-t-screen fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col border-t-2",
           className,
         )}
         {...props}
@@ -91,7 +91,7 @@ export function DrawerTitle({
   return (
     <DrawerPrimitive.Title
       data-slot="drawer-title"
-      className={cn("text-foreground font-semibold", className)}
+      className={cn("text-foreground font-display font-bold", className)}
       {...props}
     />
   );

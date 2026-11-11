@@ -1,11 +1,8 @@
 import type { ReactNode } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
+import { FormScreenSkeleton } from "@/components/shared/form-screen-skeleton";
+
+const INVITATION_CARD_HEIGHT_PX = 176;
 
 export default function InvitationLoading(): ReactNode {
-  return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center gap-4 px-4 py-8">
-      <Skeleton className="h-8 w-64" />
-      <Skeleton className="h-44 w-full rounded-xl" />
-    </main>
-  );
+  return <FormScreenSkeleton cardHeight={INVITATION_CARD_HEIGHT_PX} />;
 }

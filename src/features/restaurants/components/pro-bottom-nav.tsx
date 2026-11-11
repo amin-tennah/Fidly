@@ -24,7 +24,7 @@ export function ProBottomNav(): ReactNode {
   return (
     <nav
       aria-label="Navigation espace restaurateur"
-      className="bg-background/95 border-border fixed inset-x-0 bottom-0 z-40 border-t backdrop-blur"
+      className="bg-background border-track pb-safe-0 fixed inset-x-0 bottom-0 z-40 border-t-2"
     >
       <ul className="mx-auto flex max-w-md">
         {PRO_NAV_ITEMS.map((item) => {
@@ -36,11 +36,11 @@ export function ProBottomNav(): ReactNode {
                 href={item.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "flex min-h-14 flex-col items-center justify-center gap-0.5 text-xs font-medium",
-                  active ? "text-accent" : "text-muted-foreground",
+                  "flex h-[72px] flex-col items-center justify-center gap-1 text-xs font-extrabold",
+                  active ? "text-primary" : "text-muted-foreground",
                 )}
               >
-                <Icon className="size-5" aria-hidden="true" />
+                <Icon className="size-6" aria-hidden="true" />
                 {item.label}
               </Link>
             </li>

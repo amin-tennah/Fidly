@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
+import { Pill } from "@/components/shared/pill";
 import { RestaurantAvatar } from "@/components/shared/restaurant-avatar";
+import { ScreenTitle } from "@/components/shared/screen-title";
 import { SignOutButton, type RestaurantMembershipSummary } from "@/features/auth";
 import { RestaurantSwitcher } from "./restaurant-switcher";
 
@@ -13,12 +15,14 @@ export function ProHeader({ memberships, active, logoUrl }: ProHeaderProps): Rea
   const roleLabel = active.role === "owner" ? "Gérant" : "Équipier";
 
   return (
-    <header className="space-y-2">
+    <header className="space-y-3">
       <div className="flex items-center justify-between gap-2">
-        <span className="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
-          Espace Pro · {roleLabel}
-        </span>
-        <SignOutButton variant="ghost" size="sm" />
+        <Pill>Espace Pro · {roleLabel}</Pill>
+        <SignOutButton
+          variant="ghost"
+          size="sm"
+          className="min-h-12 text-sm font-extrabold"
+        />
       </div>
       <div className="flex items-center gap-3">
         <RestaurantAvatar name={active.restaurantName} logoUrl={logoUrl} size="lg" />
@@ -28,9 +32,7 @@ export function ProHeader({ memberships, active, logoUrl }: ProHeaderProps): Rea
             activeRestaurantId={active.restaurantId}
           />
         ) : (
-          <h1 className="text-foreground text-2xl font-bold tracking-tight">
-            {active.restaurantName}
-          </h1>
+          <ScreenTitle>{active.restaurantName}</ScreenTitle>
         )}
       </div>
     </header>

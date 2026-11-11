@@ -1,3 +1,4 @@
+import { Clock } from "lucide-react";
 import type { ReactNode } from "react";
 import { SCAN_COOLDOWN_HOURS } from "@/features/scanner/constants";
 import { formatCooldownRemaining } from "@/features/scanner/domain/format-cooldown";
@@ -11,15 +12,16 @@ export function CooldownAlert({ remainingSeconds }: CooldownAlertProps): ReactNo
   return (
     <div
       role="alert"
-      className="rounded-xl border border-amber-500/50 bg-amber-50 p-3 text-sm text-amber-900"
+      className="border-foreground bg-background flex gap-3 rounded-xl border-2 p-3 text-sm"
     >
-      <p className="font-semibold">
-        Déjà crédité il y a moins de {SCAN_COOLDOWN_HOURS} h
-      </p>
-      <p>
-        Délai restant : {formatCooldownRemaining(remainingSeconds)}. Créditer à nouveau
-        sera tracé dans les logs.
-      </p>
+      <Clock className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
+      <div>
+        <p className="font-bold">Déjà passé il y a moins de {SCAN_COOLDOWN_HOURS} h</p>
+        <p>
+          Délai restant : {formatCooldownRemaining(remainingSeconds)}. Créditer à nouveau
+          sera tracé dans les logs.
+        </p>
+      </div>
     </div>
   );
 }

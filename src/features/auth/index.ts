@@ -52,6 +52,7 @@ export {
 export { GoogleSignInButton } from "./components/google-sign-in-button";
 export { InvitationAcceptCard } from "./components/invitation-accept-card";
 export { OnboardingNameForm } from "./components/onboarding-name-form";
+export { LoginStepsBand } from "./components/login-steps-band";
 export { OtpLoginForm } from "./components/otp-login-form";
 export { ProAccessBanners } from "./components/pro-access-banners";
 export { SignOutButton } from "./components/sign-out-button";

@@ -47,7 +47,7 @@ export default async function ProLayout({
   const restaurant = await getRestaurantProfile(active.restaurantId);
 
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-6 px-4 pt-6 pb-24">
+    <div className="pt-safe-5 pb-safe-28 mx-auto flex min-h-dvh w-full max-w-md flex-col gap-5 px-5">
       <ProHeader
         memberships={memberships}
         active={active}

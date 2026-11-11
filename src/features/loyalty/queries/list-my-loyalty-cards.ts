@@ -51,7 +51,7 @@ export const listMyLoyaltyCards = cache(
     const { data, error } = await supabase
       .from("loyalty_cards")
       .select(
-        "id, restaurant_id, current_program_id, stamps, restaurants ( name, slug, logo_path )",
+        "id, restaurant_id, current_program_id, stamps, restaurants ( name, slug, logo_path, cover_path )",
       )
       .eq("user_id", userId)
       .order("last_visit_at", { ascending: false, nullsFirst: false });
@@ -76,9 +76,11 @@ export const listMyLoyaltyCards = cache(
       return [
         {
           cardId: row.id,
+          restaurantId: row.restaurant_id,
           restaurantName: row.restaurants.name,
           restaurantSlug: row.restaurants.slug,
           restaurantLogoUrl: getRestaurantMediaUrl(row.restaurants.logo_path),
+          restaurantCoverUrl: getRestaurantMediaUrl(row.restaurants.cover_path),
           progress,
         },
       ];

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
+import { SectionTitle } from "@/components/shared/section-title";
 import { CLIENT_HOME_PATH } from "@/features/auth";
 import { getAuthenticatedUser } from "@/features/auth/queries/get-session-context";
 import { ScanLogsLive } from "@/features/logs";
@@ -24,9 +25,7 @@ export default async function ProLogsPage(): Promise<ReactNode> {
 
   return (
     <section aria-labelledby="logs-heading" className="space-y-3">
-      <h1 id="logs-heading" className="text-lg font-semibold tracking-tight">
-        Journal des scans
-      </h1>
+      <SectionTitle id="logs-heading">Journal des scans</SectionTitle>
       {/* `key` resets the list when the owner switches restaurant. */}
       <ScanLogsLive
         key={active.restaurantId}

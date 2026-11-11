@@ -1,19 +1,12 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Button } from "@/components/ui/button";
+import { ErrorState } from "@/components/shared/error-state";
 
 interface ClientErrorProps {
-  readonly reset: () => void;
+  readonly retry: () => void;
 }
 
-export default function ClientError({ reset }: ClientErrorProps): ReactNode {
-  return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col items-center justify-center gap-4 px-4 py-8 text-center">
-      <h1 className="text-lg font-semibold">Impossible de charger vos cartes</h1>
-      <Button type="button" onClick={reset}>
-        Réessayer
-      </Button>
-    </main>
-  );
+export default function ClientError({ retry }: ClientErrorProps): ReactNode {
+  return <ErrorState title="Impossible de charger tes cartes" onRetry={retry} />;
 }
