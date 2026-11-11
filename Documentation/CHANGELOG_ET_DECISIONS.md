@@ -36,8 +36,8 @@
 ## 🧭 État courant (à mettre à jour à chaque session)
 
 - **Phase en cours :** Phases 0 à 7 terminées et fusionnées dans `main` · jalon M1 (démo interne) validé · Phase 7 bis (direction artistique) : finition PWA terminée sur `feat/phase-7bis-da` (Session 32, lots 1 à 8), en attente de validation sur téléphone avant fusion
-- **Dernière session :** Session 35 (2026-11-11) — DA, itération 2 : fond crème léger, animation de scan « carte dévoilée », médaille de récompense, nouvelle bannière et animation d'installation, correctif des traits au-delà de 10
-- **Prochaine action :** essayer sur téléphone l'itération 2 de la DA (Session 35 : scan réel puis médaille, installation Android et animation, bannière sur iPhone, vibration) et arbitrer le visuel de la bannière ; tester 8.3 et 8.4 sur Android puis iPhone (bannière, pastille, ligne « cartes à jour à »), diagnostic du retour par geste (Session 33, point 3), les 20 e2e connectés avec `E2E_SESSION`, Lighthouse `/login` (≥ 86) et temps de scan ; fusion de `feat/phase-7bis-da` dans `main` ; ensuite fin de la Phase 8 (tests de validation de la roadmap sur appareils) puis Phase 9 ; écrans « carte d'un commerce », « Découvrir » et barre du bas (DT-009)
+- **Dernière session :** Session 36 (2026-11-11) — Bannière d'installation : « Plus tard » retiré, fermeture pour la session seulement, guide Android (menu ⋮) quand Chrome ne fournit pas l'invite
+- **Prochaine action :** essayer sur téléphone l'itération 2 de la DA (Session 35 : scan réel puis médaille, installation Android et animation, bannière sur iPhone, vibration ; Session 36 : guide Android après désinstallation) et arbitrer le visuel de la bannière ; tester 8.3 et 8.4 sur Android puis iPhone (bannière, pastille, ligne « cartes à jour à »), diagnostic du retour par geste (Session 33, point 3), les 20 e2e connectés avec `E2E_SESSION`, Lighthouse `/login` (≥ 86) et temps de scan ; fusion de `feat/phase-7bis-da` dans `main` ; ensuite fin de la Phase 8 (tests de validation de la roadmap sur appareils) puis Phase 9 ; écrans « carte d'un commerce », « Découvrir » et barre du bas (DT-009)
 - **Bloquants :** Aucun
 
 ---
@@ -72,6 +72,25 @@
 
 **Prochaine étape** : ...
 ==================================================================================== -->
+
+### Session 36 — [2026-11-11] — Bannière d'installation : retrait du bouton « Plus tard »
+**Roadmap :** Phase 8 — 8.3 · **Statut :** 🟡 Partiel (code et tests automatiques verts ; guide Android à essayer sur téléphone) · **Branche :** `feat/phase-7bis-da`
+
+**Réalisé** : en mode invite (Android/Chrome), la bannière n'a plus que « Installer » ; « Plus tard » est supprimé (`install-banner.tsx`). Le mode guide iOS garde « J'ai compris » (seul moyen de fermer la bannière). `e2e/install.spec.ts` vérifie l'absence du bouton.
+**Conséquence à noter** : en mode invite, la bannière ne peut plus être refusée ; `dismiss` n'est plus appelé dans ce mode, donc le refus mémorisé ne se déclenche plus (elle disparaît à l'installation).
+**Suite — réinstallation** : le refus n'est plus mémorisé pour toujours. `install-storage.ts` utilise `sessionStorage` (l'ancienne clé `localStorage` est ignorée) : « J'ai compris » (iOS) ne masque la bannière que pour la session de navigateur ; un refus de l'invite native ne se mémorise plus (l'événement Chrome est à usage unique, la bannière revient à la visite suivante). L'état « installé » n'a jamais été persisté : une app désinstallée, rouverte dans le navigateur, revoit la bannière dès que Chrome renvoie `beforeinstallprompt`.
+**Suite — essai sur téléphone** : installé puis désinstallé sur Android, Chrome n'a pas renvoyé `beforeinstallprompt` et la bannière ne revenait pas. Ajout d'un mode `android-guide` (`decide-install-banner.ts`, `isAndroidDevice`, `android-install-steps.tsx`) : sur Android sans invite native, la bannière montre les étapes du menu ⋮ de Chrome (« Installer l'appli » / « Ajouter à l'écran d'accueil ») avec « J'ai compris » (fermeture pour la session). L'invite native reste prioritaire quand Chrome la fournit.
+**Limite** : Chrome décide quand renvoyer `beforeinstallprompt`. Si l'app est installée mais que la personne ouvre le site dans un onglet Chrome, la page ne peut pas le savoir (pas de `getInstalledRelatedApps` configuré) : le guide Android s'y affiche aussi.
+**Fichiers clés** : `src/features/pwa/domain/decide-install-banner.ts` et `detect-platform.ts` (mode `android-guide`), `components/android-install-steps.tsx`, `install-banner.tsx`, `install-storage.ts` (`sessionStorage`), `install-environment-store.ts`, `hooks/use-install-banner.ts` ; `e2e/install.spec.ts`.
+**Base de données** : aucune migration. **Bugs rencontrés** : aucun. **Décisions** : aucun ADR, aucune dépendance. **Dette** : aucune nouvelle ligne (limite « app installée ouverte dans un onglet » notée ci-dessus).
+**Roadmap** : libellé de 8.3 mis à jour (« fermeture pour la session » au lieu de « refus mémorisé », guide Android ajouté).
+
+**Tests de validation**
+- [x] `pnpm lint`, `typecheck`, `test` (221, soit 219 + 2), `build` verts ; `pnpm test:e2e` sans session : 25 réussis, 20 ignorés, 0 échec
+- [x] e2e : le premier test de la bannière attendait l'absence de bannière avant l'invite ; le profil Playwright (Pixel 5) est Android, donc le guide s'affiche désormais : test scindé en deux (guide Android sans invite puis « J'ai compris » qui ferme jusqu'au rechargement ; invite native avec « Installer » seul)
+- [ ] À essayer sur téléphone : Android après désinstallation (guide visible, étapes justes dans le menu ⋮ de Chrome), Android avec invite native (« Installer » seul), iPhone (« J'ai compris » ne masque que pour la session)
+
+**Prochaine étape** : essai sur téléphone de la bannière (Android désinstallé puis réinstallé, iPhone), puis les essais restants de la Session 35 et la fusion de `feat/phase-7bis-da`.
 
 ### Session 35 — [2026-11-11] — DA, itération 2 : fond crème, célébrations de scan et de récompense, installation
 **Roadmap :** Phase 7 bis — DA.6 (itération 2) · Phase 8 — 8.3 (nouveau visuel) · **Statut :** 🟡 Partiel (code, tests et mesures en navigateur verts ; rien essayé sur téléphone ni avec une session réelle) · **Branche :** `feat/phase-7bis-da`
