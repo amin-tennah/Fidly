@@ -22,6 +22,7 @@ import {
   LoyaltyCardsList,
   LoyaltyRealtimeSync,
 } from "@/features/loyalty";
+import { CardsUpdatedAt, InstallBanner } from "@/features/pwa";
 import { listMyLoyaltyCards } from "@/features/loyalty/queries/list-my-loyalty-cards";
 
 /** Everything the home shows, read in parallel. */
@@ -32,6 +33,7 @@ function loadHomeData(userId: string) {
     listMyPendingInvitations(),
     listMyLoyaltyCards(userId),
     isUserPlatformAdmin(userId),
+    new Date().toISOString(),
   ]);
 }
 
@@ -41,9 +43,8 @@ export default async function HomePage(): Promise<ReactNode> {
     redirect(buildLoginPath(CLIENT_HOME_PATH));
   }
 
-  const [profile, memberships, invitations, cards, isPlatformAdmin] = await loadHomeData(
-    user.id,
-  );
+  const [profile, memberships, invitations, cards, isPlatformAdmin, readAt] =
+    await loadHomeData(user.id);
 
   const displayName = profile?.displayName?.trim();
   if (!profile || !displayName) {
@@ -69,7 +70,9 @@ export default async function HomePage(): Promise<ReactNode> {
             memberships={memberships}
             isPlatformAdmin={isPlatformAdmin}
           />
+          <InstallBanner hasFirstVisit={cards.length > 0} />
           <LoyaltyCardsList cards={cards} />
+          <CardsUpdatedAt updatedAt={readAt} />
         </div>
         <LoyaltyRealtimeSync userId={user.id} />
       </main>

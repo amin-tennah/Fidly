@@ -5,6 +5,7 @@ import { NavDirectionListener } from "@/components/shared/nav-direction-listener
 import { ServiceWorkerRegistrar } from "@/components/shared/service-worker-registrar";
 import { Toaster } from "@/components/ui/sonner";
 import { IntroSplash } from "@/features/loyalty";
+import { OfflineIndicator } from "@/features/pwa";
 import "./globals.css";
 
 const fontDisplay = Bricolage_Grotesque({
@@ -64,6 +65,7 @@ export default function RootLayout({ children }: RootLayoutProps): ReactNode {
         <IntroSplash />
         <NavDirectionListener />
         <ServiceWorkerRegistrar />
+        <OfflineIndicator />
         <Toaster />
       </body>
     </html>

@@ -124,3 +124,19 @@ test("offline page: leaves by itself once the network really answers again", asy
     page.getByRole("button", { name: /Continuer|Recevoir/i }).first(),
   ).toBeVisible();
 });
+
+test("offline indicator: a discreet pill shows while the browser is offline", async ({
+  page,
+  context,
+}) => {
+  await page.goto("/login");
+  const pill = page.getByText("Hors ligne", { exact: true });
+  await expect(pill).toHaveCount(0);
+
+  await context.setOffline(true);
+  await expect(pill).toBeVisible();
+  await expect(page.getByRole("status").filter({ hasText: "Hors ligne" })).toBeVisible();
+
+  await context.setOffline(false);
+  await expect(pill).toHaveCount(0);
+});
