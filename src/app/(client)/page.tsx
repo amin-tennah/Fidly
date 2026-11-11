@@ -22,8 +22,9 @@ import {
   HomeReadyMarker,
   LoyaltyCardsList,
   LoyaltyRealtimeSync,
+  type LoyaltyCardView,
 } from "@/features/loyalty";
-import { CardsUpdatedAt, InstallBanner } from "@/features/pwa";
+import { CardsUpdatedAt, InstallBanner, InstallSuccessOverlay } from "@/features/pwa";
 import { listMyLoyaltyCards } from "@/features/loyalty/queries/list-my-loyalty-cards";
 
 /** Everything the home shows, read in parallel. */
@@ -36,6 +37,22 @@ function loadHomeData(userId: string) {
     isUserPlatformAdmin(userId),
     new Date().toISOString(),
   ]);
+}
+
+interface HomeLiveLayerProps {
+  readonly userId: string;
+  readonly cards: readonly LoyaltyCardView[];
+}
+
+/** Nothing visible at rest: Realtime sync, then the full-screen celebrations it triggers. */
+function HomeLiveLayer({ userId, cards }: HomeLiveLayerProps): ReactNode {
+  return (
+    <>
+      <LoyaltyRealtimeSync userId={userId} />
+      <CardCelebrations cards={cards} />
+      <InstallSuccessOverlay />
+    </>
+  );
 }
 
 export default async function HomePage(): Promise<ReactNode> {
@@ -75,8 +92,7 @@ export default async function HomePage(): Promise<ReactNode> {
           <LoyaltyCardsList cards={cards} />
           <CardsUpdatedAt updatedAt={readAt} />
         </div>
-        <LoyaltyRealtimeSync userId={user.id} />
-        <CardCelebrations cards={cards} />
+        <HomeLiveLayer userId={user.id} cards={cards} />
       </main>
     </PageTransition>
   );

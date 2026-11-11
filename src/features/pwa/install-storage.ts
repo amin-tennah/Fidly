@@ -1,4 +1,7 @@
-import { INSTALL_DISMISSED_STORAGE_KEY } from "@/features/pwa/constants";
+import {
+  INSTALL_CELEBRATED_STORAGE_KEY,
+  INSTALL_DISMISSED_STORAGE_KEY,
+} from "@/features/pwa/constants";
 
 /** Storage can throw (private mode, blocked site data): the banner then simply comes back. */
 export function readInstallDismissed(): boolean {
@@ -14,5 +17,22 @@ export function saveInstallDismissed(): void {
     window.localStorage.setItem(INSTALL_DISMISSED_STORAGE_KEY, "1");
   } catch {
     // Intentionally ignored: without storage the refusal lasts until the page closes.
+  }
+}
+
+/** Storage can throw: the "installed" celebration may then show again on a later install. */
+export function readInstallCelebrated(): boolean {
+  try {
+    return window.localStorage.getItem(INSTALL_CELEBRATED_STORAGE_KEY) !== null;
+  } catch {
+    return false;
+  }
+}
+
+export function saveInstallCelebrated(): void {
+  try {
+    window.localStorage.setItem(INSTALL_CELEBRATED_STORAGE_KEY, "1");
+  } catch {
+    // Intentionally ignored: the celebration is closed for this page anyway.
   }
 }
