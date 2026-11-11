@@ -73,11 +73,9 @@ export function useInstallBanner(hasFirstVisit: boolean): UseInstallBannerReturn
       return;
     }
     await prompt.prompt();
-    const choice = await prompt.userChoice;
+    await prompt.userChoice;
+    // The event is single-use. A refusal is not stored: the banner returns on the next visit.
     setPrompt(null);
-    if (choice.outcome === "dismissed") {
-      markDismissed();
-    }
   }, [prompt, setPrompt]);
 
   const mode = decideInstallBanner({

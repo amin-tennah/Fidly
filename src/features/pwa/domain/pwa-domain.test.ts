@@ -8,6 +8,7 @@ const READY: InstallBannerInput = {
   isDismissed: false,
   canPrompt: false,
   isIos: false,
+  isAndroid: false,
 };
 
 describe("decideInstallBanner", () => {
@@ -19,17 +20,33 @@ describe("decideInstallBanner", () => {
     expect(decideInstallBanner({ ...READY, isIos: true })).toBe("ios-guide");
   });
 
+  it("shows Chrome's menu steps on Android when no prompt was handed over", () => {
+    expect(decideInstallBanner({ ...READY, isAndroid: true })).toBe("android-guide");
+  });
+
+  it("prefers the native prompt on Android when there is one", () => {
+    expect(decideInstallBanner({ ...READY, isAndroid: true, canPrompt: true })).toBe(
+      "prompt",
+    );
+  });
+
   it("shows nothing where the browser cannot install", () => {
     expect(decideInstallBanner(READY)).toBe("hidden");
   });
 
   it.each([
     ["the app is installed", { isInstalled: true }],
-    ["the customer declined", { isDismissed: true }],
+    ["the customer closed it this session", { isDismissed: true }],
     ["no visit was credited yet", { hasFirstVisit: false }],
   ])("stays hidden when %s", (_label, override) => {
     expect(
-      decideInstallBanner({ ...READY, canPrompt: true, isIos: true, ...override }),
+      decideInstallBanner({
+        ...READY,
+        canPrompt: true,
+        isIos: true,
+        isAndroid: true,
+        ...override,
+      }),
     ).toBe("hidden");
   });
 });

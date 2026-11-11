@@ -31,18 +31,34 @@ function readOpacity(locator: Locator): Promise<number> {
   return locator.evaluate((node) => Number(getComputedStyle(node).opacity));
 }
 
+test("install banner, Android without a prompt: Chrome's menu steps, closed for the session", async ({
+  page,
+}) => {
+  await page.goto(PREVIEW_PATH, { waitUntil: "networkidle" });
+  const banner = page.getByRole("region", { name: "Ajoute Rézone à tes applis" });
+
+  await expect(banner).toBeVisible();
+  await expect(banner.getByText("Installer l'appli")).toBeVisible();
+  await expect(banner.getByRole("button", { name: "Installer" })).toHaveCount(0);
+
+  await banner.getByRole("button", { name: "J'ai compris" }).click();
+  await expect(banner).toHaveCount(0);
+  await page.reload({ waitUntil: "networkidle" });
+  await expect(banner).toHaveCount(0);
+});
+
 test("install banner: says what the app gives, with three benefits of equal width", async ({
   page,
 }) => {
   await page.goto(PREVIEW_PATH, { waitUntil: "networkidle" });
   const banner = page.getByRole("region", { name: "Ajoute Rézone à tes applis" });
-  await expect(banner).toHaveCount(0);
 
   await offerInstallPrompt(page);
 
   await expect(banner).toBeVisible();
   await expect(banner.getByRole("button", { name: "Installer" })).toBeVisible();
-  await expect(banner.getByRole("button", { name: "Plus tard" })).toBeVisible();
+  await expect(banner.getByRole("button", { name: "J'ai compris" })).toHaveCount(0);
+  await expect(banner.getByRole("button", { name: "Plus tard" })).toHaveCount(0);
   const benefits = banner.getByRole("listitem");
   await expect(benefits).toHaveText(["Ton QR", "Tes cartes", "Les commerces"]);
   const widths = await benefits.evaluateAll((items) =>

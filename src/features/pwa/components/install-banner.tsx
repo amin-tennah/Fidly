@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
+import { AndroidInstallSteps } from "@/features/pwa/components/android-install-steps";
 import { AppIcon } from "@/features/pwa/components/app-icon";
 import { InstallBenefits } from "@/features/pwa/components/install-benefits";
 import { IosInstallSteps } from "@/features/pwa/components/ios-install-steps";
@@ -48,20 +49,23 @@ export function InstallBanner({ hasFirstVisit }: InstallBannerProps): ReactNode 
       <BannerHeading />
       <InstallBenefits />
       {mode === "ios-guide" ? <IosInstallSteps /> : null}
+      {mode === "android-guide" ? <AndroidInstallSteps /> : null}
       <div className="flex items-center gap-2.5">
         {mode === "prompt" ? (
           <Button type="button" size="lg" onClick={install} className="flex-[1.5]">
             Installer
           </Button>
         ) : null}
-        <Button
-          type="button"
-          variant={mode === "prompt" ? "ghost" : "outline"}
-          onClick={dismiss}
-          className="text-primary min-h-14 flex-1 font-sans text-[15px] font-extrabold"
-        >
-          {mode === "prompt" ? "Plus tard" : "J'ai compris"}
-        </Button>
+        {mode === "prompt" ? null : (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={dismiss}
+            className="text-primary min-h-14 flex-1 font-sans text-[15px] font-extrabold"
+          >
+            J&apos;ai compris
+          </Button>
+        )}
       </div>
     </section>
   );

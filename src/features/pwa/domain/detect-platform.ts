@@ -13,3 +13,8 @@ export function isIosDevice({ userAgent, maxTouchPoints }: PlatformSignals): boo
   }
   return /Macintosh/.test(userAgent) && maxTouchPoints > 1;
 }
+
+/** Android phones and tablets: Chrome's menu can always install, even without a prompt. */
+export function isAndroidDevice({ userAgent }: PlatformSignals): boolean {
+  return /Android/.test(userAgent);
+}
