@@ -412,7 +412,7 @@ Parcours complet sur 2 téléphones : inscription client → configuration resta
 - [x] Contrastes AA vérifiés sur les couleurs de texte, de boutons et d'états.
 - [x] Écran scanner et tiroir lisibles en plein jour et d'une main ; boutons ≥ 48 px.
 - [x] Le QR client reste sur fond blanc pur, quiet zone et taille inchangées (cf. P4).
-- [ ] Aucune régression de performance : Lighthouse `/` ≥ 86 (DT-005) et budget de scan inchangé (< 3 s).
+- [ ] Aucune régression de performance : Lighthouse `/` ≥ 86 (DT-005) et budget de scan inchangé (< 3 s). *(2026-11-11 : scan < 3 s ✅ ; Lighthouse `/` **72–73** ❌ — LCP 4,0 s, TBT 550 ms, CLS 0, accessibilité 99 : régression depuis 86, cf. DT-005)*
 - [x] `pnpm lint && pnpm typecheck && pnpm test` verts ; aucun test de logique modifié pour passer. *(Session 36 : 221 tests)*
 - [x] Retour de 2–3 personnes (client et restaurateur) sur la première impression.
 

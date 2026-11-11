@@ -37,7 +37,7 @@
 
 - **Phase en cours :** Phases 0 à 7 terminées · jalon M1 validé · Phase 7 bis validée sur téléphone (restent : Lighthouse `/` et temps de scan ; chevalet DA.7 reporté) · Phase 8 : 8.1 à 8.4 faites et validées sur Android (restent : iPhone, mise à jour sur un second déploiement) · `feat/phase-7bis-da` fusionnée dans `main` (Session 37) · prochaine phase : 9
 - **Dernière session :** Session 37 (2026-11-11) — Clôture des Phases 7 bis et 8 après les essais sur Android, fusion dans `main`
-- **Prochaine action :** lancer les 20 e2e connectés (`E2E_SESSION`), mesurer Lighthouse `/` (≥ 86) et rechronométrer le scan (< 3 s) ; test du cookie modifié (DT-003) ; puis Phase 9 (Découvrir le quartier, DT-009). Plus tard : iPhone (bannière, installation), mise à jour de l'app installée sur un second déploiement, barre de navigation Android sur les onglets pro (Session 33, point 2), chevalet (DA.7)
+- **Prochaine action :** corriger la régression de performance de `/` (Lighthouse 72–73 < 86, DT-005 : mesurer d'abord sans l'intro, puis le JS inutilisé) ; puis Phase 9 (Découvrir le quartier, DT-009). Plus tard : cookie modifié (DT-003), iPhone, mise à jour sur un second déploiement, barre de navigation Android des onglets pro, chevalet (DA.7)
 - **Bloquants :** Aucun
 
 ---
@@ -91,8 +91,9 @@
 **Tests de validation**
 - [x] Essais sur Android par le porteur de projet : voir « Réalisé »
 - [ ] iPhone : non testé (pas d'appareil disponible) ; la case « installation iOS Safari » de la Phase 8 reste ouverte
-- [ ] Lighthouse de `/` (≥ 86) et temps de scan (< 3 s) après l'itération 2 : pas encore mesurés
-- [ ] Les 20 e2e connectés (`E2E_SESSION`) : pas encore lancés
+- [x] Temps de scan < 3 s : validé par le porteur de projet sur appareil réel
+- [ ] Lighthouse de `/` (≥ 86) : **72–73** (deux passages DevTools, mobile, build local). FCP 1,0 s, LCP 4,0 s, TBT 550 ms, CLS 0, Speed Index 2,8 s ; accessibilité 99. Diagnostics : exécution JS 1,7 s, 681 Kio de JS inutilisé, cache avant/arrière refusé (3 raisons). Régression depuis 86 (DT-005)
+- [x] `pnpm test:e2e` avec `E2E_SESSION` (lancé par le porteur de projet) : **45 réussis**, 0 ignoré, 0 échec
 - [ ] Cookie/JWT modifié côté client (Phase 3, DT-003) : pas encore testé
 - [ ] Mise à jour de l'app installée sur un second déploiement (Phase 8) : à tester plus tard
 
@@ -1630,7 +1631,7 @@ Cahier des charges : `Documentation/06-DA-ITERATION-2.md` (décisions validées 
 | DT-002 | La suppression de compte n'est pas encore exposée (pas de Server Action ni d'UI) ; seul le comportement base est en place et testé | Livraison prévue en P11 | 🟠 Obligation RGPD à honorer avant le pilote | Phase 11 | ⏳ Ouverte |
 | DT-003 | Tests de validation Phase 3 non exécutés : parcours par rôle (client/staff/admin) avec une vraie invitation, session persistante, cookie modifié, Google sur iPhone/Android et PWA, E2E de connexion OTP (Inbucket indisponible avec le projet Cloud) | Aucun contenu `/pro` ni PWA à valider avant les Phases 5 et 8 | 🟠 Régression d'accès non détectée | Phases 5 (rôles `/pro`), 8 (PWA) | ⏳ Ouverte — en grande partie remboursée (Session 37) : parcours par rôle, session persistante et Google validés à la main ; e2e OTP non applicable ; **reste le test du cookie/JWT modifié** |
 | DT-004 | Le logo du restaurant n'est pas affiché sur les cartes (initiale seulement) : aucun upload n'existe avant l'étape 5.3, et `next/image` exige la configuration du domaine Storage | Logos inexistants avant la Phase 5 | 🟢 Cosmétique | Phase 5 (5.3) | ✔️ Remboursée (Session 17) |
-| DT-005 | Lighthouse Performance de `/` à 86 sur build de production local (seuil de la roadmap : 90) ; mesure locale, sans CDN ni région Vercel | Écart jugé suffisant à ce stade par le porteur de projet | 🟢 Marge faible vis-à-vis de la contrainte produit n°1 | Phase 11 (11.4) : re-mesure sur Vercel ; analyser le bundle si < 90 | ⏳ Ouverte |
+| DT-005 | Lighthouse Performance de `/` à 86 sur build de production local (seuil de la roadmap : 90) ; mesure locale, sans CDN ni région Vercel | Écart jugé suffisant à ce stade par le porteur de projet | 🟢 Marge faible vis-à-vis de la contrainte produit n°1 | Phase 11 (11.4) : re-mesure sur Vercel ; analyser le bundle si < 90 | ⏳ Ouverte — **aggravée** (Session 37) : `/` mesurée à 72–73 en DevTools (build local, mobile) après les Sessions 32 à 36 ; LCP 4,0 s, TBT 550 ms, 681 Kio de JS inutilisé ; hypothèse principale : l'intro (1,9 s mini, 4 s maxi) masque l'accueil jusqu'à son plafond |
 | DT-006 | Test chronomètre de la Phase 5 (un testeur non technique configure fiche + 2 paliers en < 5 min) non réalisé : il demande un vrai testeur | Pas de testeur disponible à ce stade | 🟢 L'ergonomie a été revue après retour du porteur de projet (Session 21) | Pilote (Phase 11.6) | ⏳ Ouverte |
 | DT-007 | Aucun test E2E Playwright du scanner : le projet n'a pas de stratégie de comptes de test (connexion par OTP email ou Google) | Décision à prendre (comptes de test, session injectée) avant d'écrire le parcours | 🟠 Parcours critique du scan couvert seulement par pgTAP et tests unitaires | Phase 6 (avant le jalon M1) | ✔️ Remboursée (Session 37) : essais manuels sur appareil réel jugés suffisants par le porteur de projet |
 | DT-008 | Resend est en mode test : les emails (codes de connexion à 6 chiffres) ne partent qu'à l'adresse du compte propriétaire, Supabase répond `500 unexpected_failure` pour toute autre adresse | Environnement de développement ; Google reste disponible pour se connecter | 🔴 Aucun client ni gérant d'une autre adresse ne peut se connecter par code | Phase 11 (avant le pilote) : acheter ou utiliser un nom de domaine, le vérifier dans Resend (SPF, DKIM), mettre l'expéditeur sur ce domaine | ⏳ Ouverte |
